@@ -1,0 +1,73 @@
+{% extends "_general/base.html" %}
+
+{% block title %}Laboratory Assistant Suite{% endblock %}
+
+{% block content %}
+
+<div class="row pt-3">
+    <div class="col-4">
+        <div id="accordion">
+            <h3>Video List</h3>
+            {% for ma in mainActivities %}
+            <div class="card" >
+                <div class="card-header" id="heading{{ma.name}}">
+                    <button class="btn btn-link" data-toggle="collapse" data-target="#collapse{{ma.id}}" aria-expanded="false" aria-controls="collapse{{ma.id}}">
+                        {{ma.name}}
+                    </button>
+                </div>
+                <div id="collapse{{ma.id}}" class="collapse" aria-labelledby="heading{{ma.id}}" data-parent="#accordion">
+                    <div class="card-body">
+                        <div id="accordion-A">
+                            {% for a in ma.activities%}
+                                <div class="card-header" id="headingA{{a.id}}">
+                                    <button class="btn btn-link" data-toggle="collapse" data-target="#collapseA{{a.id}}" aria-expanded="false" aria-controls="collapseA{{a.id}}">
+                                        {{a.name}}
+                                    </button>
+                                </div>
+                                <div id="collapseA{{a.id}}" class="collapse" aria-labelledby="headingA{{a.id}}" data-parent="#accordion-A">
+                                        <div class="card-body">
+                                            <div class="list-group">
+                                                {% for v in ma.videos %}
+                                                    {% if v.activity == a.id%}
+                                                        <a class="list-group-item list-group-item-action linkvideo" onClick="loadVideo('{{v.url}}','{{v.title}}')">{{v.title}}</a>
+                                                    {% endif%}
+                                                {% endfor %}   
+                                            </div>
+                                        </div>
+                                </div>    
+                            {% endfor %} 
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>	
+            
+    </div>
+    <div class="col-8">
+        <h3 id="video_title"></h3> 
+        <div id="player_a"></div>
+    </div>
+
+
+</div>
+
+
+{% endblock %}
+
+
+{% block script%}
+<script defer type="text/javascript">
+    
+  function loadVideo(url,title){
+        $('#player_a').html()
+        var srcVideo = "https://www.youtube.com/embed/" + url;
+        
+        var iframe = '<iframe width="640" height="385" src="'+ srcVideo+'?rel=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>';
+        console.log(iframe);
+        $('#player_a').html(iframe);
+        $("#video_title").text(title);
+    }
+</script>
+
+{% endblock %}

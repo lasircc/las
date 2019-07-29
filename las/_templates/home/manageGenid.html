@@ -1,0 +1,487 @@
+{% extends "_general/base.html" %}
+
+{% load las_tags %}
+
+{% block content %}
+
+<div class="row pt-3">
+    <div class="col-12">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" id="rules-tab" data-toggle="tab" href="#rules" role="tab" aria-controls="rules" aria-selected="true">Rules</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="dict-tab" data-toggle="tab" href="#dictionaries" role="tab" aria-controls="dict" aria-selected="false">Dictionaries</a>
+            </li>
+            
+        </ul>
+        <div class="tab-content pt-3" id="genidTabContent">
+            <div class="tab-pane fade show active" id="rules" role="tabpanel" aria-labelledby="rules-tab">
+                <div class="row pt-3">
+                    <div class="col-12">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="addrule">
+                            <div class="form-group">
+                                <label>Material type</label>
+                                <select name="material" class="custom-select" required>
+                                    <option value="">Open this select menu</option>
+                                    {% for et in entityFeatures.type %}
+                                        <option value="{{et.abbreviation}}">{{et.longName}} ({{et.abbreviation}})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Mouse tissue</label>
+                                <select name="mousetissue" class="custom-select optional">
+                                    <option value="">Open this select menu</option>
+                                    {% for em in entityFeatures.mouseTissues %}
+                                        <option value="{{em.abbreviation}}">{{em.longName}} ({{em.abbreviation}})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Vector</label>
+                                <select name="vector" class="custom-select optional">
+                                    <option value="">Open this select menu</option>
+                                    {% for ev in entityFeatures.vectors %}
+                                        <option value="{{ev.code}}">{{ev.longName}} ({{ev.abbreviation}})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Tissue type</label>
+                                <select name="tissueType" class="custom-select optional">
+                                    <option value="">Open this select menu</option>
+                                    {% for et in entityFeatures.tissues %}
+                                        <option value="{{et.abbreviation}}">{{et.longName}} ({{et.abbreviation}})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" name="default"  id="deafultCheck">
+                                    <label class="custom-control-label" for="deafultCheck">Default</label>
+                                </div>
+                            </div>
+
+                            <div class="form-group" id="availableFeatures">
+                                <label>Features</label>
+                                <select name="features" class="custom-select" multiple required>
+                                </select>
+
+                            </div>
+                            
+
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-success">Submit</button>
+                            </div>
+                            
+
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row pt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                Available Rules
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush">
+                                {% for r in currentRules%}
+                                    <li class="list-group-item">
+                                        <div class="row">
+                                            <div class="col-1">
+                                                <button class="btn btn-danger oi oi-trash ml-1 removerule" data-oid="{{r|oid}}"></button>
+                                            </div>
+                                            <div class="col-1">
+                                                {% if r.default %}
+                                                    <span class="badge badge-primary">{{r.material}}</span>
+                                                {% else %}
+                                                    <span class="badge badge-secondary">{{r.material}}</span>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-3">
+                                                {{r.rule}}
+                                            </div>
+                                            
+                                            <div class="col-3">
+                                                <div class="dropdown">
+                                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="features{{ forloop.counter }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        Features
+                                                    </button>
+                                                    <div class="dropdown-menu" aria-labelledby="features{{ forloop.counter }}">
+                                                        <ul  class="list-group list-group-flush">
+                                                        {% for f in r.features%}
+                                                            <li class="list-group-item">{{f.name}} {{f.measureUnit}}</li>
+                                                        {% endfor %}
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                                </ul>
+                                
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                
+            </div>
+            <div class="tab-pane fade" id="dictionaries" role="tabpanel" aria-labelledby="dict-tab">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="tissue-tab" data-toggle="tab" href="#material" role="tab" aria-controls="material" aria-selected="true">Material type</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="tissuetype-tab" data-toggle="tab" href="#tissuetype" role="tab" aria-controls="tissuetype" aria-selected="false">Mouse tissue</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="implantsite-tab" data-toggle="tab" href="#implantsite" role="tab" aria-controls="implantsite" aria-selected="false">Mouse implant site</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="vector-tab" data-toggle="tab" href="#vector" role="tab" aria-controls="vector" aria-selected="false">Vector</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="tissue-tab" data-toggle="tab" href="#tissue" role="tab" aria-controls="tissue" aria-selected="false">Tissue type</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="collection-tab" data-toggle="tab" href="#collection" role="tab" aria-controls="collection" aria-selected="false">Collection type</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="features-tab" data-toggle="tab" href="#features" role="tab" aria-controls="features" aria-selected="false">Features</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="dictTabContent">
+                    <div class="tab-pane fade show active" id="material" role="tabpanel" aria-labelledby="material-tab">
+                        <div class="row pt-3">
+                            <div class="col-6">
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="addmaterial">
+                                    <div class="form-group">
+                                        <label>Code</label>
+                                        <input type="text" class="form-control" name="abbreviation" length=3 required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Name</label>
+                                        <input type="text" class="form-control" name="longName" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-success">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-6">
+                                <table class="table table-striped" id="materialTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Code</th>
+                                            <th>Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for t in entityFeatures.type %}
+                                            <tr>
+                                                <td>{{t.abbreviation}}</td>
+                                                <td>{{t.longName}}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="tab-pane fade" id="tissuetype" role="tabpanel" aria-labelledby="tissuetype-tab">
+                        <div class="row pt-3">
+                            <div class="col-6">
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="addtissuetype">
+                                    <div class="form-group">
+                                        <label>Code</label>
+                                        <input type="text" class="form-control" name="abbreviation" length=3 required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Name</label>
+                                        <input type="text" class="form-control" name="longName" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-success">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-6">
+                                <table class="table table-striped" id="tissuetypeTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Code</th>
+                                            <th>Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for t in entityFeatures.mouseTissues %}
+                                            <tr>
+                                                <td>{{t.abbreviation}}</td>
+                                                <td>{{t.longName}}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="implantsite" role="tabpanel" aria-labelledby="implantsite-tab">
+                            <div class="row pt-3">
+                                <div class="col-6">
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="addimplantsite">
+                                        <div class="form-group">
+                                            <label>Code</label>
+                                            <input type="text" class="form-control" name="abbreviation" length=3 required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Name</label>
+                                            <input type="text" class="form-control" name="longName" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <button type="submit" class="btn btn-success">Save</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="col-6">
+                                    <table class="table table-striped" id="implantsiteTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Code</th>
+                                                <th>Name</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for t in entityFeatures.implantSites %}
+                                                <tr>
+                                                    <td>{{t.shortName}}</td>
+                                                    <td>{{t.longName}}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    <div class="tab-pane fade" id="vector" role="tabpanel" aria-labelledby="vector-tab">
+                        <div class="row pt-3">
+                            <div class="col-6">
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="addvector">
+                                    <div class="form-group">
+                                        <label>Code</label>
+                                        <input type="text" class="form-control" name="abbreviation" length=1 required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Name</label>
+                                        <input type="text" class="form-control" name="name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-success">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-6">
+                                <table class="table table-striped" id="vectorTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Code</th>
+                                            <th>Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for t in entityFeatures.vectors %}
+                                            <tr>
+                                                <td>{{t.abbreviation}}</td>
+                                                <td>{{t.name}}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="tissue" role="tabpanel" aria-labelledby="tissue-tab">
+                        <div class="row pt-3">
+                            <div class="col-6">
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="addtissue">
+                                    <div class="form-group">
+                                        <label>Code</label>
+                                        <input type="text" class="form-control" name="abbreviation" length=2 required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Name</label>
+                                        <input type="text" class="form-control" name="longName" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-success">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-6">
+                                <table class="table table-striped" id="tissueTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Code</th>
+                                            <th>Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for t in entityFeatures.tissues %}
+                                            <tr>
+                                                <td>{{t.abbreviation}}</td>
+                                                <td>{{t.longName}}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="collection" role="tabpanel" aria-labelledby="collection-tab">
+                        <div class="row pt-3">
+                            <div class="col-6">
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="addcollection">
+                                    <div class="form-group">
+                                        <label>Code</label>
+                                        <input type="text" class="form-control" name="abbreviation" length=3 required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Name</label>
+                                        <input type="text" class="form-control" name="longName" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-success">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-6">
+                                <table class="table table-striped" id="collectionTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Code</th>
+                                            <th>Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for t in entityFeatures.collections %}
+                                            <tr>
+                                                <td>{{t.abbreviation}}</td>
+                                                <td>{{t.longName}}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="tab-pane fade" id="features" role="tabpanel" aria-labelledby="features-tab">
+                        <div class="row pt-3">
+                            <div class="col-6">
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="addfeatures">
+                                    <div class="form-group">
+                                        <label>Name</label>
+                                        <input type="text" class="form-control" name="name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Measure Unit</label>
+                                        <input type="text" class="form-control" name="measureUnit">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Material type</label>
+                                        <select name="material" class="custom-select" required>
+                                            <option value="">Open this select menu</option>
+                                            {% for et in entityFeatures.type %}
+                                                <option value="{{et.abbreviation}}">{{et.longName}} ({{et.abbreviation}})</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-success">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-6">
+                                <table class="table table-striped" id="collectionTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Code</th>
+                                            <th>Name</th>
+                                            <th>Material</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for f in entityFeatures.features %}
+                                            {% for t in f.features %}
+                                        
+                                                <tr>
+                                                    <td>{{t.name}}</td>
+                                                    <td>{{t.measureUnit}}</td>
+                                                    <td>{{f.abbreviation}}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                
+            </div>
+            
+        </div>
+  
+        
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+{%if post_save%}
+<script>
+    $(document).ready(function() {
+    {% if post_save.error %}
+        toastr['error']('{{post_save.error}}');
+    {% else %}
+        toastr['success']('{{post_save.success}}');
+    {% endif %}
+    });
+</script>    
+{% endif %}
+<script>
+    entityfeatures = JSON.parse('{{features|safe}}')
+</script>
+<script defer type="text/javascript" src="/las_static/js/manageGenid.js"></script>
+{% endblock %}

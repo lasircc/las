@@ -1,0 +1,130 @@
+version: '3'
+
+services:
+
+  las:
+    container_name: las
+    build: ./las/
+    entrypoint: ['sh', '/data/web/las_setup.sh']
+    volumes:
+      - ./las:/data/web
+      - las_static:/collected_static
+      - lasstatus:/las_status
+    working_dir: /data/web
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - PRODUCTION=True
+    depends_on:
+      - lasmongodb1
+      - graphdb
+
+  redis:
+    container_name: redis
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    restart: always
+  
+
+  lasmongodb3:
+    image: mongo:4
+    restart: always
+    container_name: lasmongodb3
+    env_file:
+      - .env
+    volumes:
+      - lasmongodata3:/data/db
+    expose:
+      - "27017"
+    entrypoint: [ "/usr/bin/mongod", "--replSet", "rslas", "--bind_ip_all" ]
+
+  lasmongodb2:
+    image: mongo:4
+    restart: always
+    container_name: lasmongodb2
+    env_file:
+      - .env
+    volumes:
+      - lasmongodata2:/data/db
+    expose:
+      - "27017"
+    entrypoint: [ "/usr/bin/mongod", "--replSet", "rslas", "--bind_ip_all"]
+  
+
+  lasmongodb1:
+    image: mongo:4
+    restart: always
+    container_name: lasmongodb1
+    env_file:
+      - .env
+    volumes:
+      - lasmongodata1:/data/db
+    expose:
+      - "27017"
+    ports:
+      - "27018:27017"
+    entrypoint: [ "/usr/bin/mongod", "--replSet", "rslas", "--bind_ip_all"]
+
+
+  lasmongosetup:
+    image: "mongo-setup"
+    build: "./mongo-setup"
+    container_name: "lasmongosetup"
+    depends_on:
+      - lasmongodb1
+    volumes:
+      - lasstatus:/data/
+
+  nginx:
+    build: ./nginx-pagespeed/
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/app/nginx.conf
+      - ./nginx/conf:/etc/nginx/app/conf_app/
+      - las_static:/collected_static
+      - ./nginx/certificate:/ssl
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - MAKE_J=4
+      - NGINX_VERSION=1.15.5
+      - PAGESPEED_VERSION=1.12.34.2
+      - LIBPNG_VERSION=1.6.29
+      - NGINX_INCLUDE_PATH=/etc/nginx/app/conf_app/*.conf
+      - NGINX_DEFAULT_SERVER=off
+      - NGINX_FASTCGI_GEOIP=off
+      - NGINX_PAGESPEED=on
+      - NGINX_PAGESPEED_IMG=on
+      - NGINX_PAGESPEED_JS=on
+      - NGINX_PAGESPEED_CSS=on
+      - NGINX_PAGESPEED_STORAGE=file
+
+  flower:
+    container_name: flower
+    image: mher/flower
+    command: ["flower", "--broker=redis://redis:6379/0", "--port=8888"]  
+    ports:  
+      - 8888:8888
+
+  graphdb:
+    container_name: "graphdb"
+    image: "lascandiolo/graphdb:8.10.1-free"
+    restart: always
+    ports:
+      - "7200:7200"
+    command: 
+      - -Dgraphdb.workbench.cors.enable=true
+      - -Dgraphdb.home=/opt/graphdb/home
+    volumes:
+      - "lasgraphdb:/opt/graphdb/home"
+
+volumes:
+  las_static:
+  lasmongodata1:
+  lasmongodata2:
+  lasmongodata3:
+  lasstatus:
+  lasgraphdb:

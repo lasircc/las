@@ -1,0 +1,76 @@
+{% extends "datamodel/index.html" %}
+{% load static datamodel_extras %}
+
+{% comment %}
+Recursive representation of entities tree, something similar to:
+
+def foo(treedict,k,p):
+____if treedict.get(k):
+________for e in treedict.get(k):
+____________print('\t'*p + str(e))
+____________foo(treedict,e,p+1)
+____foo(treedict,0,0)
+
+{% endcomment %}
+
+
+{% block extrastyle %}
+{{ block.super }}
+<link async href="{% static "css/datamodel/tabletree.css" %}" rel="stylesheet">
+{% endblock %}
+
+
+{% block content %}
+
+{% block breadcrumb %}
+{{ block.super }}
+{% endblock %}
+
+{% with current_page=request.resolver_match.url_name %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="row page-header">
+            <div class="col-12">
+                <h3>{% if current_page == 'classes-tree' %}Classes{%else%}Properties{% endif %} Tree</h3>
+            </div>
+            <div class="col-4">
+                <!-- Entity Filter  -->
+                <div class="form-group">
+                    <input type="input" class="form-control" id="treeFilter" aria-describedby="treeFilterHelp"
+                        placeholder="Filter your {% if current_page == 'classes-tree' %}class{%else%}property{% endif %} here...">
+                    <small id="treeFilterHelp" class="form-text text-muted">You are querying model
+                        <b>{% if current_page == 'classes-tree' %}classes{%else%}properties{% endif %}</b></small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="row">
+    <!-- Reload Data -->
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                Tree
+            </div>
+            <div class="card-body entities-list">
+                {% if current_page == 'classes-tree' %}
+                {% include "datamodel/inc/recursive_table.html" with entity=0 treedict=model.ontologyClassTree %}
+                {%else%}
+                {% include "datamodel/inc/recursive_table.html" with entity=0 treedict=model.ontologyPropTree %}
+                {% endif %}
+
+            </div>
+        </div>
+
+
+    </div>
+
+
+</div>
+
+{% endwith %}
+{% endblock %}

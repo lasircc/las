@@ -1,0 +1,46 @@
+.card-body {
+    font-size: 15px;
+}
+
+.breadcrumb {
+    padding: 1px 15px !important;
+    background-color: #f6f6f7;
+    font-size: 15px;
+}
+
+dl {
+    margin-top: 0;
+    margin-bottom: 21px;
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+}
+
+dt {
+    margin-top: 5px;
+    font-weight: bold;
+    line-height: 1.42857143;
+    display: block;
+}
+
+dd {
+ 
+    margin-left: 0 !important;
+    line-height: 1.42857143;
+    box-sizing: border-box;
+    display: block;
+    margin-inline-start: 40px;
+
+}
+
+.custom-file-input ~ .custom-file-label::after {
+    content: "Button Text";
+}
+
+.page-header {
+    padding-bottom: 10.5px;
+    margin: 30px 0 23px;
+    border-bottom: 1px solid #eeeeee;
+}

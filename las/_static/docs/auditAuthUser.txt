@@ -1,0 +1,44 @@
+CREATE TABLE `auth_user_audit` (
+  `id` int(11) NOT NULL,
+  `username` varchar(30) NOT NULL,
+  `first_name` varchar(30) NOT NULL,
+  `last_name` varchar(30) NOT NULL,
+  `email` varchar(75) NOT NULL,
+  `password` varchar(128) NOT NULL,
+  `is_staff` tinyint(1) NOT NULL,
+  `is_active` tinyint(1) NOT NULL,
+  `is_superuser` tinyint(1) NOT NULL,
+  `last_login` datetime NOT NULL,
+  `date_joined` datetime NOT NULL,
+  `user` varchar(30) NOT NULL,
+  `_audit_id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+  `_audit_timestamp` datetime,
+  `_audit_change_type` varchar(1) NOT NULL
+) ENGINE=InnoDB ;
+
+delimiter //
+create trigger audit_auth_user_update
+before update on auth_user
+for each row
+begin
+insert into auth_user_audit (id, username, first_name, last_name, email, password, is_staff, is_active, is_superuser, last_login, date_joined, user, _audit_timestamp, _audit_change_type) values (new.id, new.username, new.first_name, new.last_name, new.email, new.password, new.is_staff, new.is_active, new.is_superuser, new.last_login, new.date_joined, new.username, UTC_TIMESTAMP, 'U');
+END; //
+delimiter ;
+
+delimiter //
+create trigger audit_auth_user_insert
+before insert on auth_user
+for each row
+begin
+insert into auth_user_audit (id, username, first_name, last_name, email, password, is_staff, is_active, is_superuser, last_login, date_joined, user, _audit_timestamp, _audit_change_type) values (new.id, new.username, new.first_name, new.last_name, new.email, new.password, new.is_staff, new.is_active, new.is_superuser, new.last_login, new.date_joined, new.username, UTC_TIMESTAMP, 'I');
+END; //
+delimiter ;
+
+delimiter //
+create trigger audit_auth_user_delete
+before delete on auth_user
+for each row
+begin
+insert into auth_user_audit (id, username, first_name, last_name, email, password, is_staff, is_active, is_superuser, last_login, date_joined, user, _audit_timestamp, _audit_change_type) values (old.id, old.username, old.first_name, old.last_name, old.email, old.password, old.is_staff, old.is_active, old.is_superuser, old.last_login, old.date_joined, old.username, UTC_TIMESTAMP, 'D');
+END; //
+delimiter ;

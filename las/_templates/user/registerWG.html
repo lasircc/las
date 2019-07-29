@@ -1,0 +1,46 @@
+{% extends "_general/base.html" %}
+
+{% block content %}
+<div class="row pt-3">
+    <div class="col-12">
+        <h3>Create a new WG</h3>
+        {% if post_save %}
+
+            <div class="alert {%if post_save.status == 'err'%} alert-danger {% else %} alert-success {% endif%} " role="alert">
+                {{post_save.msg}}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endif %}
+        <form method="post" action="." enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group">
+                            <label>WG name</label>
+                            <input type="text" class="form-control" name="WG" required>
+                    </div>
+                    <div class="form-group">
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" name="userList" id="userList" required>
+                            <label class="custom-file-label" for="userList">User list</label>
+                        </div>
+                    </div>
+
+                 
+                    
+                    <div class="form-group">
+                        
+                        <input type="submit" value="Save" class="btn btn-success">
+                    </div>
+                </div>
+            </div>
+            
+        </form>
+    </div>
+
+</div>
+
+
+{% endblock %}

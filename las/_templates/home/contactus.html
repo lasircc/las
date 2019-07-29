@@ -1,0 +1,89 @@
+{% extends "_general/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+    {% if post_save %}
+        <div class="row pt-3">
+            <div class="col-12">
+                <h3>Thank you</h3>
+                <p>You will receive further notifications about the status of your registration by email.</p>
+                <p>Please click on the button below to return to the home page.</p>
+                <div class="form-group">
+                    <button class="btn btn-primary" onclick="location.href='{% url 'LASLogin' %}'"><span class="oi oi-home"></span> Home</button>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="row pt-3">
+            <div class="col-12">
+                <h3>Contact us</h3>
+                <p>To register a group of users into the LAS platform, please fill in the following documents:</p>
+                <ul>
+                    <li>Cover letter</li>
+                    <li>User list</li>
+                </ul>
+
+                Then, submit the documents using this form.
+
+                {% if msg%}
+                    <div class="alert alert-danger" role="alert">
+                        {{msg}}
+                    </div>
+                {% endif%}
+
+                <form method="post" action="." id="captcha_form" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label>Title</label>
+                                <select class="custom-select" name= "title" required>
+                                    <option value="">Open this select menu</option>
+                                    <option value="Dr.">Dr.</option>
+                                    <option value="Mr.">Mr.</option>
+                                    <option value="Mrs.">Mrs.</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>First Name</label>
+                                <input type="text" class="form-control" name="first_name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Last Name</label>
+                                <input type="text" class="form-control" name="last_name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" class="form-control" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" name="coverLetter" id="coverLetter" required>
+                                    <label class="custom-file-label" for="coverLetter">Cover letter</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" name="userList" id="userList" required>
+                                    <label class="custom-file-label" for="userList">User list</label>
+                                </div>
+                            </div>
+
+                            {% crispy cf %}
+                            <div class="form-group">
+                                <button id="refresh_captcha" class="js-captcha-refresh btn btn-primary">Refresh</button>
+                            </div>
+                            <div class="form-group">
+                                <input type="submit" class="btn btn-success" value="Submit">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    {% endif %}
+
+{% endblock %}
+
+{% block script %}
+<script defer type="text/javascript" src="/las_static/js/registration_form.js"></script>
+{% endblock %}

@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  nginx:
+    build: .
+    ports:
+      - "80:80"
+      - "8080:8080"
+    container_name: nginx-pagespeed
+    env_file: .env

@@ -1,0 +1,23 @@
+<!-- Breadcrumb -->
+<div class="row pt-1">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+
+                {% if current_page == "manageModel" %}
+                <li class="breadcrumb-item" active aria-current="page">Model</li>
+                {% else %}
+                <li class="breadcrumb-item"><a href="{% url "manageModel" %}">Model</a></li>
+                {% endif %}
+
+                {% if current_page == "classes-tree" %}
+                <li class="breadcrumb-item" active aria-current="page">Classes</li>
+                {% endif %}
+
+                {% if current_page == "properties-tree" %}
+                <li class="breadcrumb-item" active aria-current="page">Properties</li>
+                {% endif %}
+            </ol>
+        </nav>
+    </div>
+</div>

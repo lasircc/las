@@ -1,0 +1,536 @@
+@prefix : <http://las.ircc.it/las-ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://las.ircc.it/ontology/las-ontology> .
+
+<http://las.ircc.it/ontology/las-ontology> rdf:type owl:Ontology ;
+                                                  rdfs:comment "The LAS annotation platform ontology"@en .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://las.ircc.it/las-ontology#aligns_to
+:aligns_to rdf:type owl:ObjectProperty .
+
+
+###  http://las.ircc.it/las-ontology#contains
+:contains rdf:type owl:ObjectProperty .
+
+
+###  http://las.ircc.it/las-ontology#detects
+:detects rdf:type owl:ObjectProperty .
+
+
+###  http://las.ircc.it/las-ontology#generates
+:generates rdf:type owl:ObjectProperty .
+
+
+###  http://las.ircc.it/las-ontology#has_alteration
+:has_alteration rdf:type owl:ObjectProperty .
+
+
+###  http://las.ircc.it/las-ontology#has_annotation
+:has_annotation rdf:type owl:ObjectProperty .
+
+
+###  http://las.ircc.it/las-ontology#has_copy_number_variation
+:has_copy_number_variation rdf:type owl:ObjectProperty .
+
+
+###  http://las.ircc.it/las-ontology#has_drug_response
+:has_drug_response rdf:type owl:ObjectProperty .
+
+
+###  http://las.ircc.it/las-ontology#has_instance
+:has_instance rdf:type owl:ObjectProperty .
+
+
+###  http://las.ircc.it/las-ontology#has_minus_end
+:has_minus_end rdf:type owl:ObjectProperty .
+
+
+###  http://las.ircc.it/las-ontology#has_plus_end
+:has_plus_end rdf:type owl:ObjectProperty .
+
+
+###  http://las.ircc.it/las-ontology#has_protein_product
+:has_protein_product rdf:type owl:ObjectProperty .
+
+
+###  http://las.ircc.it/las-ontology#has_reference
+:has_reference rdf:type owl:ObjectProperty .
+
+
+###  http://las.ircc.it/las-ontology#has_short_genetic_variation
+:has_short_genetic_variation rdf:type owl:ObjectProperty .
+
+
+###  http://las.ircc.it/las-ontology#homologous_to
+:homologous_to rdf:type owl:ObjectProperty .
+
+
+###  http://las.ircc.it/las-ontology#integral_part_of
+:integral_part_of rdf:type owl:ObjectProperty .
+
+
+###  http://las.ircc.it/las-ontology#part_of
+:part_of rdf:type owl:ObjectProperty .
+
+
+###  http://las.ircc.it/las-ontology#transcribed_from
+:transcribed_from rdf:type owl:ObjectProperty .
+
+
+###  http://las.ircc.it/las-ontology#translation_of
+:translation_of rdf:type owl:ObjectProperty .
+
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://las.ircc.it/las-ontology#ac
+:ac rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#allele
+:allele rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#allele_frequency
+:allele_frequency rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#alt
+:alt rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#alt_p
+:alt_p rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#app
+:app rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#cds_end
+:cds_end rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#cds_start
+:cds_start rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#chrom
+:chrom rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#copy_number
+:copy_number rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#db_id
+:db_id rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#db_model
+:db_model rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#end
+:end rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#end_c_base
+:end_c_base rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#end_c_datum
+:end_c_datum rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#end_c_offset
+:end_c_offset rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#exon_number
+:exon_number rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#identifier
+:identifier rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#is_default
+:is_default rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#is_refseq
+:is_refseq rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#length
+:length rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#loc_p
+:loc_p rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#name
+:name rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#num_bases
+:num_bases rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#num_bases_c
+:num_bases_c rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#popul_freq
+:popul_freq rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#ref
+:ref rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#response_type
+:response_type rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#start
+:start rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#start_c_base
+:start_c_base rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#start_c_datum
+:start_c_datum rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#start_c_offset
+:start_c_offset rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#strand
+:strand rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#symbol
+:symbol rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#tx_ac
+:tx_ac rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#uuid
+:uuid rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#value
+:value rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#ver
+:ver rdf:type owl:DatatypeProperty .
+
+
+###  http://las.ircc.it/las-ontology#x_ref
+:x_ref rdf:type owl:DatatypeProperty .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://las.ircc.it/las-ontology#Aliquot
+:Aliquot rdf:type owl:Class ;
+            rdfs:subClassOf :Bioentity .
+
+
+###  http://las.ircc.it/las-ontology#Bioentity
+:Bioentity rdf:type owl:Class .
+
+
+###  http://las.ircc.it/las-ontology#Biomouse
+:Biomouse rdf:type owl:Class ;
+             rdfs:subClassOf :Bioentity .
+
+
+###  http://las.ircc.it/las-ontology#Case
+:Case rdf:type owl:Class .
+
+
+###  http://las.ircc.it/las-ontology#Case
+:Tissue rdf:type owl:Class .
+
+
+###  http://las.ircc.it/las-ontology#Cellline
+:Cellline rdf:type owl:Class ;
+             rdfs:subClassOf :Bioentity .
+
+
+###  http://las.ircc.it/las-ontology#DNA
+:DNA rdf:type owl:Class ;
+        rdfs:subClassOf :Aliquot .
+
+
+###  http://las.ircc.it/las-ontology#DRCl_OR
+:DRCl_OR rdf:type owl:Class ;
+            rdfs:subClassOf :DRCr_simple3 .
+
+
+###  http://las.ircc.it/las-ontology#DRCl_PD
+:DRCl_PD rdf:type owl:Class ;
+            rdfs:subClassOf :DRCr_simple3 .
+
+
+###  http://las.ircc.it/las-ontology#DRCl_SD
+:DRCl_SD rdf:type owl:Class ;
+            rdfs:subClassOf :DRCr_simple3 .
+
+
+###  http://las.ircc.it/las-ontology#DRCr_simple3
+:DRCr_simple3 rdf:type owl:Class ;
+                 rdfs:subClassOf :drug_response .
+
+
+###  http://las.ircc.it/las-ontology#FormalinFixed
+:FormalinFixed rdf:type owl:Class ;
+                  rdfs:subClassOf :Aliquot .
+
+
+###  http://las.ircc.it/las-ontology#Frozen
+:Frozen rdf:type owl:Class ;
+           rdfs:subClassOf :Aliquot .
+
+
+###  http://las.ircc.it/las-ontology#FrozenSediment
+:FrozenSediment rdf:type owl:Class ;
+                   rdfs:subClassOf :Aliquot .
+
+
+###  http://las.ircc.it/las-ontology#Labeled_section
+:Labeled_section rdf:type owl:Class ;
+                    rdfs:subClassOf :Aliquot .
+
+
+###  http://las.ircc.it/las-ontology#OCTFrozen
+:OCTFrozen rdf:type owl:Class ;
+              rdfs:subClassOf :Aliquot .
+
+
+###  http://las.ircc.it/las-ontology#Paraffin_section
+:Paraffin_section rdf:type owl:Class ;
+                     rdfs:subClassOf :Aliquot .
+
+
+###  http://las.ircc.it/las-ontology#PlasmaIsolation
+:PlasmaIsolation rdf:type owl:Class ;
+                    rdfs:subClassOf :Aliquot .
+
+
+###  http://las.ircc.it/las-ontology#Protein
+:Protein rdf:type owl:Class ;
+            rdfs:subClassOf :Aliquot .
+
+
+###  http://las.ircc.it/las-ontology#RNA
+:RNA rdf:type owl:Class ;
+        rdfs:subClassOf :Aliquot .
+
+
+###  http://las.ircc.it/las-ontology#RNALater
+:RNALater rdf:type owl:Class ;
+             rdfs:subClassOf :Aliquot .
+
+
+###  http://las.ircc.it/las-ontology#SNP
+:SNP rdf:type owl:Class ;
+        rdfs:subClassOf :short_genetic_variation .
+
+
+###  http://las.ircc.it/las-ontology#SnapFrozen
+:SnapFrozen rdf:type owl:Class ;
+               rdfs:subClassOf :Aliquot .
+
+
+###  http://las.ircc.it/las-ontology#Viable
+:Viable rdf:type owl:Class ;
+           rdfs:subClassOf :Aliquot .
+
+
+###  http://las.ircc.it/las-ontology#alteration
+:alteration rdf:type owl:Class ;
+               rdfs:subClassOf :kb_node .
+
+
+###  http://las.ircc.it/las-ontology#annotation
+:annotation rdf:type owl:Class .
+
+
+###  http://las.ircc.it/las-ontology#cDNA
+:cDNA rdf:type owl:Class ;
+         rdfs:subClassOf :Aliquot .
+
+
+###  http://las.ircc.it/las-ontology#cRNA
+:cRNA rdf:type owl:Class ;
+         rdfs:subClassOf :Aliquot .
+
+
+###  http://las.ircc.it/las-ontology#chromosome
+:chromosome rdf:type owl:Class ;
+               rdfs:subClassOf :kb_node .
+
+
+###  http://las.ircc.it/las-ontology#copy_number_gain
+:copy_number_gain rdf:type owl:Class ;
+                     rdfs:subClassOf :copy_number_variation .
+
+
+###  http://las.ircc.it/las-ontology#copy_number_loss
+:copy_number_loss rdf:type owl:Class ;
+                     rdfs:subClassOf :copy_number_variation .
+
+
+###  http://las.ircc.it/las-ontology#copy_number_neutral
+:copy_number_neutral rdf:type owl:Class ;
+                        rdfs:subClassOf :copy_number_variation .
+
+
+###  http://las.ircc.it/las-ontology#copy_number_variation
+:copy_number_variation rdf:type owl:Class ;
+                          rdfs:subClassOf :alteration .
+
+
+###  http://las.ircc.it/las-ontology#deletion
+:deletion rdf:type owl:Class ;
+             rdfs:subClassOf :sequence_alteration .
+
+
+###  http://las.ircc.it/las-ontology#drug_response
+:drug_response rdf:type owl:Class ;
+                  rdfs:subClassOf :kb_node .
+
+
+###  http://las.ircc.it/las-ontology#exon
+:exon rdf:type owl:Class ;
+         rdfs:subClassOf :kb_node .
+
+
+###  http://las.ircc.it/las-ontology#feature_ablation
+:feature_ablation rdf:type owl:Class ;
+                     rdfs:subClassOf :copy_number_variation .
+
+
+###  http://las.ircc.it/las-ontology#feature_amplification
+:feature_amplification rdf:type owl:Class ;
+                          rdfs:subClassOf :copy_number_variation .
+
+
+###  http://las.ircc.it/las-ontology#gene
+:gene rdf:type owl:Class ;
+         rdfs:subClassOf :region .
+
+
+###  http://las.ircc.it/las-ontology#homologous_region
+:homologous_region rdf:type owl:Class ;
+                      rdfs:subClassOf :region .
+
+
+###  http://las.ircc.it/las-ontology#indel
+:indel rdf:type owl:Class ;
+          rdfs:subClassOf :sequence_alteration .
+
+
+###  http://las.ircc.it/las-ontology#insertion
+:insertion rdf:type owl:Class ;
+              rdfs:subClassOf :sequence_alteration .
+
+
+###  http://las.ircc.it/las-ontology#kb_node
+:kb_node rdf:type owl:Class .
+
+
+###  http://las.ircc.it/las-ontology#pcr_product
+:pcr_product rdf:type owl:Class ;
+                rdfs:subClassOf :kb_node .
+
+
+###  http://las.ircc.it/las-ontology#peptide
+:peptide rdf:type owl:Class ;
+            rdfs:subClassOf :kb_node .
+
+
+###  http://las.ircc.it/las-ontology#point_mutation
+:point_mutation rdf:type owl:Class ;
+                   rdfs:subClassOf :sequence_alteration .
+
+
+###  http://las.ircc.it/las-ontology#primer
+:primer rdf:type owl:Class ;
+           rdfs:subClassOf :kb_node .
+
+
+###  http://las.ircc.it/las-ontology#protein_product
+:protein_product rdf:type owl:Class ;
+                    rdfs:subClassOf :kb_node .
+
+
+###  http://las.ircc.it/las-ontology#region
+:region rdf:type owl:Class ;
+           rdfs:subClassOf :kb_node .
+
+
+###  http://las.ircc.it/las-ontology#rtpcr
+:rtpcr rdf:type owl:Class ;
+          rdfs:subClassOf :pcr_product .
+
+
+###  http://las.ircc.it/las-ontology#sanger
+:sanger rdf:type owl:Class ;
+           rdfs:subClassOf :pcr_product .
+
+
+###  http://las.ircc.it/las-ontology#sequence_alteration
+:sequence_alteration rdf:type owl:Class ;
+                        rdfs:subClassOf :alteration .
+
+
+###  http://las.ircc.it/las-ontology#sequenom_test
+:sequenom_test rdf:type owl:Class ;
+                  rdfs:subClassOf :kb_node .
+
+
+###  http://las.ircc.it/las-ontology#short_genetic_variation
+:short_genetic_variation rdf:type owl:Class ;
+                            rdfs:subClassOf :alteration .
+
+
+###  http://las.ircc.it/las-ontology#transcript
+:transcript rdf:type owl:Class ;
+               rdfs:subClassOf :kb_node .
+
+
+###  http://las.ircc.it/las-ontology#transcript_region
+:transcript_region rdf:type owl:Class ;
+                      rdfs:subClassOf :kb_node .
+
+
+###  http://las.ircc.it/las-ontology#treatment
+:treatment rdf:type owl:Class ;
+              rdfs:subClassOf :kb_node .
+
+
+###  Generated by the OWL API (version 4.2.8.20170104-2310) https://github.com/owlcs/owlapi

@@ -1,0 +1,25 @@
+{% load datamodel_extras %}
+
+{# do nothing with root (i.e., owl:Thing) #}
+{% if entity == 0 %}
+    {% for sub_entity in treedict|get_dict_item:entity %}
+        {% include "datamodel/inc/recursive_table.html" with entity=sub_entity %}
+    {% endfor %}
+{% else %}
+<table class="h">
+    <tr>
+        <td class="tc" colspan=4>
+            <a title=" {{entity.uri}}" class="treelinks" href="{{entity.slug}}.html">{{entity.qname}}</a>
+        </td>
+    </tr>
+    {% for sub_entity in treedict|get_dict_item:entity %}
+    <tr>
+        <td class="space"></td>
+        <td class="bar"></td>
+        <td class="space"></td>
+        <td>{% include "datamodel/inc/recursive_table.html" with entity=sub_entity%}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endif %}

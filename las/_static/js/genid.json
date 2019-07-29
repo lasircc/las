@@ -1,0 +1,8 @@
+{
+    "colletionType": ["CRC", "BRC","MEL", "LNG", "OVC"],
+    "tissue": ["PR", "LM", "BL"],
+    "vector": ["H", "X", "S", "A", "O"],
+    "tissueType":["TUM", "LNG", "LIV"], 
+    "site": ["SCR", "SCL", "FPR", "FPL", "CEC", "LVR", "PRT", "BRN", "LNG"],
+    "material" :["VT", "SF", "RL", "PL", "FF", "OF", "R", "D", "P","FR"]
+}

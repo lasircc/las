@@ -1,0 +1,254 @@
+{% extends "_general/base.html" %}
+{% load static %}
+{% block title %}Data Model{% endblock %}
+
+{% block extrastyle %}
+<link async href="{% static "css/datamodel/style.css" %}" rel="stylesheet">
+{% endblock %}
+
+<!-- Override base navbar -->
+{% block navbar_items %}
+{% include "datamodel/inc/navbar.html" with current_page=request.resolver_match.url_name %}
+{% endblock %}
+
+
+{% block content %}
+
+{% block breadcrumb %}
+{% include "datamodel/inc/breadcrumb.html" with current_page=request.resolver_match.url_name %}
+{% endblock %}
+
+
+
+
+
+<div class="row">
+    <div class="col-12">
+        <!-- Tab Items -->
+        <ul class="nav nav-tabs" id="indexTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="outline-tab" data-toggle="tab" href="#outline" role="tab"
+                    aria-controls="outline" aria-selected="true">Model index</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="meta-tab" data-toggle="tab" href="#meta" role="tab" aria-controls="meta"
+                    aria-selected="false">Metadata</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="danger-tab" data-toggle="tab" href="#danger" role="tab" aria-controls="danger"
+                    aria-selected="false" style="background-color: #e8282830">Danger Zone</a>
+            </li>
+
+        </ul>
+        <!-- Tab Content -->
+        <div class="tab-content pt-3" id="dataModelTabContent">
+            <!-- Tab Outline -->
+            <div class="tab-pane fade show active" id="outline" role="tabpanel" aria-labelledby="outline-tab">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="row page-header">
+                            <div class="col-12">
+                                <h3>The LAS Data Model</h3>
+                                <p>Explore and modify the LAS semantic model. Use the entity filter of the model index
+                                    to get started.</p>
+                            </div>
+                            <div class="col-4">
+                                <!-- Entity Filter  -->
+                                <div class="form-group">
+                                    <label for="entityFilter">Entity filter</label>
+                                    <input type="input" class="form-control" id="entityFilter"
+                                        aria-describedby="entityFilterHelp" placeholder="Type you entity">
+                                    <small id="entityFilterHelp" class="form-text text-muted">You are querying model
+                                        entities</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="card">
+                            <div class="card-header">
+                                Classes ({{model.all_classes|length}})
+                            </div>
+                            <div class="card-body entities-list" style="overflow: auto;">
+                                <dl>
+                                    {% for c in model.all_classes %}
+                                    <dt>
+                                        <a href='/'>{{ c.qname }}</a>
+                                    </dt>
+                                    {% endfor %}
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="card">
+                            <div class="card-header">
+                                Properties ({{model.all_properties|length}})
+                            </div>
+                            <div class="card-body entities-list" style="overflow: auto;">
+                                <dl>
+                                    {% for p in model.all_properties %}
+                                    <dt>
+                                        <a href='/'>{{ p.qname }}</a>
+                                    </dt>
+                                    {% endfor %}
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Metadata -->
+            <div class="tab-pane fade" id="meta" role="tabpanel" aria-labelledby="meta-tab">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-md-12">
+                                {% for o in model.all_ontologies %}
+                                <div class="card">
+                                    <div class="card-header">
+                                        Ontology Metdata
+                                    </div>
+                                    <div class="card-body">
+                                        <dl>
+                                            <dt>URI</dt>
+                                            <dd> <a href="{% url 'manageModel' %}"
+                                                    style="background-color: #b0bcf357; border-radius: 4px;padding: 2px 4px">{{ o.qname }}</a>
+                                            </dd>
+                                        </dl>
+
+                                        {% if o.annotations %}
+                                        {% for a in o.annotations %}
+                                        <dl>
+                                            {% ifchanged a.1 %}<dt>{{a.1}}</dt>{% endifchanged %}
+                                            <dd>{{a.2}}</dd>
+                                        </dl>
+                                        {% endfor %}
+                                        {% else %}
+                                        <i>No metadata available</i>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="row pt-3">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        Metrics
+                                    </div>
+                                    <div class="card-body">
+                                        <dl>
+                                            {% for m in model.stats %}
+                                            <dt>{{m.0}}</dt>
+                                            <dd>{{m.1}}</dd>
+                                            {% endfor %}
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="card">
+                            <div class="card-header">
+                                Namespaces
+                            </div>
+                            <div class="card-body">
+                                <dl>
+                                    {% for x, y in model.namespaces  %}
+                                    <dt><span class="badge badge-secondary">{{x|default:":"}}</span></dt>
+                                    <dd><a href="{{y}}" target="_blank">{{y}}</a></dd>
+                                    {% endfor %}
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+
+            <!-- Tab Danger Zone -->
+            <div class="tab-pane fade" id="danger" role="tabpanel" aria-labelledby="danger-tab">
+                <div class="row">
+                    <!-- Reload Data -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header text-white bg-danger">
+                                Reload data model
+                            </div>
+                            <div class="card-body">
+                                <form class="was-validated" method="post" action="." enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="custom-control custom-checkbox mb-3">
+                                        <input type="checkbox" class="custom-control-input"
+                                            id="customControlValidation1" required>
+                                        <label class="custom-control-label"
+                                            for="customControlValidation1">Delete'n'reload</label>
+                                        <div class="invalid-feedback">Delete current model and reload a new one from
+                                            scratch</div>
+                                    </div>
+
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" id="ttlFile" name='ttlFile'
+                                            required>
+                                        <label class="custom-file-label" for="ttlFile">Choose
+                                            a Turtle file...</label>
+                                        <div class="invalid-feedback">Please, select the turtle file with the new data
+                                            model (small files only, for the moment)</div>
+                                    </div>
+                                    <button type="submit" class="btn btn-danger" style="margin-top: 10px;">Reload
+                                        All</button>
+
+                                </form>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <!-- Future work -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header text-white bg-danger">
+                                Another scary feature...
+                            </div>
+                            <div class="card-body">
+                                <p>E.g., update controlled dicts from Wikidata</p>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script defer src="{% static "js/datamodel/datamodel.js" %}"></script>
+
+
+{% if messages %}
+<script defer type="text/javascript">
+    $(document).ready(function () {
+        {% for message in messages %}
+        toastr['{{message.tags}}']("{{message}}");
+        {% endfor %}
+    });
+</script>
+{% endif %}
+
+
+{% endblock %}

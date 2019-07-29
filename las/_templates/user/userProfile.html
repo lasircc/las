@@ -1,0 +1,125 @@
+{% extends "_general/base.html" %}
+{% load crispy_forms_tags %}
+{% load las_tags %}
+
+{% block content %}
+<div class="row pt-3 pb-3">
+        <div class="col-4">
+            <h4>Account details</h4>
+            <table class="table table-striped">
+                <tr>
+                    <th>First Name</th>
+                    <td>{{user.first_name}}</td>
+                </tr>
+                <tr>
+                    <th>Last Name</th>
+                    <td>{{user.last_name}}</td>
+                </tr>
+                <tr>
+                    <th>E-mail</th>
+                    <td>{{user.email}}</td>
+                </tr>
+                <tr>
+                    <th>WGs</th>
+                    <td>
+                        {% for wg in workingGroups%}
+                        <span class="badge badge-primary">{{wg.name}}</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+            </table>
+            <a class="btn btn-warning" href="{% url 'changePwd' %}">Change Password</a>
+        </div>
+        {% if isSuperUser or hasPreviousUser %}
+            <div class="col-4">
+                <h4>Login as</h4>
+                {% if hasPreviousUser %}
+                
+                <form id="loginas-logout" action="{% url 'loginas:loginas_logout' %}" method="POST">
+                    {%csrf_token%}
+                    <div class="form-group">
+                        <input type="submit" id="loginas-logout-submit" value="Restore previous user" class="btn btn-danger"/>
+                    </div>
+                </form>
+
+                {% else %}
+                
+                <form id="loginas-login" action="{% url 'loginas:loginas_login' %}" method="POST">
+                    {%csrf_token%}
+                    <div class="form-group">
+                        <label>Act on behalf of another user</label>
+                        <input class="form-control" type="text" id="loginas-login-username" name="username" {% if hasPreviousUser %}disabled {% endif %} autocomplete="off"/>
+                        
+                    </div>
+                    <div class="form-group">
+                        <input class="btn btn-danger" type="submit" id="loginas-login-submit" value="Login" {% if hasPreviousUser %} disabled {% endif %}/>
+                    </div>
+                </form>
+                {% endif %}
+                
+
+            </div>
+        {% endif %}
+
+</div>
+
+{% endblock %}
+
+{% block script %}
+
+
+    
+<script>
+    // loginas
+    $(document).ready(function() {
+        $("#loginas-login-username").typeahead({
+            ajax: {
+                url: '/entity/entities/auth_user/autocomplete/',
+                triggerLength: 2,
+                preDispatch: function(query){
+                    console.log({'field': 'username', 'q': query});
+                    return {'field': 'username', 'q': query}
+                },
+                preProcess: function (data) {
+                    console.log(data, data.length);
+                    listRes = [];
+                    for (var i=0; i<data.length; i++){
+                        console.log({ 'id': data[i]['username'], name: data[i]['username']})
+                        listRes.push({ 'id': data[i]['username'], name: data[i]['username']});
+                    }
+                    console.log(listRes)
+                    return listRes;
+                }
+            },
+            onSelect: function(item) {
+                console.log(item);
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

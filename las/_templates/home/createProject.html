@@ -1,0 +1,61 @@
+{% extends "_general/base.html" %}
+
+{% load las_tags %}
+
+{% block content %}
+<div class="row pt-3">
+    <div class="col-12">
+        <h3>Create Project</h3>
+        <form action="." method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="name">Denomination</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="wgs">Managers</label>
+                <select class="form-control" id="wgs" name="wgs" required multiple>
+                    
+                    {% for w in wgs%}
+                    <option value={{w|oid}}>{{w|oid}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                    <label for="institutions">Institutions</label>
+                    <select class="form-control" id="wgs" name="institutions" required multiple>
+                        
+                        {% for i in institutions%}
+                        <option value={{i.identifier}}>{{i.name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+            
+
+            <button class="btn btn-success" type="submit">Save</button>
+        </form>
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block script %}
+
+{% if post_save %}
+<script defer type="text/javascript">
+    $(document).ready(function () {
+        {% if post_save.success %}
+            toastr["success"]("{{post_save.success}}")
+        {% else %}
+            toastr["error"]("{{post_save.error}}")
+        {% endif %}
+    });
+</script>
+{% endif %}
+
+{% endblock %}

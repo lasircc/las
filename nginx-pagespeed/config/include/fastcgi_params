@@ -1,0 +1,22 @@
+# PHP only, required if PHP was built with --enable-force-cgi-redirect
+fastcgi_param  REDIRECT_STATUS              200;
+
+fastcgi_param  GEOIP_ADDR                   $remote_addr;
+fastcgi_param  GEOIP_COUNTRY_CODE           $geoip_country_code;
+fastcgi_param  GEOIP_COUNTRY_NAME           $geoip_country_name;
+fastcgi_param  GEOIP_REGION                 $geoip_region;
+fastcgi_param  GEOIP_REGION_NAME            $geoip_region_name;
+fastcgi_param  GEOIP_CITY                   $geoip_city;
+fastcgi_param  GEOIP_AREA_CODE              $geoip_area_code;
+fastcgi_param  GEOIP_LATITUDE               $geoip_latitude;
+fastcgi_param  GEOIP_LONGITUDE              $geoip_longitude;
+fastcgi_param  GEOIP_POSTAL_CODE            $geoip_postal_code;
+fastcgi_param  GEOIP_CITY_CONTINENT_CODE    $geoip_city_continent_code;
+
+# common line so we dont have to include it on every vhost
+fastcgi_param  SCRIPT_FILENAME              $document_root$fastcgi_script_name;
+
+# https://www.namhuy.net/3120/fix-nginx-upstream-response-buffered-temporary-file-error.html
+fastcgi_buffer_size                        32k;
+fastcgi_buffers                        256 16k;
+fastcgi_index                        index.php;

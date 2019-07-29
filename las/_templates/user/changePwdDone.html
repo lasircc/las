@@ -1,0 +1,23 @@
+{% extends "_general/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+
+
+<div class="row pt-3">
+    <div class="col-12">
+        <div class="alert alert-success" role="alert">
+            {{title}}
+        </div>
+        <div class="form-group">
+            <button class="btn btn-primary" onclick="location.href='{% url 'userProfile' %}'"><span class="oi oi-person"></span> Back to profile</button>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+{% endblock %}

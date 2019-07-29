@@ -1,0 +1,37 @@
+{% extends "_general/base.html" %}
+
+
+{% block content %}
+<div class="row pt-3">
+    <div class="col-12">
+        <h3>Create Medical Center</h3>
+        <form action="." method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="name">Denomination</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <button class="btn btn-success" type="submit">Save</button>
+        </form>
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block script %}
+
+{% if post_save %}
+<script defer type="text/javascript">
+    $(document).ready(function () {
+        {% if post_save.success %}
+            toastr["success"]("{{post_save.success}}")
+        {% else %}
+            toastr["error"]("{{post_save.error}}")
+        {% endif %}
+    });
+</script>
+{% endif %}
+
+{% endblock %}

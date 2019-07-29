@@ -1,0 +1,174 @@
+{% extends "_general/base.html" %}
+
+{% block title %}Laboratory Assistant Suite - Login{% endblock %}
+
+{% block extrastyle %}
+<style type="text/css">
+.tab-pane{
+  height:350px;
+  overflow-y:scroll;
+  width:100%;
+}
+
+
+</style>
+{% endblock%}
+{% block content %}
+
+	<div class="row pt-3">
+		<section id="description" class='col-md-8'>
+			<div id="tabs">
+			<ul class="nav nav-tabs" role="tablist">
+				<li class="nav-item"><a class="nav-link active" href="#tab-home" data-toggle="tab" role="tab" aria-controls="tab-home" aria-selected="true">Introduction</a></li>
+				<li class="nav-item"><a class="nav-link" href="#tab-workflow" data-toggle="tab" role="tab" aria-controls="tab-workflow" aria-selected="false">Workflow</a></li>
+				<li class="nav-item"><a class="nav-link" href="#tab-doc" data-toggle="tab" role="tab" aria-controls="tab-doc" aria-selected="false">Documentation</a></li>
+				<li class="nav-item"><a class="nav-link" href="#tab-ref" data-toggle="tab" role="tab" aria-controls="tab-ref" aria-selected="false">References</a></li>
+			</ul>
+			<div class="tab-content" id="nav-tabContent">
+				<div id="tab-home" class="tab-pane fade show active" >
+					<p>
+						<b>Laboratory Assistant Suite</b> (<b>LAS</b>) platform assists the researchers in different laboratory activities. Its modular architecture allows managing different kinds of raw data (e.g., biological, molecular) and tracking experimental data. Each LAS module is tailored to handle specific activities or data types, but it is plugged into a broader and uniform framework thus allowing effortless integration with other system’s elements. In addition, the data models and procedures integrated in the platform try to comply with best practices and standards widely adopted by the research community at large. User interfaces are designed to be practical in hostile environments, in which researchers should minimize their interactions with the system during data entry procedures (e.g., in sterile conditions). Furthermore, the platform supports the integration of different resources and aids in performing a variety of analyses in order to extract knowledge related to tumors. 
+					</p>
+					<p>
+						The LAS platform is the result of a joint effort by both IT and biomedical researchers of the <a href="https://ircc.it/">Candiolo Cancer Institute</a>. 
+					</p>
+				</div>
+
+				<div id="tab-doc" class="tab-pane fade">
+					<p>
+						The Laboratory Assistant Suite (LAS) platform is designed to assist the researchers of biological and biomedical laboratories in their activities.
+					</p>
+					<p>
+						The manual with a detailed description of the main concepts and the current available functionalities can be downloaded from this <a href="/las_static/docs/Laboratory_Assistant_Suite_Manual.pdf" download>link</a>. 
+					</p>
+				</div>
+
+				<div id="tab-workflow" class="tab-pane fade">
+					<p>
+						Every day in research laboratories several procedures are performed to analyze different
+						biological and medical aspects of tumors, with the aim of discovering new knowledge and
+						improving the therapies. We started to analyze a subset of procedures developed and adopted in
+						the research laboratories of our institution to model our environment. At the beginning, we
+						focused our attention on the procedures that are involved in the xenopatient experimental
+						pipeline (Bertotti et al., 2011). This approach is based on the serial transplantation of human
+						tumor specimens in immunocompromised animals. The aim is to help in translating the
+						correlative information emerging from data integration into clinically relevant and functionally
+						validated biomarkers. After completing the main modules addressing the management of tumor
+						specimen and xenopatient life cycle, we started to include additional elements to our environment
+						in order to manage several research activities and exploit collected data. 
+					</p>
+					<figure>
+						<img src="/las_static/img/Dataflow.png" width="50%" alt="Dataflow including the xenopatients approach">
+						<figcaption>
+							<p>Dataflow including the xenopatients approach</p>
+						</figcaption>
+					</figure>
+					<p>
+						To the aim of managing and integrating all this information, a robust but flexible data
+						management platform is needed. In particular, different types of information (e.g., biological
+						data, molecular data, procedure tracking data, sample tracking data), some of which can be
+						highly complex, should be independently managed by the platform but, at the same time,
+						interconnected to permit integrated analyses. User interfaces should be practical and intuitive on
+						one side, and perfectly fit the actual procedures on the other, in order to avoid hindering the
+						experimental pipeline. This is particularly relevant when working with biological samples, which
+						implies that many data should be entered by the user in a hostile environment (e.g., working with
+						gloves in sterile conditions with potentially infectious samples). To the best of our knowledge,
+						the procedures adopted in our experimental pipeline are largely standardized, and they reflect
+						common practice in the oncological research field. Thus, we believe that most functionalities
+						offered by the system we are developing could be useful to other research institutes. The LAS
+						software platform is freely available upon request to the authors.
+					</p>
+					<h4>References</h4>
+					<p>
+						Bertotti A., Migliardi G., Galimi F. et al., A molecularly annotated platform of patient-derived xenografts ('xenopatients') identifies HER2 as an effective therapeutic target in cetuximab-resistant colorectal cancer, Cancer Discovery (2011), <a href="http://www.ncbi.nlm.nih.gov/pubmed/22586653">Pubmed link</a>
+					</p>
+
+				</div>
+				<div id="tab-ref" class="tab-pane fade">
+					<p>
+					If you wish to publish data and/or results obtained with the support of the LAS platform, please cite at least one of the following papers:
+					<ol>
+						<li>Grand, A., Geda, E., Mignone, A., Bertotti, A., & Fiori, A. (2019). One tool to find them all: a case of data integration and querying in a distributed LIMS platform. Database, 2019.</li>
+						<li>Fiori, A., Grand, A., Geda, E., Schioppa, D., Brundu, F. G., Mignone, A., & Bertotti, A. (2018). LAS: A Bio-Clinical Integrated Laboratory Information System for Translational Data Management. In Emerging Developments and Practices in Oncology (pp. 56-93). IGI Global.</li>
+						<li>Fiori, A., Grand, A., Alberto, P., Geda, E., Brundu, F. G., Schioppa, D., & Bertotti, A. (2018). A case study of a laboratory information system developed at the institute for cancer research at Candiolo. In Biomedical Engineering: Concepts, Methodologies, Tools, and Applications (pp. 505-531). IGI Global.</li>
+						</li>
+						<li>Baralis, E., Bertotti, A., Fiori, A., & Grand, A. (2012). LAS: a software platform to support oncological data management. Journal of medical systems, 36(1), 81-90.</li>
+					</ol>
+					</p>
+				</div>
+				</div>
+			</div>
+		</section>
+		<section id="login" class='col-md-3'>
+			<div class="card">
+				<div class="card-header">
+					<h3>Login</h3>
+				</div>
+				<div class="card-body">
+						
+					{% if notActive %}
+						<img src="/las_static/img/workInProgress.png" style="max-width:100%;max-height:100%;" />
+
+						<table>
+							<td><p id="error" style="font-family: Arial; font-weight: bold; color: red; font-size:14px; text-align: center">The LAS Service is currently under maintenance. We apologize for the inconvenience.</p></td>
+						</table>
+					{% else %}
+						
+						<form name="loginForm" action="{% url 'LASLogin' %}" method="post">{% csrf_token %}
+						{% if err_message %}
+						<div class="alert alert-danger alert-dismissible fade show" role="alert" >
+							<span class="oi oi-circle-x" title="icon name" aria-hidden="true"></span>
+							{{  err_message|safe  }}
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>						
+						{% endif %}
+						<div class="form-group">
+							<label for="username">Username</label>
+							<input type="text" name="username" value="" id="username" class="form-control" required>
+						</div>
+						<div class="form-group">
+							<label for="password">Password</label>
+							<input type="password" name="password" value="" id="password" class="form-control" required>
+						</div>
+						<div class="form-group">
+						<a href="{% url 'contactUs' %}" class="mr-3">Register</a>
+						<a class="login" href="{% url 'password_reset' %}">Forgot Your Password?</a>        
+						</div>
+						<button id="login" type="submit" class="btn btn-success" >Login</button>
+
+						</form>
+
+					{% endif%} 
+				</div>
+			</div>
+		</section>
+
+    </div>
+	{% if projects%}
+		<div class='row'>
+			<section id="projects" style='padding-left:3em' class='col-12'>
+				The Laboratory Assistant Suite platform is hosting the following projects:
+				
+				<div class="row pt-3">
+					{% for p in projects%}
+						{% if p == "mercuric"%}
+						<div class="col-3">
+							<a href="{% url 'mercuric:MercuricLogin' %}"><img height="46px" src="/las_static/img/mercuric_large_logo.png"></a>
+						</div>
+						{% endif %}
+
+					{% endfor%}
+					<div class="col-3">
+						<img width="143px" height="46px" src="/las_static/img/motricolor.png">
+					</div>
+				</div>
+				<!-- <img width="143px" height="55px" style="padding:2em" src="/las_static/img/symphogen.png"> -->
+			</section>
+		</div>
+	{% endif%}
+
+
+	
+{% endblock %}
