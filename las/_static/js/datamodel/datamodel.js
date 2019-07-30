@@ -6,6 +6,7 @@ $(document).ready(function () {
         $(this).next('.custom-file-label').addClass("selected").html(fileName);
     });
 
+    // filer entities
     var customFilter = function (t,s) {
         var val = $.trim(t.val()).replace(/ +/g, ' ').toLowerCase();
         var $rows = s; // $(".entities-list dt");
@@ -21,7 +22,7 @@ $(document).ready(function () {
     });
 
 
-    $('#treeFilter').keyup(function () {
+    $('#treeFilter').keyup(function() {
         customFilter($(this), $(".entities-list td"));
     });
 
