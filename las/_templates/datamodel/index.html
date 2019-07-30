@@ -77,7 +77,7 @@
                                 <dl>
                                     {% for c in model.all_classes %}
                                     <dt>
-                                        <a href='/'>{{ c.qname }}</a>
+                                        <a href="{% url "entity-info" c.id %}">{{ c.qname }}</a>
                                     </dt>
                                     {% endfor %}
                                 </dl>
@@ -93,7 +93,7 @@
                                 <dl>
                                     {% for p in model.all_properties %}
                                     <dt>
-                                        <a href='/'>{{ p.qname }}</a>
+                                        <a href="{% url "entity-info" p.id %}">{{ p.qname }}</a>
                                     </dt>
                                     {% endfor %}
                                 </dl>
@@ -112,7 +112,7 @@
                                 {% for o in model.all_ontologies %}
                                 <div class="card">
                                     <div class="card-header">
-                                        Ontology Metdata
+                                        Ontology Metadata
                                     </div>
                                     <div class="card-body">
                                         <dl>

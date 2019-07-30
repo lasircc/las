@@ -45,4 +45,14 @@ class Tree(Manage):
 
 
 
+class Entity(Manage):
+        
+    def get(self, request, entity_id):  
+        context = super(Entity, self).get_context()
+        context['entity'] = context['model'].get_any_entity(id=entity_id)
+        return render(request, 'datamodel/entity.html', context)
+
+
+
+
 

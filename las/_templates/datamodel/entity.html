@@ -1,0 +1,154 @@
+{% extends "datamodel/index.html" %}
+{% load static datamodel_extras %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link async href="{% static "css/datamodel/familytree.css" %}" rel="stylesheet">
+{% endblock %}
+
+
+{% block content %}
+
+{% block breadcrumb %}
+{{ block.super }}
+{% endblock %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="row page-header">
+            <div class="col-12">
+                <h3 style='display: inline;'>
+                    {{entity.locale}}{% if not entity.children %} </h3><span class="badge badge-info">Leaf
+                    Node</span>{% endif %}
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-12">
+        <div class="tree-container">
+            <div class="tree">
+                <ul>
+                    {% if entity.parents %}
+
+                    {% for p in entity.parents %}
+
+                    <li>
+
+                        <a href="{{p.slug}}.html"
+                            title="'{{p.bestLabel}}'{% if p.bestDescription %} - {{p.bestDescription|truncatewords:20}}{% endif %}">{{p.qname}}</a>
+
+                        <ul>
+
+                            <li><a style="font-weight: bold;"
+                                    title="'{{entity.bestLabel}}'{% if entity.bestDescription %} - {{entity.bestDescription|truncatewords:20}}{% endif %}">{{entity.qname}}</a>
+                                {% if entity.children  %}
+                                <ul>
+                                    {% for c in each.children %}<li><a href="{{c.slug}}.html"
+                                            title="'{{c.bestLabel}}'{% if c.bestDescription %} - {{c.bestDescription|truncatewords:20}}{% endif %}">{{c.qname}}</a>
+                                    </li>{% endfor %}
+                                </ul>
+                                {% endif %}
+                            </li>
+
+                        </ul>
+
+                    </li>
+                    {% endfor %}
+
+                    {% else %}
+
+                    <li><a href="entities-tree-classes.html">owl:Thing</a>
+
+                        <ul>
+                            <li><a style="font-weight: bold;"
+                                    title="'{{entity.bestLabel}}'{% if entity.bestDescription %} - {{entity.bestDescription|truncatewords:20}}{% endif %}">{{entity.qname}}</a>
+
+                                {% if entity.children  %}
+                                <ul>
+                                    {% for c in each.children %}<li><a href="{{c.slug}}.html"
+                                            title="'{{c.bestLabel}}'{% if c.bestDescription %} - {{c.bestDescription|truncatewords:20}}{% endif %}">{{c.qname}}</a>
+                                    </li>{% endfor %}
+                                </ul>
+                                {% endif %}
+                            </li>
+
+                        </ul>
+
+                    </li>
+                    {% endif %}
+
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                {% if entity|get_class == "OntoClass" %}Class{%else%}Property{% endif %} Info
+            </div>
+            <div class="card-body">
+                <dl>
+                    <dt>URI</dt>
+                    <dd> <a href="{% url 'manageModel' %}"
+                            style="background-color: #b0bcf357; border-radius: 4px;padding: 2px 4px">{{ entity.qname }}</a>
+                    </dd>
+                </dl>
+
+
+                <dl>
+                    <dt>Label</dt>
+                    <dd>{{ entity.bestLabel|default:"--"}}</dd>
+                    </dd>
+                </dl>
+
+                <dl>
+                    <dt>Description</dt>
+                    <dd>{{ entity.bestDescription|default:"--"}}</dd>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                Super{% if entity|get_class == "OntoClass" %}classes{%else%}properties{% endif %}
+                ({{entity.ancestors|length}})
+            </div>
+            <div class="card-body">
+                <div class="card-body">
+
+                    {% if entity.ancestors %}
+                    {% for a in entity.ancestors %}
+                    <li>
+                        <a href="{% url "entity-info" a.id %}" title="{{a.uri}}">{{a.locale}}</a>
+                    </li>
+                    {% endfor %}
+                    {% endif %}
+                    <li><i>owl:Thing</i></li>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="row pt-3">
+
+</div>
+
+
+
+{% endblock %}

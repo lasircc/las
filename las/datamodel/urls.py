@@ -6,5 +6,5 @@ urlpatterns = [
     path('manageModel/', Manage.as_view(), name='manageModel'),
     path('classes-tree/', Tree.as_view(), name='classes-tree'),
     path('properties-tree/', Tree.as_view(), name='properties-tree'),
-    
+    path('entity/<int:entity_id>', Entity.as_view(), name='entity-info'),
 ]
