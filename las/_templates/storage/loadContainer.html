@@ -1,0 +1,35 @@
+{% extends "_general/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="row pt-3">
+	<div class="col-12">
+        <form id='form'></form>
+
+        <button id="testLasForm" class="btn btn-warning">Update schema</button>
+    </div>	
+</div>
+
+<div class="row pt-3">
+	<div class="col-12">
+        <div id="divsum"></div>
+    </div>	
+</div>
+
+
+{% endblock %}
+
+
+{% block script %} 
+
+<script>
+    let viewName = '{{request.resolver_match.view_name}}';
+</script>
+
+<script defer src="{% static "js/_general/pageData.js" %}"></script>
+<script defer src="{% static "js/_general/lasForm.js" %}"></script>
+<script defer src="{% static "js/storage/loadContainer.js" %}"></script>
+
+{% endblock %}
+

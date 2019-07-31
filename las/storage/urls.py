@@ -6,4 +6,5 @@ app_name = 'storage'
 
 urlpatterns = [
     path('', Index.as_view(), name='index'),
+    path('loadContainer', LoadContainer.as_view(), name='loadContainer'),
 ]

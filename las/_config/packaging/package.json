@@ -31,7 +31,9 @@
     "popper.js": "^1.14.7",
     "tempusdominus-bootstrap-4": "^5.1.2",
     "tempusdominus-core": "^5.0.3",
-    "toastr": "^2.1.4"
+    "toastr": "^2.1.4",
+    "underscore": "^1.9.1",
+    "@fortawesome/fontawesome-free": "^5.10.0"
   },
   "devDependencies": {},
   "scripts": {
