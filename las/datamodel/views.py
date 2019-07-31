@@ -5,6 +5,10 @@ from django.utils.decorators import method_decorator
 from . import utils
 from django.contrib import messages
 
+from pygments import highlight
+from pygments.lexers.rdf import TurtleLexer
+from pygments.formatters import HtmlFormatter
+
 
 @method_decorator([login_required], name='dispatch')
 class Manage(View):
@@ -50,6 +54,9 @@ class Entity(Manage):
     def get(self, request, entity_id):  
         context = super(Entity, self).get_context()
         context['entity'] = context['model'].get_any_entity(id=entity_id)
+        context['pygments'] = dict()
+        context['pygments']['code'] = highlight(context['entity'].rdf_source(),TurtleLexer(), HtmlFormatter())
+        context['pygments']['css'] = HtmlFormatter().get_style_defs('.highlight')
         return render(request, 'datamodel/entity.html', context)
 
 

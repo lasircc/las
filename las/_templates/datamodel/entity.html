@@ -3,7 +3,11 @@
 
 {% block extrastyle %}
 {{ block.super }}
-<link async href="{% static "css/datamodel/familytree.css" %}" rel="stylesheet">
+<link async href="{% static "css/datamodel/entity.css" %}" rel="stylesheet">
+<style type="text/css">
+    {{pygments.css|safe}}
+</style>
+
 {% endblock %}
 
 
@@ -123,22 +127,20 @@
     <div class="col-md-6">
         <div class="card">
             <div class="card-header">
-                Super{% if entity|get_class == "OntoClass" %}classes{%else%}properties{% endif %}
+                Super{% if entity|get_class == "OntoClass" %}classes{% else %}properties{% endif %}
                 ({{entity.ancestors|length}})
             </div>
             <div class="card-body">
-                <div class="card-body">
+                {% if entity.ancestors %}
+                {% for a in entity.ancestors %}
+                <li>
+                    <a href="{% url "entity-info" a.id %}" title="{{a.uri}}">{{a.locale}}</a>
+                </li>
+                {% endfor %}
+                {% endif %}
+                <li><i>{% if entity|get_class == "OntoClass" %}owl:Thing{% else %}rdf:Property{% endif %}</i></li>
 
-                    {% if entity.ancestors %}
-                    {% for a in entity.ancestors %}
-                    <li>
-                        <a href="{% url "entity-info" a.id %}" title="{{a.uri}}">{{a.locale}}</a>
-                    </li>
-                    {% endfor %}
-                    {% endif %}
-                    <li><i>owl:Thing</i></li>
 
-                </div>
             </div>
         </div>
 
@@ -146,7 +148,95 @@
 </div>
 
 <div class="row pt-3">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                Usage
+            </div>
 
+            <div class="card-body">
+                <p>Instances of {{entity.locale}} can have the following properties:</p>
+            </div>
+            <table class="table table-striped" style="overflow: auto;">
+
+                <tr class="table-classproperties">
+                    <th>PROPERTY</th>
+                    <th>TYPE</th>
+                    <th>DESCRIPTION</th>
+                    <th>RANGE</th>
+                </tr>
+
+                {% for group in entity.domain_of_inferred  %}
+
+                {% for k,v in group.items  %}
+
+                {% if v %}
+
+                <tr class="table-inheritanceinfo">
+                    <th colspan="4" class="treeinfo"><span class="badge badge-light">From class <a title="{{k.qname}}"
+                                href="{{k.slug}}.html" class="fromclass_link">{{k.qname}}</a></span>
+                    </th>
+                </tr>
+
+                {% for prop in v  %}
+                <tr>
+                    <td>
+                        <a class="propcolor" title="{{prop.qname}}"
+                            href="{% url "entity-info" prop.id %}">{{prop.locale}}</a>
+                    </td>
+                    <td>
+                        <i>{{prop.rdftype_qname}}<i>
+                    </td>
+                    <td>
+                        <span>{{prop.bestDescription|default:"--"}}</span>
+                    </td>
+                    <td>
+                        {% if  prop.ranges %}
+                        {% for range in prop.ranges  %}
+
+                        {% if not range.ext_model %}
+                        <a title="{{range.qname}}" href="{{range.slug}}.html" class="rdfclass">{{range.qname}}</a>
+                        {% else %}
+                        <i>{{range.qname}}</i>
+                        {% endif %}
+
+
+                        {% endfor %}
+                        {% else %}
+                        <i>owl:Thing</i>
+                        {% endif %}
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+                {% endif %}
+
+                {% endfor %}
+
+                {% endfor %}
+
+            </table>
+
+        </div>
+
+    </div>
+</div>
+
+<div class="row pt-3">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                Implementation
+            </div>
+
+            <div class="card-body">
+                {{pygments.code|safe}}
+            </div>
+
+        </div>
+
+    </div>
 </div>
 
 
