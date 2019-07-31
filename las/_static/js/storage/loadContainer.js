@@ -9,19 +9,33 @@ $(document).ready(function () {
     form = $('#form').lasForm();
     form.setOptions({
         "schema": {
-            "apikey": {
-              "type": "string",
-              "title": "API key",
-              "default": "supercalifragilisticexpialidocious"
+            "name": {
+              "title": "Name",
+              "description": "Nickname allowed",
+              "type": "string"
             },
-            "text": {
+            "gender": {
+              "title": "Gender",
+              "description": "Your gender",
               "type": "string",
-              "title": "Search string"
+              "enum": [
+                "male",
+                "female",
+                "alien"
+              ]
             }
           },
           "form": [
-            
-            "text"
+            "*",
+            {   
+                "notitle": true,
+                "type": "help",
+                "helpvalue": "<strong>Click on <em>Submit</em></strong> when you're done"
+            },
+            {
+              "type": "submit",
+              "title": "Submit"
+            }
           ],
         onSubmit: function (errors, values) {
             console.log(errors, values)

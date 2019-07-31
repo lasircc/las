@@ -230,9 +230,9 @@
               '</div>' +
             '<% } %>' +
             '<% if (node.description) { %>' +
-              '<span class="help-block"><%= node.description %></span>' +
+              '<small class="form-text text-muted"><%= node.description %></small>' +
             '<% } %>' +
-            '<span class="help-block lasform-errortext" style="display:none;"></span>' +
+            '<small class="form-text text-muted lasform-errortext" style="display:none;"></small>' +
           '</div></div>';
     };
 
@@ -556,17 +556,17 @@
           }
         },
         'radios':{
-          'template': '<div id="<%= node.id %>"><% _.each(node.options, function(key, val) { %><div class="radio"><label><input<%= (fieldHtmlClass ? " class=\'" + fieldHtmlClass + "\'": "") %> type="radio" <% if (((key instanceof Object) && (value === key.value)) || (value === key)) { %> checked="checked" <% } %> name="<%= node.name %>" value="<%= (key instanceof Object ? key.value : key) %>"' +
+          'template': '<div id="<%= node.id %>"><% _.each(node.options, function(key, val) { %><div class="form-check"><input class=\'form-check-input<%= (fieldHtmlClass ? "" + fieldHtmlClass + "\'": "\'") %> type="radio" <% if (((key instanceof Object) && (value === key.value)) || (value === key)) { %> checked="checked" <% } %> name="<%= node.name %>" value="<%= (key instanceof Object ? key.value : key) %>"' +
             '<%= (node.disabled? " disabled" : "")%>' +
             '<%= (node.schemaElement && node.schemaElement.required ? " required=\'required\'" : "") %>' +
-            '/><%= (key instanceof Object ? key.title : key) %></label></div> <% }); %></div>',
+            '/><label  class="form-check-label"><%= (key instanceof Object ? key.title : key) %></label></div> <% }); %></div>',
           'fieldtemplate': true,
           'inputfield': true
         },
         'radiobuttons': {
           'template': '<div id="<%= node.id %>">' +
             '<% _.each(node.options, function(key, val) { %>' +
-              '<label class="btn btn-default">' +
+              '<label class="btn btn-light">' +
               '<input<%= (fieldHtmlClass ? " class=\'" + fieldHtmlClass + "\'": "") %> type="radio" style="position:absolute;left:-9999px;" ' +
               '<% if (((key instanceof Object) && (value === key.value)) || (value === key)) { %> checked="checked" <% } %> name="<%= node.name %>" value="<%= (key instanceof Object ? key.value : key) %>" />' +
               '<span><%= (key instanceof Object ? key.title : key) %></span></label> ' +
@@ -581,6 +581,7 @@
               activeClass += ' ' + elt.activeClass;
             }
             $(node.el).find('label').on('click', function () {
+              $(this).parent().find('label').removeClass('btn-light');
               $(this).parent().find('label').removeClass(activeClass);
               $(this).addClass(activeClass);
             });
@@ -594,10 +595,10 @@
             // Build up choices from the enumeration list
             var choices = null;
             var choiceshtml = null;
-            var template = '<div class="checkbox"><label>' +
-              '<input type="checkbox" <% if (value) { %> checked="checked" <% } %> name="<%= name %>" value="1"' +
+            var template = '<div class="form-check">' +
+              '<input class="form-check-input" type="checkbox" <% if (value) { %> checked="checked" <% } %> name="<%= name %>" value="1"' +
               '<%= (node.disabled? " disabled" : "")%>' +
-              '/><%= title %></label></div>';
+              '/><label class="form-check-label"><%= title %></label></div>';
             if (!node || !node.schemaElement) return;
       
             if (node.schemaElement.items) {
@@ -625,8 +626,8 @@
         'array': {
           'template': '<div id="<%= id %>"><ul class="_lasform-array-ul" style="list-style-type:none;"><%= children %></ul>' +
             '<span class="_lasform-array-buttons">' +
-              '<a href="#" class="btn btn-default _lasform-array-addmore"><i class="fa fa-plus" title="Add new"></i></a> ' +
-              '<a href="#" class="btn btn-default _lasform-array-deletelast"><i class="fa fa-minus" title="Delete last"></i></a>' +
+              '<a href="#" class="btn btn-light _lasform-array-addmore"><i class="fa fa-plus" title="Add new"></i></a> ' +
+              '<a href="#" class="btn btn-light _lasform-array-deletelast"><i class="fa fa-minus" title="Delete last"></i></a>' +
             '</span>' +
             '</div>',
           'fieldtemplate': true,
@@ -636,7 +637,7 @@
               // Insert a "draggable" icon
               // floating to the left of the main element
               return '<li data-idx="<%= node.childPos %>">' +
-                '<span class="draggable line"><i class="glyphicon glyphicon-list" title="Move item"></i></span>' +
+                '<span class="draggable line"><i class="fa fa-list" title="Move item"></i></span>' +
                 inner +
                 '</li>';
             }
@@ -931,32 +932,32 @@
           }
         },
         'help': {
-          'template':'<span class="help-block" style="padding-top:5px"><%= elt.helpvalue %></span>',
+          'template':'<span class="form-text text-muted"><%= elt.helpvalue %></span>',
           'fieldtemplate': true
         },
         'msg': {
           'template': '<%= elt.msg %>'
         },
         'fieldset': {
-          'template': '<fieldset class="form-group lasform-error-<%= keydash %> <% if (elt.expandable) { %>expandable<% } %> <%= elt.htmlClass?elt.htmlClass:"" %>" ' +
-            '<% if (id) { %> id="<%= id %>"<% } %>' +
-            '>' +
-            '<% if (node.title || node.legend) { %><legend><%= node.title || node.legend %></legend><% } %>' +
-            '<% if (elt.expandable) { %><div class="form-group"><% } %>' +
+          'template': '<div class="card form-group lasform-error-<%= keydash %> <%= elt.htmlClass?elt.htmlClass:"" %>" ' +
+            '<% if (id) { %> id="<%= id %>"<% } %> >' +
+            '<div class="card-header"> <% if (node.title || node.legend) { %><%= node.title || node.legend %><% } %> </div>' +
+            '<div class="card-body"><div class="row"><div class="col">' +
             '<%= children %>' +
-            '<% if (elt.expandable) { %></div><% } %>' +
-            '</fieldset>',
-          onInsert: function (evt, node) {
+            '</div></div></div></div>',
+
+          // <% if (elt.expandable) { %>   <% } %> 
+          /*onInsert: function (evt, node) {
             $('.expandable > div, .expandable > fieldset', node.el).hide();
             // See #233 
             $(".expandable", node.el).removeClass("expanded");
-          }
+          }*/
         },
         'advancedfieldset': {
           'template': '<fieldset' +
             '<% if (id) { %> id="<%= id %>"<% } %>' +
             ' class="expandable <%= elt.htmlClass?elt.htmlClass:"" %>">' +
-            '<legend><%= (node.title || node.legend) ? (node.title || node.legend) : "Advanced options" %></legend>' +
+            '<h5><%= (node.title || node.legend) ? (node.title || node.legend) : "Advanced options" %></h5>' +
             '<div class="form-group">' +
             '<%= children %>' +
             '</div>' +
@@ -1915,6 +1916,250 @@
         }
         // console.log("Form value",values);
         return values;
+    };
+
+    /**
+     * Sets the child template node for the current node.
+     *
+     * The child template node is used to create additional children
+     * in an array-like form element. The template is never rendered.
+     *
+     * @function
+     * @param {formNode} node The child template node to set
+     */
+    formNode.prototype.setChildTemplate = function (node) {
+      this.childTemplate = node;
+      node.parentNode = this;
+    };
+
+    /**
+     * Returns the minimum/maximum number of items that an array field
+     * is allowed to have according to the schema definition of the fields
+     * it contains.
+     *
+     * The function parses the schema definitions of the array items that
+     * compose the current "array" node and returns the minimum value of
+     * "maxItems" it encounters as the maximum number of items, and the
+     * maximum value of "minItems" as the minimum number of items.
+     *
+     * The function reports a -1 for either of the boundaries if the schema
+     * does not put any constraint on the number of elements the current
+     * array may have of if the current node is not an array.
+     *
+     * Note that array boundaries should be defined in the JSON Schema using
+     * "minItems" and "maxItems". The code also supports "minLength" and
+     * "maxLength" as a fallback, mostly because it used to by mistake (see #22)
+     * and because other people could make the same mistake.
+     *
+     * @function
+     * @return {Object} An object with properties "minItems" and "maxItems"
+     *  that reports the corresponding number of items that the array may
+     *  have (value is -1 when there is no constraint for that boundary)
+     */
+    formNode.prototype.getArrayBoundaries = function () {
+      var boundaries = {
+        minItems: -1,
+        maxItems: -1
+      };
+      if (!this.view || !this.view.array) return boundaries;
+
+      var getNodeBoundaries = function (node, initialNode) {
+        var schemaKey = null;
+        var arrayKey = null;
+        var boundaries = {
+          minItems: -1,
+          maxItems: -1
+        };
+        initialNode = initialNode || node;
+
+        if (node.view && node.view.array && (node !== initialNode)) {
+          // New array level not linked to an array in the schema,
+          // so no size constraints
+          return boundaries;
+        }
+
+        if (node.key) {
+          // Note the conversion to target the actual array definition in the
+          // schema where minItems/maxItems may be defined. If we're still looking
+          // at the initial node, the goal is to convert from:
+          //  foo[0].bar[3].baz to foo[].bar[].baz
+          // If we're not looking at the initial node, the goal is to look at the
+          // closest array parent:
+          //  foo[0].bar[3].baz to foo[].bar
+          arrayKey = node.key.replace(/\[[0-9]+\]/g, '[]');
+          if (node !== initialNode) {
+            arrayKey = arrayKey.replace(/\[\][^\[\]]*$/, '');
+          }
+          schemaKey = getSchemaKey(
+            node.ownerTree.formDesc.schema.properties,
+            arrayKey
+          );
+          if (!schemaKey) return boundaries;
+          return {
+            minItems: schemaKey.minItems || schemaKey.minLength || -1,
+            maxItems: schemaKey.maxItems || schemaKey.maxLength || -1
+          };
+        }
+        else {
+          _.each(node.children, function (child) {
+            var subBoundaries = getNodeBoundaries(child, initialNode);
+            if (subBoundaries.minItems !== -1) {
+              if (boundaries.minItems !== -1) {
+                boundaries.minItems = Math.max(
+                  boundaries.minItems,
+                  subBoundaries.minItems
+                );
+              }
+              else {
+                boundaries.minItems = subBoundaries.minItems;
+              }
+            }
+            if (subBoundaries.maxItems !== -1) {
+              if (boundaries.maxItems !== -1) {
+                boundaries.maxItems = Math.min(
+                  boundaries.maxItems,
+                  subBoundaries.maxItems
+                );
+              }
+              else {
+                boundaries.maxItems = subBoundaries.maxItems;
+              }
+            }
+          });
+        }
+        return boundaries;
+      };
+      return getNodeBoundaries(this);
+    };
+
+    /**
+     * Inserts an item in the array at the requested position and renders the item.
+     *
+     * @function
+     * @param {Number} idx Insertion index
+     */
+    formNode.prototype.insertArrayItem = function (idx, domElement) {
+      var i = 0;
+
+      // Insert element at the end of the array if index is not given
+      if (idx === undefined) {
+        idx = this.children.length;
+      }
+
+      // Create the additional array item at the end of the list,
+      // using the item template created when tree was initialized
+      // (the call to resetValues ensures that 'arrayPath' is correctly set)
+      var child = this.childTemplate.clone();
+      this.appendChild(child);
+      child.resetValues();
+
+      // To create a blank array item at the requested position,
+      // shift values down starting at the requested position
+      // one to insert (note we start with the end of the array on purpose)
+      for (i = this.children.length-2; i >= idx; i--) {
+        this.children[i].moveValuesTo(this.children[i+1]);
+      }
+
+      // Initialize the blank node we've created with default values
+      this.children[idx].resetValues();
+      this.children[idx].computeInitialValues();
+
+      // Re-render all children that have changed
+      for (i = idx; i < this.children.length; i++) {
+        this.children[i].render(domElement);
+      }
+    };
+
+    /**
+     * Remove an item from an array
+     *
+     * @function
+     * @param {Number} idx The index number of the item to remove
+     */
+    formNode.prototype.deleteArrayItem = function (idx) {
+      var i = 0;
+      var child = null;
+
+      // Delete last item if no index is given
+      if (idx === undefined) {
+        idx = this.children.length - 1;
+      }
+
+      // Move values up in the array
+      for (i = idx; i < this.children.length-1; i++) {
+        this.children[i+1].moveValuesTo(this.children[i]);
+        this.children[i].render();
+      }
+
+      // Remove the last array item from the DOM tree and from the form tree
+      this.removeChild();
+    };
+
+    /**
+     * Resets all DOM values in the node's subtree.
+     *
+     * This operation also drops all array item nodes.
+     * Note values are not reset to their default values, they are rather removed!
+     *
+     * @function
+     */
+    formNode.prototype.resetValues = function () {
+      var params = null;
+      var idx = 0;
+
+      // Reset value
+      this.value = null;
+
+      // Propagate the array path from the parent node
+      // (adding the position of the child for nodes that are direct
+      // children of array-like nodes)
+      if (this.parentNode) {
+        this.arrayPath = _.clone(this.parentNode.arrayPath);
+        if (this.parentNode.view && this.parentNode.view.array) {
+          this.arrayPath.push(this.childPos);
+        }
+      }
+      else {
+        this.arrayPath = [];
+      }
+
+      if (this.view && this.view.inputfield) {
+        // Simple input field, extract the value from the origin,
+        // set the target value and reset the origin value
+        params = $(':input', this.el).serializeArray();
+        _.each(params, function (param) {
+          // TODO: check this, there may exist corner cases with this approach
+          // (with multiple checkboxes for instance)
+          $('[name="' + escapeSelector(param.name) + '"]', $(this.el)).val('');
+        }, this);
+      }
+      else if (this.view && this.view.array) {
+        // The current node is an array, drop all children
+        while (this.children.length > 0) {
+          this.removeChild();
+        }
+      }
+
+      // Recurse down the tree
+      _.each(this.children, function (child) {
+        child.resetValues();
+      });
+    };
+
+    /**
+     * Removes the last child of the node.
+     *
+     * @function
+     */
+    formNode.prototype.removeChild = function () {
+      var child = this.children[this.children.length-1];
+      if (!child) return;
+
+      // Remove the child from the DOM
+      $(child.el).remove();
+
+      // Remove the child from the array
+      return this.children.pop();
     };
 
     var formTree = function () {
