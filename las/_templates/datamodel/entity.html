@@ -35,7 +35,13 @@
     <div class="col-12">
         <div class="tree-container">
             <div class="tree">
+                    <ul>
+                            <li>
             {% include "datamodel/inc/familyTree.html" with parent=0 %}
+                    
+
+    </li>
+</ul>
             </div>
         </div>
     </div>
@@ -88,7 +94,7 @@
                 </li>
                 {% endfor %}
                 {% endif %}
-                <li><i>{% if entity|get_class == "OntoClass" %}owl:Thing{% else %}rdf:Property{% endif %}</i></li>
+                <li><i>{% if entity|get_class == "OntoClass" %}<a href="{% url "classes-tree" %}">owl:Thing</a>{% else %}rdf:Property{% endif %}</i></li>
 
 
             </div>

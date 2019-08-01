@@ -1,21 +1,20 @@
 {% load datamodel_extras %}
 
-<ul>
 
-    <li>
         {% if parent == 0 %}
-        <a href="{% url "classes-tree" %}">owl:Thing</a>
+            <a href="{% url "classes-tree" %}">owl:Thing</a>
         {% else %}
-        <a href="{% url "entity-info" parent.id %}"
-            title="'{{parent.bestLabel}}'{% if parent.bestDescription %} - {{parent.bestDescription|truncatewords:20}}{% endif %}">{{parent.locale}}</a>
+            <a href="{% url "entity-info" parent.id %}"
+                title="'{{parent.bestLabel}}'{% if parent.bestDescription %} - {{parent.bestDescription|truncatewords:20}}{% endif %}">{{parent.locale}}</a>
         {% endif %}
 
+
         {% if taxonomy.ancestors|get_items_in_dict_of_lists:parent %}
-
+        <ul>
             {% for children in taxonomy.ancestors|get_items_in_dict_of_lists:parent %}
-                {% include "datamodel/inc/familyTree.html" with parent=children %}
+            <li>{% include "datamodel/inc/familyTree.html" with parent=children %}</li>
             {% endfor %}
-
+        </ul>
         {% else %}
 
             {% if taxonomy.children %}
@@ -32,7 +31,3 @@
             {% endif %}
 
         {% endif %}
-
-    </li>
-
-</ul>

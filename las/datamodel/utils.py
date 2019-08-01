@@ -63,20 +63,6 @@ def getDirectParents(entity):
 
 def getAllAncestors(entity):
 
-    # parents = getDirectParents(entity)
-    # print(parents)
-
-    # if parents:        
-    #     ancestors[entity] = parents
-
-    #     for p in parents:
-    #         return getAllAncestors(p, ancestors=ancestors)
-    # else:
-    #     ancestors[entity] = None
-        
-    # return ancestors
-
-
     ancestors = dict()
     parents = getDirectParents(entity)
     if parents:

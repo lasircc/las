@@ -23,7 +23,7 @@ tr.table-inheritanceinfo {
 tr.table-inheritanceinfo th {
 	font-size: 90%;
 	font-weight: normal;
-	background: #f5f5f5;
+	/*background: #f5f5f5;*/
 }
 
 tr.table-classproperties {
