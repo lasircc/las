@@ -33,7 +33,8 @@
     "tempusdominus-core": "^5.0.3",
     "toastr": "^2.1.4",
     "underscore": "^1.9.1",
-    "@fortawesome/fontawesome-free": "^5.10.0"
+    "@fortawesome/fontawesome-free": "^5.10.0",
+    "jquery-typeahead": "^2.10.6"
   },
   "devDependencies": {},
   "scripts": {

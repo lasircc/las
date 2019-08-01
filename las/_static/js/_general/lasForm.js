@@ -253,6 +253,8 @@
         return form.root.getFormValues();
     };
 
+    
+
     /**
      * Sets the key identified by a path selector to the given value.
      *
@@ -367,7 +369,15 @@
         'url': inputFieldTemplate('url'),
         'week': inputFieldTemplate('week'),
         'typeahead': {
-          'template': '<input type="text" ' +
+          'template': 
+            '<div class="typeahead__container">'+ 
+            '<div class="typeahead__field">' +
+            '<div class="typeahead__query">' +
+            '<input id="<%= id %>" class="js-typeahead" name="<%= node.name %>" type="search" placeholder="Search" autocomplete="off" '+
+            '<%= (node.schemaElement && node.schemaElement.required && (node.schemaElement.type !== "boolean") ? " required=\'required\'" : "") %> >'+
+            '</div><div class="typeahead__button"><button type="submit"> <i class="typeahead__search-icon"></i> </button> </div></div></div>',
+          /*
+          '<input type="text" ' +
           'class=\'form-control<%= (fieldHtmlClass ? " " + fieldHtmlClass : "") %>\'' +
           'name="<%= node.name %>" value="<%= escape(value) %>" id="<%= id %>"' +
           '<%= (node.disabled? " disabled" : "")%>' +
@@ -377,6 +387,7 @@
           '<%= (node.schemaElement && node.schemaElement.required && (node.schemaElement.type !== "boolean") ? " required=\'required\'" : "") %>' +
           '<%= (node.placeholder? " placeholder=" + \'"\' + escape(node.placeholder) + \'"\' : "")%>' +
           ' />',
+          */
           'fieldtemplate': true,
           'inputfield': true,
           'onInsert': function(evt, node){
@@ -413,7 +424,7 @@
         'slider':
         {
           'template': '<div class="form-group ml-2"><%= node.inlinetitle || "" %>' +
-            '<label class="switch ml-2"><input type="checkbox" class="default"  id="<%= id %>" "name=<%= node.name %>   >'+
+            '<label class="switch ml-2"><input type="checkbox" class="default"  id="<%= id %>" name="<%= node.name %>"   >'+
             '<span class="slider round"></span></label></div>',
           'fieldtemplate': true,
           'inputfield': true,
@@ -1827,6 +1838,7 @@
         });
     };
 
+
     /**
      * Returns the structured object that corresponds to the form values entered
      * by the user for the node's subtree.
@@ -1854,15 +1866,20 @@
         }
     
         // Form fields values
+        var disabled = $(this.el).find(':input:disabled').removeAttr('disabled');
         var formArray = $(':input', this.el).serializeArray();
+        disabled.attr('disabled','disabled');
     
         // Set values to false for unset checkboxes and radio buttons
         // because serializeArray() ignores them
+        
         formArray = formArray.concat(
-        $(':input[type=checkbox]:not(:disabled):not(:checked)', this.el).map( function() {
+        $(':input[type=checkbox]:not(:checked)', this.el).map( function() {
             return {"name": this.name, "value": this.checked}
         }).get()
         );
+        //console.log(formArray)
+        
     
         if (updateArrayPath) {
         _.each(formArray, function (param) {
@@ -2835,7 +2852,8 @@
             settings.onSubmit = f;
             this.initialize();
         }
-        
+
+      
         
         this.initialize();
         

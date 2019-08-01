@@ -46,20 +46,30 @@ $(document).ready(function () {
             {"key": "dim.x",
             "disabled": true
             },
-            {"key": "dim.y",
-            "disabled": true
+            {   
+                "key": "dim.y",
+                "disabled": true
             },
-            {"key": "@type",
-            "type": "typeahead",
-            "event": {
-                source: [{"_id": "plate1", "name":"Plate1", "dim": {"x": 4, "y": 6}}, {"_id": "tube", "name":"Tube", "dim": {"x": 1, "y": 1}}],
-                onSelect: function(item) {
-                    console.log(item);
-                    $()
-                 }
+            {
+                "key": "@type",
+                "type": "typeahead",
+                
+                "event": {
+                    source: {data:[ {"name":"Plate1", "_id": "plate1", "dim": {"x": 4, "y": 6}}, {"name":"Tube", "_id": "tube", "dim": {"x": 1, "y": 1} } ]},
+                    display: ['name'],
+                    minLength: 1,
+                    //template: "{{display}} <small style='color:#999;'>{{group}}</small>",
+                    callback:  {
+                        onClickAfter: function (node, a, item, event) {
+                            //event.preventDefault();
+                            console.log(node, a, item, event);
+                            $('#singleContainer [name="dim.x"]').val(item.dim.x);
+                            $('#singleContainer [name="dim.y"]').val(item.dim.y);
+                        }
+                    }
                 }
             }
-          ],
+            ],
         onSubmit: function (errors, values) {
             console.log(errors, values)
           
