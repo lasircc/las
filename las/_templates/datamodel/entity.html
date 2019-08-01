@@ -35,57 +35,7 @@
     <div class="col-12">
         <div class="tree-container">
             <div class="tree">
-                <ul>
-                    {% if entity.parents %}
-
-                    {% for p in entity.parents %}
-
-                    <li>
-
-                        <a href="{{p.slug}}.html"
-                            title="'{{p.bestLabel}}'{% if p.bestDescription %} - {{p.bestDescription|truncatewords:20}}{% endif %}">{{p.qname}}</a>
-
-                        <ul>
-
-                            <li><a style="font-weight: bold;"
-                                    title="'{{entity.bestLabel}}'{% if entity.bestDescription %} - {{entity.bestDescription|truncatewords:20}}{% endif %}">{{entity.qname}}</a>
-                                {% if entity.children  %}
-                                <ul>
-                                    {% for c in each.children %}<li><a href="{{c.slug}}.html"
-                                            title="'{{c.bestLabel}}'{% if c.bestDescription %} - {{c.bestDescription|truncatewords:20}}{% endif %}">{{c.qname}}</a>
-                                    </li>{% endfor %}
-                                </ul>
-                                {% endif %}
-                            </li>
-
-                        </ul>
-
-                    </li>
-                    {% endfor %}
-
-                    {% else %}
-
-                    <li><a href="entities-tree-classes.html">owl:Thing</a>
-
-                        <ul>
-                            <li><a style="font-weight: bold;"
-                                    title="'{{entity.bestLabel}}'{% if entity.bestDescription %} - {{entity.bestDescription|truncatewords:20}}{% endif %}">{{entity.qname}}</a>
-
-                                {% if entity.children  %}
-                                <ul>
-                                    {% for c in each.children %}<li><a href="{{c.slug}}.html"
-                                            title="'{{c.bestLabel}}'{% if c.bestDescription %} - {{c.bestDescription|truncatewords:20}}{% endif %}">{{c.qname}}</a>
-                                    </li>{% endfor %}
-                                </ul>
-                                {% endif %}
-                            </li>
-
-                        </ul>
-
-                    </li>
-                    {% endif %}
-
-                </ul>
+            {% include "datamodel/inc/familyTree.html" with parent=0 %}
             </div>
         </div>
     </div>

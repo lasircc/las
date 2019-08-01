@@ -14,18 +14,90 @@ def new_ontologyClassTree(self):
     if self.all_classes:
         treedict[0] = self.toplayer_classes
         for element in self.all_classes:
-            if element.children():
-                treedict[element] = list()
-                children_set = set(element.children())
-                for e in element.children():
-                    parents_set = set(e.parents())
-                    if not children_set.intersection(parents_set):
-                        treedict[element].append(e)
+            children = getDirectChildren(element)
+            if children:
+                treedict[element] = children
+            # if element.children():
+            #     treedict[element] = list()
+            #     children_set = set(element.children())
+            #     for e in element.children():
+            #         parents_set = set(e.parents())
+            #         if not children_set.intersection(parents_set):
+            #             treedict[element].append(e)
         return treedict
     return treedict
 
 
 ontospy.Ontospy.ontologyClassTree = new_ontologyClassTree
+
+
+def getDirectChildren(entity):
+
+    if entity.children():
+        children = list()
+        children_set = set(entity.children())
+        for c in entity.children():
+                    parents_set = set(c.parents())
+                    if not children_set.intersection(parents_set):
+                        children.append(c)
+        return children
+    
+    # no Children
+    return None
+
+
+def getDirectParents(entity):
+
+    if entity.parents():
+        parents = list()
+        parents_set = set(entity.parents())
+        for p in entity.parents():
+                    children_set = set(p.children())
+                    if not parents_set.intersection(children_set):
+                        parents.append(p)
+        return parents
+    
+    # no Children
+    return None
+        
+
+def getAllAncestors(entity):
+
+    # parents = getDirectParents(entity)
+    # print(parents)
+
+    # if parents:        
+    #     ancestors[entity] = parents
+
+    #     for p in parents:
+    #         return getAllAncestors(p, ancestors=ancestors)
+    # else:
+    #     ancestors[entity] = None
+        
+    # return ancestors
+
+
+    ancestors = dict()
+    parents = getDirectParents(entity)
+    if parents:
+        ancestors[entity] = getDirectParents(entity)
+        for p in entity.parents(): #all the upstream parents
+            grandparents = getDirectParents(p)
+            if grandparents:
+                ancestors[p] = grandparents
+            else:
+                ancestors[p] = [0]
+    else:
+        ancestors[entity] = [0]
+    
+    return ancestors
+
+
+
+
+
+
+
 
 
 """

@@ -1,0 +1,38 @@
+{% load datamodel_extras %}
+
+<ul>
+
+    <li>
+        {% if parent == 0 %}
+        <a href="{% url "classes-tree" %}">owl:Thing</a>
+        {% else %}
+        <a href="{% url "entity-info" parent.id %}"
+            title="'{{parent.bestLabel}}'{% if parent.bestDescription %} - {{parent.bestDescription|truncatewords:20}}{% endif %}">{{parent.locale}}</a>
+        {% endif %}
+
+        {% if taxonomy.ancestors|get_items_in_dict_of_lists:parent %}
+
+            {% for children in taxonomy.ancestors|get_items_in_dict_of_lists:parent %}
+                {% include "datamodel/inc/familyTree.html" with parent=children %}
+            {% endfor %}
+
+        {% else %}
+
+            {% if taxonomy.children %}
+                <ul>
+                {% for c in taxonomy.children %}
+                
+                    <li><a href="{% url "entity-info" c.id %}"
+                            title="'{{c.bestLabel}}'{% if c.bestDescription %} - {{c.bestDescription|truncatewords:20}}{% endif %}">{{c.locale}}
+                        </a>
+                    </li>
+                
+                {% endfor %}
+                </ul>
+            {% endif %}
+
+        {% endif %}
+
+    </li>
+
+</ul>

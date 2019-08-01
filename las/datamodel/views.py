@@ -53,10 +53,17 @@ class Entity(Manage):
         
     def get(self, request, entity_id):  
         context = super(Entity, self).get_context()
+        #entity
         context['entity'] = context['model'].get_any_entity(id=entity_id)
+        # implementation
+        context['taxonomy'] = dict()
+        context['taxonomy']['ancestors'] = utils.getAllAncestors(context['entity'])
+        print (utils.getAllAncestors(context['entity']))
+        context['taxonomy']['children'] = utils.getDirectChildren(context['entity'])
         context['pygments'] = dict()
         context['pygments']['code'] = highlight(context['entity'].rdf_source(),TurtleLexer(), HtmlFormatter())
         context['pygments']['css'] = HtmlFormatter().get_style_defs('.highlight')
+
         return render(request, 'datamodel/entity.html', context)
 
 

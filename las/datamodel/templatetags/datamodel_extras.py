@@ -15,9 +15,21 @@ def get_dict_item(dictionary, key):
     return dictionary.get(key) # use get to return None for no match (avoiding KeyError)
 
 
-@register.filter(name='get_class')
+@register.filter
 def get_class(value):
      '''
      This returns the class of an instance
      '''
      return value.__class__.__name__
+
+
+@register.filter
+def get_items_in_dict_of_lists(dictionary, value):
+     '''
+     This returns key of the list containing the value
+     '''
+     keys = list()
+     for k,v in dictionary.items():
+          if value in v:
+               keys.append(k)
+     return keys
