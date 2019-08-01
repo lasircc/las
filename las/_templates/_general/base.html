@@ -107,7 +107,7 @@
 	<link async rel="stylesheet" type="text/css" href="{% static "node_modules/multiselect/css/multi-select.css" %}" />
 
 
-	<script defer type="text/javascript" src="{% static "js/csrfToken.js" %}"></script>
+	<script defer type="text/javascript" src="{% static "js/_general/csrfToken.js" %}"></script>
 	<script type="text/javascript">
 
 		window.addEventListener("load", function () {
@@ -152,39 +152,16 @@
 				"showMethod": "fadeIn",
 				"hideMethod": "fadeOut"
 			}
-			//ADD WORKING GROUPS HEADER FOR FUTURE AJAX CALLS!!
-			workingGroups = "";
-			{% if request.workingGroups %}
-			workingGroups = "{{request.workingGroups}}";
-			$.ajaxSetup({
-				beforeSend: function (request) {
-					request.setRequestHeader("workingGroups", workingGroups);
-				}
-			});
-			{% endif %}
-
-
+			
+			
 			$('body').ajaxComplete(function (e, xhr, settings) {
 				if (xhr.status == 278) {
 					window.location.href = xhr.getResponseHeader("Location").replace(/\?.*$/, "?next=" + window.location.pathname);
 				}
 			});
 
-			$("span.home").click(function () {
-				window.location = "{% url 'index' %}";
-			});
-
 		});
 
-		function startLag() {
-			console.log("start");
-			timer = setTimeout(function () { $("body").addClass("loading"); }, 1000);
-		}
-
-		function endLag() {
-			clearTimeout(timer);
-			$("body").removeClass("loading");
-		}
 	</script>
 
 	{% block script %} {% endblock %}

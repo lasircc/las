@@ -366,6 +366,24 @@
         'time': inputFieldTemplate('time'),
         'url': inputFieldTemplate('url'),
         'week': inputFieldTemplate('week'),
+        'typeahead': {
+          'template': '<input type="text" ' +
+          'class=\'form-control<%= (fieldHtmlClass ? " " + fieldHtmlClass : "") %>\'' +
+          'name="<%= node.name %>" value="<%= escape(value) %>" id="<%= id %>"' +
+          '<%= (node.disabled? " disabled" : "")%>' +
+          '<%= (node.readOnly ? " readonly=\'readonly\'" : "") %>' +
+          '<%= (node.schemaElement && (node.schemaElement.step > 0 || node.schemaElement.step == "any") ? " step=\'" + node.schemaElement.step + "\'" : "") %>' +
+          '<%= (node.schemaElement && node.schemaElement.maxLength ? " maxlength=\'" + node.schemaElement.maxLength + "\'" : "") %>' +
+          '<%= (node.schemaElement && node.schemaElement.required && (node.schemaElement.type !== "boolean") ? " required=\'required\'" : "") %>' +
+          '<%= (node.placeholder? " placeholder=" + \'"\' + escape(node.placeholder) + \'"\' : "")%>' +
+          ' />',
+          'fieldtemplate': true,
+          'inputfield': true,
+          'onInsert': function(evt, node){
+            console.log(node);
+            $(node.el).find('#' + escapeSelector(node.id)).typeahead(node.event);
+          }
+        },
         'color':{
           'template':'<div id="<%= id %>" class="input-group"><input type="text" ' +
             'class=\'form-control<%= (fieldHtmlClass ? " " + fieldHtmlClass : "") %>\'' +
@@ -391,6 +409,14 @@
             '><%= value %></textarea>',
           'fieldtemplate': true,
           'inputfield': true
+        },
+        'slider':
+        {
+          'template': '<div class="form-group ml-2"><%= node.inlinetitle || "" %>' +
+            '<label class="switch ml-2"><input type="checkbox" class="default"  id="<%= id %>" "name=<%= node.name %>   >'+
+            '<span class="slider round"></span></label></div>',
+          'fieldtemplate': true,
+          'inputfield': true,
         },
         'checkbox':{
           'template': '<div class="checkbox"><label><input type="checkbox" id="<%= id %>" ' +
@@ -1219,6 +1245,8 @@
          * Position of the node in the list of children of its parents
          */
         this.childPos = 0;
+
+        this.event = null;
       };
 
     formNode.prototype.clone = function (parentNode) {
@@ -1371,28 +1399,29 @@
             'value',
             'disabled',
             'placeholder',
-            'readOnly'
+            'readOnly',
+            'event'
         ], function (prop) {
             if (_.isString(this.formElement[prop])) {
-            if (this.formElement[prop].indexOf('{{values.') !== -1) {
-                // This label wants to use the value of another input field.
-                // Convert that construct into {{lasform.getValue(key)}} for
-                // Underscore to call the appropriate function of formData
-                // when template gets called (note calling a function is not
-                // exactly Mustache-friendly but is supported by Underscore).
-                this[prop] = this.formElement[prop].replace(
-                /\{\{values\.([^\}]+)\}\}/g,
-                '{{getValue("$1")}}');
-            }
-            else {
-                // Note applying the array path probably doesn't make any sense,
-                // but some geek might want to have a label "foo[].bar[].baz",
-                // with the [] replaced by the appropriate array path.
-                this[prop] = applyArrayPath(this.formElement[prop], this.arrayPath);
-            }
-            if (this[prop]) {
-                this[prop] = _.template(this[prop], valueTemplateSettings)(formData);
-            }
+              if (this.formElement[prop].indexOf('{{values.') !== -1) {
+                  // This label wants to use the value of another input field.
+                  // Convert that construct into {{lasform.getValue(key)}} for
+                  // Underscore to call the appropriate function of formData
+                  // when template gets called (note calling a function is not
+                  // exactly Mustache-friendly but is supported by Underscore).
+                  this[prop] = this.formElement[prop].replace(
+                  /\{\{values\.([^\}]+)\}\}/g,
+                  '{{getValue("$1")}}');
+              }
+              else {
+                  // Note applying the array path probably doesn't make any sense,
+                  // but some geek might want to have a label "foo[].bar[].baz",
+                  // with the [] replaced by the appropriate array path.
+                  this[prop] = applyArrayPath(this.formElement[prop], this.arrayPath);
+              }
+              if (this[prop]) {
+                  this[prop] = _.template(this[prop], valueTemplateSettings)(formData);
+              }
             }
             else {
             this[prop] = this.formElement[prop];
@@ -2233,7 +2262,6 @@
             })
         };
 
-
     
         this.formDesc.params = this.formDesc.params || {};
     
@@ -2255,20 +2283,54 @@
         // - '*' means "generate all possible fields using default layout"
         // - a key reference to target a specific data element
         // - a more complex object to generate specific form sections
-        _.each(this.formDesc.form, function (formElement) {
-          if (formElement === '*') {
-            _.each(this.formDesc.schema.properties, function (element, key) {
+        indexStar = _.indexOf(this.formDesc.form, '*');
+        console.log(indexStar)
+        if (indexStar != -1){
+          _.each(this.formDesc.schema.properties, function (element, key) {
+            console.log(key, 'from *');
+            if (key != '_id'){
               this.root.appendChild(this.buildFromLayout({
                 key: key
               }));
+            }
+            else{
+              console.log("input hidden")
+              this.root.appendChild(this.buildFromLayout({
+                "key": key,
+                "type": "hidden"
+              }));
+            }
+          }, this);
+        }
+        _.each(this.formDesc.form, function (formElement) {
+          if (formElement != '*') {
+            /*
+            _.each(this.formDesc.schema.properties, function (element, key) {
+              console.log(key, 'from *');
+              if (key != '_id'){
+                this.root.appendChild(this.buildFromLayout({
+                  key: key
+                }));
+              }
+              else{
+                console.log("input hidden")
+                this.root.appendChild(this.buildFromLayout({
+                  "key": key,
+                  "type": "hidden"
+                }));
+              }
             }, this);
           }
-          else {
+          else {*/
             if (_.isString(formElement)) {
               formElement = {
                 key: formElement
               };
             }
+            if (formElement['key'] == '_id'){
+              formElement["type"] = "hidden";
+            }
+            console.log(formElement, 'from dict')
             this.root.appendChild(this.buildFromLayout(formElement));
           }
         }, this);
@@ -2286,6 +2348,19 @@
         // (note JSON.parse(JSON.stringify()) cannot be used since there may be
         // event handlers in there!)
         formElement = _.clone(formElement);
+        //console.log(formElement);
+        if (formElement.key){
+          indexElement = _.find(this.formDesc.form, function(el){ if (el.key === formElement.key) return true; });
+          
+          if (indexElement){
+            console.log(indexElement, formElement);
+            formElement = _.clone(indexElement);
+            console.log(formElement);
+            this.formDesc.form = _.reject(this.formDesc.form, function(el){ if (el.key === formElement.key) return true; });
+            console.log(this.formDesc.form);
+          }
+        }
+
         if (formElement.items) {
           if (_.isArray(formElement.items)) {
             formElement.items = _.map(formElement.items, _.clone);
@@ -2374,7 +2449,7 @@
               !schemaElement['enum']) {
               formElement.type = 'text';
             } else if (schemaElement.type === 'boolean') {
-              formElement.type = 'checkbox';
+              formElement.type = 'slider';
             } else if (schemaElement.type === 'object') {
               if (schemaElement.properties) {
                 formElement.type = 'fieldset';

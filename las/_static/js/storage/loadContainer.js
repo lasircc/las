@@ -1,40 +1,63 @@
 $(document).ready(function () {
-    LASData.init({ 
+    pageData = LASData.init({ 
     'summary': 'divsum',
     'db': viewName
     });
 
     
     
-    form = $('#form').lasForm();
+    form = $('#singleContainer').lasForm();
     form.setOptions({
         "schema": {
-            "name": {
-              "title": "Name",
-              "description": "Nickname allowed",
-              "type": "string"
+            "@type":{
+                "title": "Container type",
+                "type": "string",
+                "required": true
             },
-            "gender": {
-              "title": "Gender",
-              "description": "Your gender",
+            "barcode": {
+              "title": "Barcode",
               "type": "string",
-              "enum": [
-                "male",
-                "female",
-                "alien"
-              ]
+              "required": true,
+            },
+            "dim":{
+                "type": "object",
+                "title": "Geometry",
+                "properties": {
+                    "x": {
+                        "title": "x",
+                        "type": "integer",
+                        "required": true,
+                        
+                    },
+                    "y": {
+                        "title": "y",
+                        "type": "integer",
+                        "required": true
+                    }
+                }
+            },
+            "disposable": {
+              "title": "Disposable",
+              "type": "boolean",
             }
           },
           "form": [
-            "*",
-            {   
-                "notitle": true,
-                "type": "help",
-                "helpvalue": "<strong>Click on <em>Submit</em></strong> when you're done"
+            '*',
+            {"key": "dim.x",
+            "disabled": true
             },
-            {
-              "type": "submit",
-              "title": "Submit"
+            {"key": "dim.y",
+            "disabled": true
+            },
+            {"key": "@type",
+            "type": "typeahead",
+            "event": {
+                source: [{"_id": "plate1", "name":"Plate1", "dim": {"x": 4, "y": 6}}, {"_id": "tube", "name":"Tube", "dim": {"x": 1, "y": 1}}],
+                onSelect: function(item) {
+                    console.log(item);
+                    $()
+                 }
+                }
             }
           ],
         onSubmit: function (errors, values) {
