@@ -1,4 +1,5 @@
 {% extends "_general/base.html" %}
+{% load static %}
 {% load las_tags %}
 
 {% block content %}
@@ -77,6 +78,6 @@
 {% endblock %}
 
 {% block script %}
-<script defer src="/las_static/js/centralizedMail.js"></script>
+<script defer src="{% static "/js/home/centralizedMail.js" %}"></script>
 {% endblock %}
 

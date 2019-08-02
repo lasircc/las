@@ -1,4 +1,5 @@
 {% extends "_general/base.html" %}
+{% load static %}
 {% load crispy_forms_tags %}
 {% block content %}
     {% if post_save %}
@@ -85,5 +86,5 @@
 {% endblock %}
 
 {% block script %}
-<script defer type="text/javascript" src="/las_static/js/registration_form.js"></script>
+<script defer type="text/javascript" src="{% static "/js/registration_form.js" %}"></script>
 {% endblock %}

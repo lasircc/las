@@ -21,7 +21,7 @@ COPY _config/graphdb graphdb/
 RUN mkdir /data
 WORKDIR /data
 COPY _config/packaging/requirements.txt /data/
-
+RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 

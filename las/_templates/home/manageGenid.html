@@ -1,5 +1,5 @@
 {% extends "_general/base.html" %}
-
+{% load static %}
 {% load las_tags %}
 
 {% block content %}
@@ -483,5 +483,5 @@
 <script>
     entityfeatures = JSON.parse('{{features|safe}}')
 </script>
-<script defer type="text/javascript" src="/las_static/js/manageGenid.js"></script>
+<script defer type="text/javascript" src="{% static "/js/home/manageGenid.js" %}"></script>
 {% endblock %}
