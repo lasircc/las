@@ -40,6 +40,11 @@ const LASData = (function() {
             if (lasData['card']){
                 initCardEntity();
             }
+            if (!lasData['finish']){
+                lasData['finish'] = {'div': 'content', 'href': '/'};
+
+            }
+            initFinish();
             
         }
     
@@ -82,8 +87,13 @@ const LASData = (function() {
                 getEntity(dataPut).then(function(data){
                     addTodo(data);
                 });
-            dfd.resolve(dataPut);
             }
+            dfd.resolve(dataPut);
+        }
+        objectStoreRequest.onerror = function(){
+            console.log("There has been an error with retrieving your data: " + objectStoreRequest.error);
+            toastr['error']("Entity already insert!");
+            dfd.reject();
         }
         return dfd.promise();
     }
@@ -98,6 +108,34 @@ const LASData = (function() {
         return dfd.promise();
     }
 
+    // // get an entity given the identifier
+    function getEntityByKey(key){
+        var dfd = $.Deferred();
+        var objectStore = lasDb.transaction(['entity'], "readwrite").objectStore('entity');
+        var myIndex = objectStore.index('identifier'); 
+        var getRequest = myIndex.get(key);
+        getRequest.onsuccess = function() {
+            dfd.resolve(getRequest.result);
+        }
+        return dfd.promise();
+    }
+
+    function initFinish(){
+        t = '<div class="finishSession text-right mt-2"><button class="btn btn-success">Save</button></div>'
+        $('#'+ lasData['finish']['div']).prepend(t);
+        $('#'+ lasData['finish']['div'] + ' button').on('click', function(){
+            getData().then(function(error, jsonString){
+                console.log(error, jsonString);
+                if (!error){
+                    deleteDb().then(function(){
+                        window.location = lasData['finish']['href'];
+                    });
+                    
+                }            
+            })
+        })
+    }
+
 
     function initSummary(){
         $.get("/las_static/templates/summary.html", function( data ) {
@@ -108,8 +146,8 @@ const LASData = (function() {
                 columnsDef = lasData['summarylist'];
             else
                 columnsDef = [];
-            columnsDef.splice(0,0, {"title": "id"})
-            columnsDef.splice(1,0, {"title": "Entity"})
+            columnsDef.splice(0,0, {"title": "ID Operation", "data": "id"})
+            columnsDef.splice(1,0, {"title": "Identifier", "data": "identifier"})
     
             var objectStore = lasDb.transaction(['log'], "readonly").objectStore('log');
             var objectStoreRequest =objectStore.getAll();
@@ -171,8 +209,52 @@ const LASData = (function() {
         }
     }
 
+    function getLog(id){
+        var dfd = $.Deferred();
+        var objectStore = lasDb.transaction(['log'], "readwrite").objectStore('log');
+        var objectStoreRequest = objectStore.get(id);
+        objectStoreRequest.onsuccess= function (){
+            dfd.resolve(objectStoreRequest.result);
+        }
+        return dfd.promise();
+    }
 
-    function clearDb(){
+
+    function addLog(data){
+        var dfd = $.Deferred();
+        var objectStoreLog = lasDb.transaction(['log'], "readwrite").objectStore('log');
+        var objectStoreRequest = objectStoreLog.put(data);
+        objectStoreRequest.onsuccess = function() {
+            // grab the data object returned as the result
+            var dataPut = objectStoreRequest.result;
+            getLog(dataPut).then(function(data){
+                $('#'+ lasData['summary']+ ' table').DataTable().row.add(data).draw( false );
+            });
+            dfd.resolve(dataPut);
+        }
+        return dfd.promise();
+    }
+
+
+    function deleteDb(){
+        var dfd = $.Deferred();
+        lasDb.close(lasData['db']);
+        
+        var DBDeleteRequest = window.indexedDB.deleteDatabase(lasData['db'],1)
+        DBDeleteRequest.onerror = function(event) {
+            console.log("Error deleting database.");
+            dfd.reject();
+        }
+        
+        DBDeleteRequest.onsuccess = function(event) {
+            console.log("Database deleted successfully");
+            dfd.resolve();
+        }
+    
+        
+        return dfd.promise();
+        /*
+
         var objectStore = lasDb.transaction(['entity'], "readwrite").objectStore('entity');
         var objectStoreRequest = objectStore.clear();
         var objectStore = lasDb.transaction(['todo'], "readwrite").objectStore('todo');
@@ -181,7 +263,40 @@ const LASData = (function() {
         var objectStoreRequest = objectStore.clear();
         var objectStore = lasDb.transaction(['relatioships'], "readwrite").objectStore('relatioships');
         var objectStoreRequest = objectStore.clear();
+        */
     }
+
+    function getData(){
+        var dfd = $.Deferred();
+        var exportObject = {};
+        if(lasDb.objectStoreNames.length === 0)
+            dfd.resolve(null, exportObject);
+        else {
+            var transaction = lasDb.transaction(lasDb.objectStoreNames, "readonly");
+            transaction.onerror = function(event) {
+                dfd.resolve(event, null);
+            };
+            _.each(lasDb.objectStoreNames, function(storeName) {
+                var allObjects = [];
+                transaction.objectStore(storeName).openCursor().onsuccess = function(event) {
+                    var cursor = event.target.result;
+                    if (cursor) {
+                        allObjects.push(cursor.value);
+                        cursor.continue();
+                    } else {
+                        exportObject[storeName] = allObjects;
+                        if(lasDb.objectStoreNames.length === _.keys(exportObject).length) {
+                            dfd.resolve(null, exportObject);
+                        }
+                    }
+                };
+            });
+        }
+
+        return dfd.promise();
+    }
+
+
 
     return {
 
@@ -192,7 +307,11 @@ const LASData = (function() {
             return lasData;
         },
         putEntity: putEntity,
-        clearDb: clearDb
+        getEntity: getEntity,
+        getEntityByKey: getEntityByKey,
+        addLog: addLog,
+        deleteDb: deleteDb,
+        getData : getData
     }
 
 })();

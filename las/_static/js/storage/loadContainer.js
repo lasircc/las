@@ -1,8 +1,26 @@
 $(document).ready(function () {
     pageData = LASData.init({ 
     'summary': 'divsum',
-    'db': viewName
+    'db': viewName,
+    'summarylist': [{"title": "Type", "data": "@type"}, {"title": "Geometry", "data": "dim", "render": function ( data, type, row, meta ) {
+        return data.x + 'X' + data.y;
+      }}],
+    'finish': {'div': 'finish', 'href':'/storage/'}
     });
+
+
+    $('#finishSession').on('click', function (){
+        LASData.getData().then(function(error, jsonString){
+            console.log(error, jsonString);
+            if (!error){
+                LASData.deleteDb().then(function(){
+                    window.location = '/storage'
+                });
+                
+            }            
+        })
+        
+    })
 
     
     
@@ -14,7 +32,7 @@ $(document).ready(function () {
                 "type": "string",
                 "required": true
             },
-            "barcode": {
+            "identifier": {
               "title": "Barcode",
               "type": "string",
               "required": true,
@@ -72,15 +90,16 @@ $(document).ready(function () {
             ],
         onSubmit: function (errors, values) {
             console.log(errors, values)
-          
+            node = values;
+            node['status'] = 'new';
+            $.when( LASData.putEntity(node)).then(function(data){
+                console.log(data)
+                LASData.addLog(values);
+            });
+            
+            return;
         }
       });
-
-      $('#testLasForm').on ('click', function(){
-            form.onSubmit(function(){
-                console.log('Ciao')
-            });
-      })
 
       
 
