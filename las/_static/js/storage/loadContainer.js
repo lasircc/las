@@ -1,28 +1,21 @@
 $(document).ready(function () {
     pageData = LASData.init({ 
-    'summary': 'divsum',
+    'summary': {
+        'div': 'divsum',
+        'header': [{"title": "Type", "data": "@type"}, {"title": "Geometry", "data": "dim", "render": function ( data, type, row, meta ) {
+            return data.x + 'X' + data.y;
+          }}],
+        /*
+          'deleteCb': function(logid){
+            console.log('summarycallback', logid);
+        }
+        */
+    },
     'db': viewName,
-    'summarylist': [{"title": "Type", "data": "@type"}, {"title": "Geometry", "data": "dim", "render": function ( data, type, row, meta ) {
-        return data.x + 'X' + data.y;
-      }}],
     'finish': {'div': 'finish', 'href':'/storage/'}
     });
 
 
-    $('#finishSession').on('click', function (){
-        LASData.getData().then(function(error, jsonString){
-            console.log(error, jsonString);
-            if (!error){
-                LASData.deleteDb().then(function(){
-                    window.location = '/storage'
-                });
-                
-            }            
-        })
-        
-    })
-
-    
     
     form = $('#singleContainer').lasForm();
     form.setOptions({
@@ -92,11 +85,11 @@ $(document).ready(function () {
             console.log(errors, values)
             node = values;
             node['status'] = 'new';
-            $.when( LASData.putEntity(node)).then(function(data){
+            LASData.addEntity(node).then(function(data){
                 console.log(data)
                 LASData.addLog(values);
-            });
-            
+                $('#singleContainer [name="identifier"]').val('');
+            });            
             return;
         }
       });

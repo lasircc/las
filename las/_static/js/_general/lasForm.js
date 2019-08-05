@@ -375,7 +375,7 @@
             '<div class="typeahead__query">' +
             '<input id="<%= id %>" class="js-typeahead" name="<%= node.name %>" type="search" placeholder="Search" autocomplete="off" '+
             '<%= (node.schemaElement && node.schemaElement.required && (node.schemaElement.type !== "boolean") ? " required=\'required\'" : "") %> >'+
-            '</div><div class="typeahead__button"><button type="submit"> <i class="typeahead__search-icon"></i> </button> </div></div></div>',
+            '</div><div class="typeahead__button"><button disabled> <i class="typeahead__search-icon"></i> </button> </div></div></div>',
           /*
           '<input type="text" ' +
           'class=\'form-control<%= (fieldHtmlClass ? " " + fieldHtmlClass : "") %>\'' +

@@ -19,7 +19,8 @@ const LASData = (function() {
             }
     */
 
-    function initPage(info){
+    // called by init function. Initializa db and the page elements if configured
+    function _initPage(info){
 
         lasData = info;
         const object = new Object(lasData);
@@ -33,24 +34,20 @@ const LASData = (function() {
     
         DBOpenRequest.onsuccess = function(){
             lasDb = DBOpenRequest.result;
-            //console.log(lasDb.objectStoreNames.contains('entity'));
-            if (lasData['summary']){
-                initSummary();
-            }
-            if (lasData['card']){
-                initCardEntity();
-            }
-            if (!lasData['finish']){
-                lasData['finish'] = {'div': 'content', 'href': '/'};
 
-            }
-            initFinish();
-            
+            _checkExistingData().then(function(error, checkFlag){
+                if (checkFlag){
+                    _dialogPage();
+                }
+                else{
+                    _initPageElements();
+                }
+            });
+
         }
     
         DBOpenRequest.onupgradeneeded = function(event){
             var db = event.target.result;
-            //console.log('making a new object store');
             if (!db.objectStoreNames.contains('entity')) {
                 objStore = db.createObjectStore('entity', {keyPath: 'oid', autoIncrement:true});
                 objStore.createIndex("identifier", "identifier", { unique: true });
@@ -62,8 +59,8 @@ const LASData = (function() {
             if (!db.objectStoreNames.contains('log')) {
                 db.createObjectStore('log', {keyPath: 'id', autoIncrement: true});
             }
-            if (!db.objectStoreNames.contains('relatioships')) {
-                objStore = db.createObjectStore('relatioships', {keyPath: 'id', autoIncrement: true});
+            if (!db.objectStoreNames.contains('relationships')) {
+                objStore = db.createObjectStore('relationships', {keyPath: 'id', autoIncrement: true});
                 objStore.createIndex("parent", 'parent', { unique: false });
                 objStore.createIndex("child", 'child', { unique: false });
                 objStore.createIndex("rel", ['parent', 'child'] ,{ unique: true });
@@ -75,59 +72,31 @@ const LASData = (function() {
         
     }
 
+    function _initPageElements(){
+        if (lasData['summary']){
+            _initSummary();
+        }
+        if (lasData['card']){
+            _initCardEntity();
+        }
+        if (!lasData['finish']){
+            lasData['finish'] = {'div': 'content', 'href': '/'};
 
-    function putEntity(data){
-        var dfd = $.Deferred();
-        var objectStore = lasDb.transaction(['entity'], "readwrite").objectStore('entity');
-        var objectStoreRequest = objectStore.put(data);
-        objectStoreRequest.onsuccess = function() {
-            // grab the data object returned as the result
-            var dataPut = objectStoreRequest.result;
-            if (data['mother'] == true){
-                getEntity(dataPut).then(function(data){
-                    addTodo(data);
-                });
-            }
-            dfd.resolve(dataPut);
         }
-        objectStoreRequest.onerror = function(){
-            console.log("There has been an error with retrieving your data: " + objectStoreRequest.error);
-            toastr['error']("Entity already insert!");
-            dfd.reject();
-        }
-        return dfd.promise();
+        _initFinish();
     }
 
-    function getEntity(id){
-        var dfd = $.Deferred();
-        var objectStore = lasDb.transaction(['entity'], "readwrite").objectStore('entity');
-        var objectStoreRequest = objectStore.get(id);
-        objectStoreRequest.onsuccess= function (){
-            dfd.resolve(objectStoreRequest.result);
-        }
-        return dfd.promise();
-    }
-
-    // // get an entity given the identifier
-    function getEntityByKey(key){
-        var dfd = $.Deferred();
-        var objectStore = lasDb.transaction(['entity'], "readwrite").objectStore('entity');
-        var myIndex = objectStore.index('identifier'); 
-        var getRequest = myIndex.get(key);
-        getRequest.onsuccess = function() {
-            dfd.resolve(getRequest.result);
-        }
-        return dfd.promise();
-    }
-
-    function initFinish(){
+    /*
+    [private] Init finish button
+    */
+    function _initFinish(){
         t = '<div class="finishSession text-right mt-2"><button class="btn btn-success">Save</button></div>'
         $('#'+ lasData['finish']['div']).prepend(t);
         $('#'+ lasData['finish']['div'] + ' button').on('click', function(){
-            getData().then(function(error, jsonString){
+            _getData().then(function(error, jsonString){
                 console.log(error, jsonString);
                 if (!error){
-                    deleteDb().then(function(){
+                    _deleteDb().then(function(){
                         window.location = lasData['finish']['href'];
                     });
                     
@@ -135,35 +104,59 @@ const LASData = (function() {
             })
         })
     }
-
-
-    function initSummary(){
+    
+    /*
+    [private] init table for summary (log)
+    */
+    function _initSummary(){
         $.get("/las_static/templates/summary.html", function( data ) {
             t = $.parseHTML(data)[0]
             var clone = document.importNode(t.content, true);
-            $('#'+ lasData['summary']).append(clone);
-            if ('summarylist' in lasData)
-                columnsDef = lasData['summarylist'];
+            $('#'+ lasData['summary']['div']).append(clone);
+            if ('header' in lasData['summary'])
+                columnsDef = lasData['summary']['header'];
             else
                 columnsDef = [];
-            columnsDef.splice(0,0, {"title": "ID Operation", "data": "id"})
-            columnsDef.splice(1,0, {"title": "Identifier", "data": "identifier"})
-    
+            columnsDef.splice(0,0, {"title": "Delete", "data": "id", "render": function ( data, type, row, meta ) {
+                return "<button class='close' style='float:left' type='button' data-logid='" + data + "'><span aria-hidden='true' style='color:#c82333'>&times;</span></button>";}});
+            columnsDef.splice(1,0, {"title": "ID Operation", "data": "id"})
+            columnsDef.splice(2,0, {"title": "Identifier", "data": "identifier"})
+
             var objectStore = lasDb.transaction(['log'], "readonly").objectStore('log');
             var objectStoreRequest =objectStore.getAll();
             objectStoreRequest.onsuccess = function(){
-                $('#'+ lasData['summary']+ ' table').DataTable({
+                $('#'+ lasData['summary']['div'] + ' table').DataTable({
                     "data": objectStoreRequest.result,
                     "paging":   true,
                     "ordering": true,
                     "info":     true,
                     "columns": columnsDef
                 });
+
+                $('#' + lasData['summary']['div'] + ' tbody').on( 'click', 'button.close', function () {
+                    logid = $(this).data('logid')
+                    if (lasData['summary']['deleteCb']){ //call callback function if available
+                        lasData['summary']['deleteCb'](logid);
+                    }
+                    else{
+                        console.log($(this).parents('tr'))
+                        $('#' + lasData['summary']['div'] + ' table').DataTable().row( $(this).parents('tr')[0] ).remove().draw(false);
+                        getLog(logid).then(function(data){
+                            deleteLog(logid);
+                            getEntityByKey(data['identifier']).then(function(data){
+                                deleteEntity(data['oid']);
+                            });
+                        });
+                    }
+                });
             }
         });
     }
 
-    function initCardEntity(){
+    /*
+    [private] init card with todo list and current entity
+    */
+    function _initCardEntity(){
         $.get("/static/templates/card.html", function( data ) {
             t = $.parseHTML(data)[0]
             var clone = document.importNode(t.content, true);
@@ -184,6 +177,148 @@ const LASData = (function() {
             })
         });
     }
+
+
+    function _dialogPage(){
+        $.get("/las_static/templates/modalPage.html", function( data ) {
+            t = $.parseHTML(data)[0]
+            var clone = document.importNode(t.content, true);
+            $('#content').append(clone);
+
+            $('#modalPageLas').modal('show');
+
+
+            $('#destroyDataPage').on('click', function(){
+                console.log('destroy')
+                _clearDb().then(function(){
+                    $('#modalPageLas').modal('hide');
+                })
+                
+            })
+
+            $('#modalPageLas').on('hidden.bs.modal', function (e) {
+                _initPageElements();
+            })
+
+
+        });
+    }
+
+    // ------------entity functions ---------------
+    /*
+    insert new entity
+    */
+    function addEntity(data){
+        var dfd = $.Deferred();
+        var objectStore = lasDb.transaction(['entity'], "readwrite").objectStore('entity');
+        var objectStoreRequest = objectStore.put(data);
+        objectStoreRequest.onsuccess = function() {
+            // grab the data object returned as the result
+            var dataPut = objectStoreRequest.result;
+            if (data['mother'] == true){
+                getEntity(dataPut).then(function(data){
+                    addTodo(data);
+                });
+            }
+            dfd.resolve(dataPut);
+        }
+        objectStoreRequest.onerror = function(){
+            console.log("There has been an error with retrieving your data: " + objectStoreRequest.error);
+            toastr['error']("Entity already insert!");
+            dfd.reject();
+        }
+        return dfd.promise();
+    }
+    
+    /*
+    get entity data according to the internal id
+    */
+    function getEntity(id){
+        var dfd = $.Deferred();
+        var objectStore = lasDb.transaction(['entity'], "readwrite").objectStore('entity');
+        var objectStoreRequest = objectStore.get(id);
+        objectStoreRequest.onsuccess= function (){
+            dfd.resolve(objectStoreRequest.result);
+        }
+        return dfd.promise();
+    }
+
+    /*
+    get entity data according to the identifier attribute
+    */
+    function getEntityByKey(key){
+        var dfd = $.Deferred();
+        var objectStore = lasDb.transaction(['entity'], "readwrite").objectStore('entity');
+        var myIndex = objectStore.index('identifier'); 
+        var getRequest = myIndex.get(key);
+        getRequest.onsuccess = function() {
+            dfd.resolve(getRequest.result);
+        }
+        return dfd.promise();
+    }
+
+    /*
+    delete an entity and all its relationships
+    */
+    function deleteEntity(id){
+        var dfd = $.Deferred();
+        var objectStore = lasDb.transaction(['entity'], "readwrite").objectStore('entity');
+        var objectStoreRequest = objectStore.delete(id);
+        objectStoreRequest.onsuccess= function (){
+            deleteRel(id).then(function(){
+                dfd.resolve();
+            });            
+        }
+        return dfd.promise();
+    }
+
+    // ------------log functions --------------
+
+    /*
+    insert new log entry
+    */
+    function addLog(data){
+        var dfd = $.Deferred();
+        var objectStoreLog = lasDb.transaction(['log'], "readwrite").objectStore('log');
+        var objectStoreRequest = objectStoreLog.put(data);
+        objectStoreRequest.onsuccess = function() {
+            // grab the data object returned as the result
+            var dataPut = objectStoreRequest.result;
+            getLog(dataPut).then(function(data){
+                $('#'+ lasData['summary']['div']+ ' table').DataTable().row.add(data).draw( false );
+            });
+            dfd.resolve(dataPut);
+        }
+        return dfd.promise();
+    }
+
+    /*
+    get log entry
+    */
+    function getLog(id){
+        var dfd = $.Deferred();
+        var objectStore = lasDb.transaction(['log'], "readwrite").objectStore('log');
+        var objectStoreRequest = objectStore.get(id);
+        objectStoreRequest.onsuccess= function (){
+            dfd.resolve(objectStoreRequest.result);
+        }
+        return dfd.promise();
+    }
+
+    /*
+    delete log entry according to the id
+    */
+    function deleteLog(id){
+        var dfd = $.Deferred();
+        var objectStore = lasDb.transaction(['log'], "readwrite").objectStore('log');
+        var objectStoreRequest = objectStore.delete(id);
+        objectStoreRequest.onsuccess= function (){
+            dfd.resolve();
+        }
+        return dfd.promise();
+    }
+
+    // ------------todo functions --------------
 
     function addTodo(data){
         var objectStoreTodo = lasDb.transaction(['todo'], "readwrite").objectStore('todo');
@@ -209,64 +344,48 @@ const LASData = (function() {
         }
     }
 
-    function getLog(id){
+    // ------------relationships functions --------------
+
+    /*
+    delete relationships based on the entity id
+    */
+    function deleteRel(entityId){
         var dfd = $.Deferred();
-        var objectStore = lasDb.transaction(['log'], "readwrite").objectStore('log');
-        var objectStoreRequest = objectStore.get(id);
-        objectStoreRequest.onsuccess= function (){
-            dfd.resolve(objectStoreRequest.result);
-        }
-        return dfd.promise();
-    }
-
-
-    function addLog(data){
-        var dfd = $.Deferred();
-        var objectStoreLog = lasDb.transaction(['log'], "readwrite").objectStore('log');
-        var objectStoreRequest = objectStoreLog.put(data);
-        objectStoreRequest.onsuccess = function() {
-            // grab the data object returned as the result
-            var dataPut = objectStoreRequest.result;
-            getLog(dataPut).then(function(data){
-                $('#'+ lasData['summary']+ ' table').DataTable().row.add(data).draw( false );
-            });
-            dfd.resolve(dataPut);
-        }
-        return dfd.promise();
-    }
-
-
-    function deleteDb(){
-        var dfd = $.Deferred();
-        lasDb.close(lasData['db']);
-        
-        var DBDeleteRequest = window.indexedDB.deleteDatabase(lasData['db'],1)
-        DBDeleteRequest.onerror = function(event) {
-            console.log("Error deleting database.");
-            dfd.reject();
+        var objectStore = lasDb.transaction(['relationships'], "readwrite").objectStore('relationships');
+        var indexParent = objectStore.index('parent'); 
+        var deleteCursorParentRequest = indexParent.openCursor(entityId);
+        deleteCursorParentRequest.onsuccess = function(event) {
+            var cursor = event.target.result;
+            if(cursor) {
+                cursor.delete();
+                cursor.continue();
+            }
+            else{
+                var indexChild = objectStore.index('child'); 
+                var deleteCursorChildRequest = indexChild.openCursor(entityId);
+                deleteCursorChildRequest.onsuccess = function(event) {
+                    var cursor = event.target.result;
+                    if(cursor) {
+                        cursor.delete();
+                        cursor.continue();
+                    }
+                    else{
+                        dfd.resolve();
+                    }
+                }
+            }
         }
         
-        DBDeleteRequest.onsuccess = function(event) {
-            console.log("Database deleted successfully");
-            dfd.resolve();
-        }
+        return dfd.promise();
+
+    }
+
+    // ------------database functions --------------
     
-        
-        return dfd.promise();
-        /*
-
-        var objectStore = lasDb.transaction(['entity'], "readwrite").objectStore('entity');
-        var objectStoreRequest = objectStore.clear();
-        var objectStore = lasDb.transaction(['todo'], "readwrite").objectStore('todo');
-        var objectStoreRequest = objectStore.clear();
-        var objectStore = lasDb.transaction(['log'], "readwrite").objectStore('log');
-        var objectStoreRequest = objectStore.clear();
-        var objectStore = lasDb.transaction(['relatioships'], "readwrite").objectStore('relatioships');
-        var objectStoreRequest = objectStore.clear();
-        */
-    }
-
-    function getData(){
+    /*
+    [private] get all data stored in the collections
+    */
+    function _getData(){
         var dfd = $.Deferred();
         var exportObject = {};
         if(lasDb.objectStoreNames.length === 0)
@@ -296,22 +415,99 @@ const LASData = (function() {
         return dfd.promise();
     }
 
+    function _checkExistingData(){
+        var dfd = $.Deferred();
+        var checkFlag = false;
+        if(lasDb.objectStoreNames.length === 0)
+            dfd.resolve(null, checkFlag);
+        else {
+            var transaction = lasDb.transaction(lasDb.objectStoreNames, "readonly");
+            transaction.onerror = function(event) {
+                dfd.resolve(event, null);
+            };
+            _.each(lasDb.objectStoreNames, function(storeName) {
+                var allObjects = [];
+                transaction.objectStore(storeName).openCursor().onsuccess = function(event) {
+                    var cursor = event.target.result;
+                    if (cursor) {
+
+                        var checkFlag = true;
+                        dfd.resolve(null, checkFlag);
+                        cursor.continue();
+                    } else {
+                        dfd.resolve(null, checkFlag);
+                    }
+                };
+            });
+        }
+
+        return dfd.promise();
+
+    }
+
+    /*
+    [private] delete the database
+    */
+    function _deleteDb(){
+        var dfd = $.Deferred();
+        lasDb.close(lasData['db']);
+        
+        var DBDeleteRequest = window.indexedDB.deleteDatabase(lasData['db'],1)
+        DBDeleteRequest.onerror = function(event) {
+            console.log("Error deleting database.");
+            dfd.reject();
+        }
+        
+        DBDeleteRequest.onsuccess = function(event) {
+            console.log("Database deleted successfully");
+            dfd.resolve();
+        }
+    
+        
+        return dfd.promise();
+        
+    }
+
+
+    function _clearDb(){
+        var dfd = $.Deferred();
+        var exportObject = {};
+        if(lasDb.objectStoreNames.length === 0)
+            dfd.resolve(null, true);
+        else {
+            var transaction = lasDb.transaction(lasDb.objectStoreNames, "readwrite");
+            transaction.onerror = function(event) {
+                dfd.resolve(event, null);
+            };
+            _.each(lasDb.objectStoreNames, function(storeName) {
+                var allObjects = [];
+                transaction.objectStore(storeName).clear().onsuccess = function() {
+                    exportObject[storeName] = true;
+                    if(lasDb.objectStoreNames.length === _.keys(exportObject).length) {
+                        dfd.resolve(null, true);
+                    }
+                };
+            });
+        }
+        return dfd.promise();
+    
+    }
+
+
 
 
     return {
 
         init: function(info) {
             if(!lasData){
-                lasData = initPage(info);
+                lasData = _initPage(info);
             }
             return lasData;
         },
-        putEntity: putEntity,
+        addEntity: addEntity,
         getEntity: getEntity,
         getEntityByKey: getEntityByKey,
         addLog: addLog,
-        deleteDb: deleteDb,
-        getData : getData
     }
 
 })();
