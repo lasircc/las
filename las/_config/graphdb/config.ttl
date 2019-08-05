@@ -21,7 +21,7 @@
             owlim:entity-id-size  "32" ;
             owlim:imports "" ;
         	owlim:repository-type "file-repository" ;
-            owlim:ruleset "owl-horst-optimized" ;
+            owlim:ruleset "owl2-rl" ;
             owlim:storage-folder "storage" ;
  
             owlim:enable-context-index "false" ;
