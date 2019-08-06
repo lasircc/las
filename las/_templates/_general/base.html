@@ -56,8 +56,8 @@
 		{% block content %}{% endblock %}
 	</div>
 
-	<div class="container-fluid fixed-bottom navbar-dark bg-dark mt-5 text-right">
-		<span class="navbar-text ml-auto" style="color:#ccc; font-size:0.8em">
+	<div class="container-fluid fixed-bottom navbar-dark bg-dark mt-5" id="footerLAS">
+		<span class="navbar-text ml-auto" style="color:#ccc; font-size:0.8em;float: right;">
 			Copyright {% now "Y" %} | IRCC | All rights reserved
 		</span>
 	</div>
@@ -130,6 +130,12 @@
 
 
 		$(document).ready(function () {
+			$('body').on('change', '.custom-file-input', function() { 
+				console.log($(this), $(this).val())
+				let fileName = $(this).val().split('\\').pop(); 
+				console.log(fileName)
+				$(this).next('.custom-file-label').addClass("selected").html(fileName); 
+			});
 
 			toastr.options = {
 				"closeButton": false,

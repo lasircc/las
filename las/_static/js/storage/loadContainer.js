@@ -54,8 +54,9 @@ $(document).ready(function () {
           },
           "form": [
             '*',
-            {"key": "dim.x",
-            "disabled": true
+            {
+                "key": "dim.x",
+                "disabled": true
             },
             {   
                 "key": "dim.y",
@@ -64,7 +65,6 @@ $(document).ready(function () {
             {
                 "key": "@type",
                 "type": "typeahead",
-                
                 "event": {
                     source: {data:[ {"name":"Plate1", "_id": "plate1", "dim": {"x": 4, "y": 6}}, {"name":"Tube", "_id": "tube", "dim": {"x": 1, "y": 1} } ]},
                     display: ['name'],

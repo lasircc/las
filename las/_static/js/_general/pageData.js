@@ -36,11 +36,18 @@ const LASData = (function() {
             lasDb = DBOpenRequest.result;
 
             _checkExistingData().then(function(error, checkFlag){
-                if (checkFlag){
-                    _dialogPage();
+                restoredDataFlag = sessionStorage.getItem( "restoredData");
+                if (restoredDataFlag){
+                    sessionStorage.removeItem("restoredData");
+                    _initPageElements();
                 }
                 else{
-                    _initPageElements();
+                    if (checkFlag){
+                        _dialogPage();
+                    }
+                    else{
+                        _initPageElements();
+                    }
                 }
             });
 
@@ -81,9 +88,9 @@ const LASData = (function() {
         }
         if (!lasData['finish']){
             lasData['finish'] = {'div': 'content', 'href': '/'};
-
         }
         _initFinish();
+        _initAdvancedOptions();
     }
 
     /*
@@ -103,6 +110,46 @@ const LASData = (function() {
                 }            
             })
         })
+    }
+
+    function _initAdvancedOptions(){
+        $('#footerLAS').prepend('<span class="navbar-text ml-auto fa fa-cog" id="advacedConf" style="cursor:pointer"></span>');
+        $('#advacedConf').on('click', function(){
+            console.log('advanced options');
+            $('#modalAdvanced').modal('show');
+        })
+        $.get("/las_static/templates/advancedModal.html", function( data ) {
+            t = $.parseHTML(data)[0]
+            var clone = document.importNode(t.content, true);
+            $('#content').append(clone);
+
+            $('#restoreDataPage').on('click', function(){
+                console.log('restoreData');
+                $('#modalAdvanced').modal('hide');
+            });
+
+            $('#modalAdvanced').on('hidden.bs.modal', function (e) {
+                console.log('restore close')
+                var reader = new FileReader();
+                fileToLoad = $('#advancedSessionData')[0].files[0] 
+                reader.onload = function(fileLoadedEvent) {
+                    var textFromFileLoaded = fileLoadedEvent.target.result;
+                    data = JSON.parse(textFromFileLoaded);
+                    console.log(data);
+                    _clearDb().then(function(){
+                        _restoreDb(data).then(function(event, success){
+                            console.log(event, success);
+                            if (success){
+                                sessionStorage.setItem( "restoredData", true );
+                                location.reload();
+                            }
+                        });
+                    });
+                };
+                reader.readAsText(fileToLoad, 'UTF-8');
+
+            });
+        });
     }
     
     /*
@@ -186,21 +233,75 @@ const LASData = (function() {
             $('#content').append(clone);
 
             $('#modalPageLas').modal('show');
-
+            $('#mPageDestroyFlag').val(false);
+            
 
             $('#destroyDataPage').on('click', function(){
-                console.log('destroy')
-                _clearDb().then(function(){
-                    $('#modalPageLas').modal('hide');
-                })
-                
-            })
+                console.log('destroy');
+                $('#mPageDestroyFlag').val(true);
+                $('#modalPageLas').modal('hide');
+            });
 
             $('#modalPageLas').on('hidden.bs.modal', function (e) {
-                _initPageElements();
-            })
+                if ($('#mPageLasDownload').prop('checked')){
+                    if ('Blob' in window) {
+                        var fileName = lasData['db'] + '.json';
+                        _getData().then(function(error, jsonString){
+                            if (!error){
+                                var textFileAsBlob = new Blob([JSON.stringify(jsonString)], { type: 'text/plain' });
+                        
+                                if ('msSaveOrOpenBlob' in navigator) {
+                                    navigator.msSaveOrOpenBlob(textFileAsBlob, fileName);
+                                } 
+                                else {
+                                    var downloadLink = document.createElement('a');
+                                    downloadLink.download = fileName;
+                                    downloadLink.innerHTML = 'Download File';
+                                    
+                                    if ('webkitURL' in window) {
+                                    // Chrome allows the link to be clicked without actually adding it to the DOM.
+                                    downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+                                    } 
+                                    else {
+                                        // Firefox requires the link to be added to the DOM before it can be clicked.
+                                        downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+                                        downloadLink.click(function(){
+                                            document.body.removeChild(event.target);
+                                        }); 
+                                    
+                                        downloadLink.style.display = 'none';
+                                        document.body.appendChild(downloadLink);
+                                    }
+                                    downloadLink.click();
+                                }
+                            }
+                            if($('#mPageDestroyFlag').val() == "true"){
+                                _clearDb().then(function(){
+                                    _initPageElements();
+                                });
+                            }
+                            else{
+                                _initPageElements();
+                            }
 
+                        });
 
+                    } 
+                    else {
+                        toastr["warning"]('Your browser does not support to create dump of session');
+                    }
+                }
+                else{
+                    if($('#mPageDestroyFlag').val() == "true"){
+                        _clearDb().then(function(){
+                            _initPageElements();
+                        });
+                    }
+                    else{
+                        _initPageElements();
+                    }
+                }
+            });
         });
     }
 
@@ -491,6 +592,42 @@ const LASData = (function() {
         }
         return dfd.promise();
     
+    }
+
+    function _putNext(transaction, storeName, data, i){
+        var dfd = $.Deferred();
+        console.log(i, data.length)
+        if (i<data.length){
+            transaction.objectStore(storeName).put(data[i]).onsuccess = _putNext(transaction, storeName, data, ++i);
+        } 
+        else {   // complete
+            console.log('populate complete', storeName);
+            dfd.resolve(storeName);
+        }
+        return dfd.promise();
+    }
+
+    function _restoreDb(data){
+        var dfd = $.Deferred();
+        if(lasDb.objectStoreNames.length === 0)
+            dfd.resolve(null, true);
+        else {
+            var transaction = lasDb.transaction(lasDb.objectStoreNames, "readwrite");
+            transaction.onerror = function(event) {
+                dfd.resolve(event, null);
+            };
+            var importObject = [];
+            _.each(lasDb.objectStoreNames, function(storeName) {
+                _.each(data[storeName], function(item){
+                    importObject.push( transaction.objectStore(storeName).put(item) );
+                })
+            });
+            $.when(importObject).done(function(){
+                dfd.resolve(null, true);
+            })
+        }
+        return dfd.promise();
+
     }
 
 
