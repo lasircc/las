@@ -15,6 +15,6 @@ $(document).ready(function () {
     'finish': {'div': 'finish', 'href':'/storage/'}
     });
 
-    form = $('#containerBatch').templateUploader();
+    uploader = $('#containerBatch').templateUploader();
     
 });

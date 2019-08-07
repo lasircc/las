@@ -66,11 +66,12 @@
 	<div class="modal">
 		<!-- Place at bottom of page -->
 	</div>
-
 	<script src="{% static "node_modules/jquery/dist/jquery.min.js" %}"></script>
-	<script src="{% static "node_modules/popper.js/dist/umd/popper.min.js" %}"></script>
+	<script defer src="{% static "node_modules/popper.js/dist/umd/popper.min.js" %}"></script>
+	
 	<script defer src="{% static "node_modules/bootstrap/dist/js/bootstrap.min.js" %}"></script>
-	<script src="{% static "node_modules/intersection-observer/intersection-observer.js" %}"></script>
+	<script defer src="{% static "node_modules/intersection-observer/intersection-observer.js" %}"></script>
+	
 	<script defer src="{% static "node_modules/datatables.net/js/jquery.dataTables.min.js" %}"></script>
 	<script defer src="{% static "node_modules/datatables.net-bs4/js/dataTables.bootstrap4.min.js" %}"></script>
 	<script defer src="{% static "node_modules/cookieconsent/build/cookieconsent.min.js" %}"></script>
@@ -78,8 +79,7 @@
 	<script defer src="{% static "node_modules/pdfmake/build/pdfmake.min.js" %}"></script>
 	<script defer src="{% static "node_modules/pdfmake/build/vfs_fonts.js" %}"></script>
 	<script defer src="{% static "node_modules/moment/min/moment-with-locales.min.js" %}"></script>
-	<script defer
-		src="{% static "node_modules/tempusdominus-bootstrap-4/build/js/tempusdominus-bootstrap-4.min.js" %}"></script>
+	<script defer src="{% static "node_modules/tempusdominus-bootstrap-4/build/js/tempusdominus-bootstrap-4.min.js" %}"></script>
 
 	<script defer src="{% static "node_modules/multiselect/js/jquery.multi-select.js" %}"></script>
 
@@ -88,6 +88,7 @@
 	<script defer src="{% static "node_modules/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.js" %}"></script>
 
 	<script defer src="{% static "node_modules/jquery-typeahead/dist/jquery.typeahead.min.js" %}"></script>
+	<script defer src="{% static "node_modules/uuid-random/uuid-random.min.js" %}"></script>
 
 
 	<link async href="{% static "node_modules/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.css" %}" rel="stylesheet">

@@ -32,7 +32,9 @@
     "underscore": "^1.9.1",
     "@fortawesome/fontawesome-free": "^5.10.0",
     "jquery-typeahead": "^2.10.6",
-    "intersection-observer": "^0.7.0"
+    "intersection-observer": "^0.7.0",
+    "uuid-random": "^1.0.9"
+    
   },
   "devDependencies": {},
   "scripts": {

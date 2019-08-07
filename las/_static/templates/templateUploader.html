@@ -1,0 +1,65 @@
+<template id="TtemplateUploader">
+    <div class="form-group">
+        <div class="typeahead__container">
+            <div class="typeahead__field">
+                <div class="typeahead__query">
+                    <input class="js-typeahead-templateUp"
+                            name="q"
+                            type="search"
+                            autocomplete="off">
+                </div>
+                <div class="typeahead__button">
+                    <button disabled>
+                        <span class="typeahead__search-icon"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="custom-file">
+            <input type="file" class="custom-file-input">
+            <label class="custom-file-label">Choose file</label>
+        </div>
+    </div>
+    <div class="form-group">
+        <button class="btn btn-primary">Validate</button>
+    </div>
+    <div class="form-group" style='display: none'>
+        <button class="btn btn-success">Submit</button>
+    </div>
+
+    <div class="alert alert-warning alert-dismissible fade show" role="alert" style="display: none">
+        <p>
+            <strong><i class="fas fa-exclamation-triangle"></i> Warning!</strong>
+            Some errors are detected in parsing the file. Please look at the resutls to fix them.</p>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="alert alert-success alert-dismissible fade show" role="alert" style="display: none">
+        <p>
+            <strong><i class="far fa-check-circle"></i> Success!</strong>
+            The data are correct. Please click on Submit to load them</p>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="accordionRes" style="display: none">
+        <div class="card">
+            <div class="card-header" >
+                <h5 class="mb-0">
+                    <button class="btn btn-link" data-toggle="collapse" data-target="" aria-expanded="false">
+                        Results
+                    </button>
+                </h5>
+            </div>
+        
+            <div id="" class="collapse" data-parent="">
+                <div class="card-body">
+                    Here the results of validation
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
