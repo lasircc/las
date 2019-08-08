@@ -16,5 +16,6 @@ $(document).ready(function () {
     });
 
     uploader = $('#containerBatch').templateUploader();
+    uploader.setOptions({'templates':[ {"name":"Template1 pippo", "_id": "Template1"}, {"name":"Template2 pluto", "_id": "Template2"}]})
     
 });

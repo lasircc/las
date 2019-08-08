@@ -47,7 +47,7 @@
                 if (settings.templates.length > 1){
                     $.typeahead({
                         input: '.js-typeahead-templateUp',
-                        source: {data:[ {"name":"Template1", "_id": "Template1"}, {"name":"Template2", "_id": "Template2"} ]},
+                        source: {data: settings.templates},
                         display: ['name'],
                         minLength: 1,
                         callback:  {
@@ -71,7 +71,15 @@
                 }
                 console.log('currentTemplate ->', currentTemplate);
 
+                console.log(formElt.attr('id') + ' .btn-primary')
 
+                $(formElt.attr('id') + ' .btn-primary').on('click', function(){
+                    console.log('validate');
+                })
+
+                $(formElt.attr('id') + ' .btn-primary').on('click', function(){
+                    console.log('submit');
+                })
 
             });
             
