@@ -92,12 +92,14 @@ class EntityViewSet (ViewSet):
             print ('EntityViewSet: ' , request.user, request, self.kwargs, dbcollection)
             collection = request.data[dbcollection]
 
-            entity_id = db[dbcollection].insert_one( collection ).inserted_id
+            entity_id = db[dbcollection].insert_one( request.data ).inserted_id
             if entity_id == None:
                 raise ('Error in insert creating entity of type ', self.kwargs['dbcollection'] )
             print (entity_id)
+            doc = db[dbcollection].find_one({'_id': entity_id})
 
-            return Response(request.data, status=status.HTTP_201_CREATED)
+
+            return Response(to_json(doc), status=status.HTTP_201_CREATED)
         except Exception as e:
             print ('EntityViewSet error: ', e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -106,10 +108,16 @@ class EntityViewSet (ViewSet):
     def destroy(self, request,  dbcollection, pk=None, format =None):
         try:
             print ('EntityViewSet: ' , request.user, request, self.kwargs, dbcollection)
+            collection = request.data[dbcollection]
+            if ('csrf' in request.data):
+                db[collection].delete_many({'csrf': request.data['csrf']})
+
             return Response(request.data, status=status.HTTP_200_OK)
         except:
             return Response(request.data, status=status.HTTP_400_BAD_REQUEST)
     '''
+    
+
 
    
     @action(methods=['get'], detail=False)
@@ -153,3 +161,4 @@ class EntityViewSet (ViewSet):
         except Exception as e:
             print ('Autocomplete error:', e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
+

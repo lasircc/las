@@ -1,6 +1,7 @@
 const LASData = (function() {
     let lasData 
     let lasDb = null;
+    let csrf = document.getElementsByName('csrfmiddlewaretoken')[0].value
 
     // function to init all the container divs, summary table, card current entity
 
@@ -29,6 +30,13 @@ const LASData = (function() {
             console.log('This browser doesn\'t support IndexedDB');
             return;
         }
+
+        currentCsrf = sessionStorage.getItem("csrf");
+        sessionStorage.setItem("csrf", csrf);
+        console.log(currentCsrf, csrf)
+        
+        
+        
     
         var DBOpenRequest = window.indexedDB.open(lasData['db'],1)
     
@@ -38,15 +46,27 @@ const LASData = (function() {
             _checkExistingData().then(function(error, checkFlag){
                 restoredDataFlag = sessionStorage.getItem( "restoredData");
                 if (restoredDataFlag){
-                    sessionStorage.removeItem("restoredData");
-                    _initPageElements();
+                    $.ajax({
+                        type:'put',
+                        url: "/entity/sessionData/",
+                        data: {'old': currentCsrf, 'new': csrf}
+                    }).done(function(){
+                        sessionStorage.removeItem("restoredData");
+                        _initPageElements();
+                    });                    
                 }
                 else{
                     if (checkFlag){
                         _dialogPage();
                     }
                     else{
-                        _initPageElements();
+                        $.ajax({
+                            type:'delete',
+                            url: "/entity/sessionData/",
+                            data: {'csrf': currentCsrf}
+                        }).done(function(){
+                            _initPageElements();
+                        });
                     }
                 }
             });
@@ -56,7 +76,7 @@ const LASData = (function() {
         DBOpenRequest.onupgradeneeded = function(event){
             var db = event.target.result;
             if (!db.objectStoreNames.contains('entity')) {
-                objStore = db.createObjectStore('entity', {keyPath: 'oid', autoIncrement:true});
+                objStore = db.createObjectStore('entity', {keyPath: '_id.$oid'});
                 objStore.createIndex("identifier", "identifier", { unique: true });
             }
             if (!db.objectStoreNames.contains('todo')) {
@@ -67,7 +87,7 @@ const LASData = (function() {
                 db.createObjectStore('log', {keyPath: 'id', autoIncrement: true});
             }
             if (!db.objectStoreNames.contains('relationships')) {
-                objStore = db.createObjectStore('relationships', {keyPath: 'id', autoIncrement: true});
+                objStore = db.createObjectStore('relationships', {keyPath: '_id.$oid'});
                 objStore.createIndex("parent", 'parent', { unique: false });
                 objStore.createIndex("child", 'child', { unique: false });
                 objStore.createIndex("rel", ['parent', 'child'] ,{ unique: true });
@@ -103,9 +123,22 @@ const LASData = (function() {
             _getData().then(function(error, jsonString){
                 console.log(error, jsonString);
                 if (!error){
-                    _deleteDb().then(function(){
-                        window.location = lasData['finish']['href'];
-                    });
+                    $.ajax({
+                        type: 'post',
+                        url: '/entity/sessionData/',
+                        data : {
+                            'viewname': lasData['db'],
+                            'csrf': csrf,
+                            'data': JSON.stringify(jsonString)
+                        }
+
+                    }).done(function(){
+                        _deleteDb().then(function(){
+                            sessionStorage.removeItem("csrf");
+                            window.location = lasData['finish']['href'];
+                        });
+                    })
+                    
                     
                 }            
             })
@@ -191,7 +224,7 @@ const LASData = (function() {
                         getLog(logid).then(function(data){
                             deleteLog(logid);
                             getEntityByKey(data['identifier']).then(function(data){
-                                deleteEntity(data['oid']);
+                                deleteEntity(data['_id']['$oid']);
                             });
                         });
                     }
@@ -276,12 +309,25 @@ const LASData = (function() {
                                 }
                             }
                             if($('#mPageDestroyFlag').val() == "true"){
-                                _clearDb().then(function(){
-                                    _initPageElements();
+                                $.ajax({
+                                    type:'delete',
+                                    url: "/entity/sessionData/",
+                                    data: {'csrf': currentCsrf}
+                                }).done(function(){
+                                    _clearDb().then(function(){
+                                        _initPageElements();
+                                    });
                                 });
+                                
                             }
                             else{
-                                _initPageElements();
+                                $.ajax({
+                                    type:'put',
+                                    url: "/entity/sessionData/",
+                                    data: {'old': currentCsrf, 'new': csrf}
+                                }).done(function(){
+                                    _initPageElements();
+                                });
                             }
 
                         });
@@ -293,12 +339,25 @@ const LASData = (function() {
                 }
                 else{
                     if($('#mPageDestroyFlag').val() == "true"){
-                        _clearDb().then(function(){
-                            _initPageElements();
+                        $.ajax({
+                            type:'delete',
+                            url: "/entity/sessionData/",
+                            data: {'csrf': currentCsrf}
+                        }).done(function(){
+                            _clearDb().then(function(){
+                                _initPageElements();
+                            });
                         });
+                        
                     }
                     else{
-                        _initPageElements();
+                        $.ajax({
+                            type:'put',
+                            url: "/entity/sessionData/",
+                            data: {'old': currentCsrf, 'new': csrf}
+                        }).done(function(){
+                            _initPageElements();
+                        });
                     }
                 }
             });
@@ -311,23 +370,36 @@ const LASData = (function() {
     */
     function addEntity(data){
         var dfd = $.Deferred();
-        var objectStore = lasDb.transaction(['entity'], "readwrite").objectStore('entity');
-        var objectStoreRequest = objectStore.put(data);
-        objectStoreRequest.onsuccess = function() {
-            // grab the data object returned as the result
-            var dataPut = objectStoreRequest.result;
-            if (data['mother'] == true){
-                getEntity(dataPut).then(function(data){
-                    addTodo(data);
-                });
+        
+         $.ajax({
+            type:'post',
+            url: "/entity/docSession/",
+            data: {'csrf': csrf, 'type': 'entity', 'doc': JSON.stringify(data)}
+        }).done(function(response){
+            var objectStore = lasDb.transaction(['entity'], "readwrite").objectStore('entity');
+            var objectStoreRequest = objectStore.put(response['doc']);
+            objectStoreRequest.onsuccess = function() {
+                // grab the data object returned as the result
+                var dataPut = objectStoreRequest.result;
+                if (data['mother'] == true){ // to think about
+                    getEntity(dataPut).then(function(data){
+                        addTodo(data);
+                    });
+                }
+                dfd.resolve(response['doc']);
             }
-            dfd.resolve(dataPut);
-        }
-        objectStoreRequest.onerror = function(){
-            console.log("There has been an error with retrieving your data: " + objectStoreRequest.error);
-            toastr['error']("Entity already insert!");
-            dfd.reject();
-        }
+            objectStoreRequest.onerror = function(){
+                console.log("There has been an error with retrieving your data: " + objectStoreRequest.error);
+                toastr['error']("Entity already insert!");
+                dfd.reject();
+            }
+
+        }).fail(function(response){
+            console.log(response);
+            toastr['error'](response.responseJSON['error']);
+        })
+
+        
         return dfd.promise();
     }
     
@@ -363,13 +435,20 @@ const LASData = (function() {
     */
     function deleteEntity(id){
         var dfd = $.Deferred();
-        var objectStore = lasDb.transaction(['entity'], "readwrite").objectStore('entity');
-        var objectStoreRequest = objectStore.delete(id);
-        objectStoreRequest.onsuccess= function (){
-            deleteRel(id).then(function(){
-                dfd.resolve();
-            });            
-        }
+        $.ajax({
+            type:'delete',
+            url: "/entity/docSession/",
+            data: {'csrf': csrf, 'type': 'entity', 'id': id}
+        }).done(function(){
+            var objectStore = lasDb.transaction(['entity'], "readwrite").objectStore('entity');
+            var objectStoreRequest = objectStore.delete(id);
+            objectStoreRequest.onsuccess= function (){
+                deleteRel(id).then(function(){
+                    dfd.resolve();
+                });            
+            }
+        })
+        
         return dfd.promise();
     }
 
@@ -619,7 +698,13 @@ const LASData = (function() {
             var importObject = [];
             _.each(lasDb.objectStoreNames, function(storeName) {
                 _.each(data[storeName], function(item){
-                    importObject.push( transaction.objectStore(storeName).put(item) );
+                    if (storeName == 'entity'){
+                        importObject.push( addEntity(item) );
+                    }
+                    else{
+                        importObject.push( transaction.objectStore(storeName).put(item) );
+                    }
+                    
                 })
             });
             $.when(importObject).done(function(){

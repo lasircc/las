@@ -30,23 +30,6 @@ $(document).ready(function () {
               "type": "string",
               "required": true,
             },
-            "dim":{
-                "type": "object",
-                "title": "Geometry",
-                "properties": {
-                    "x": {
-                        "title": "x",
-                        "type": "integer",
-                        "required": true,
-                        
-                    },
-                    "y": {
-                        "title": "y",
-                        "type": "integer",
-                        "required": true
-                    }
-                }
-            },
             "disposable": {
               "title": "Disposable",
               "type": "boolean",
@@ -55,21 +38,13 @@ $(document).ready(function () {
           "form": [
             '*',
             {
-                "key": "dim.x",
-                "disabled": true
-            },
-            {   
-                "key": "dim.y",
-                "disabled": true
-            },
-            {
                 "key": "@type",
                 "type": "typeahead",
                 "event": {
                     source: {data:[ {"name":"Plate1", "_id": "plate1", "dim": {"x": 4, "y": 6}}, {"name":"Tube", "_id": "tube", "dim": {"x": 1, "y": 1} } ]},
                     display: ['name'],
                     minLength: 1,
-                    //template: "{{display}} <small style='color:#999;'>{{group}}</small>",
+                    /*template: "{{display}} <small style='color:#999;'>{{group}}</small>",
                     callback:  {
                         onClickAfter: function (node, a, item, event) {
                             //event.preventDefault();
@@ -78,16 +53,16 @@ $(document).ready(function () {
                             $('#singleContainer [name="dim.y"]').val(item.dim.y);
                         }
                     }
+                    */
                 }
             }
             ],
         onSubmit: function (errors, values) {
             console.log(errors, values)
             node = values;
-            node['status'] = 'new';
             LASData.addEntity(node).then(function(data){
                 console.log(data)
-                LASData.addLog(values);
+                LASData.addLog(data);
                 $('#singleContainer [name="identifier"]').val('');
             });            
             return;
