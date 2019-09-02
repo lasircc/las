@@ -48,8 +48,10 @@ urlpatterns = [
     path('user/', include('user.urls')),
     path('notification/', include('notification.urls')),
     path('datamodel/', include('datamodel.urls')),
+    path('entity/', include('entity.urls')),
 
-    path('storage/', include('storage.urls')),
+
+    path('storage/', include('storage.urls', namespace='storage')),
     path('biobank/', include('biobank.urls')),
     path('pdx/', include('pdx.urls')),
 

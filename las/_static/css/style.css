@@ -31,13 +31,13 @@
     padding: .5em;
 }
 
-/* The switch - the box around the slider */
+/* The switch - the box around the slider  float:right;*/
 .switch {
   position: relative;
   display: inline-block;
   width: 52px;
   height: 30px;
-  float:right;
+  
 }
 
 /* Hide default HTML checkbox */

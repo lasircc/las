@@ -56,8 +56,8 @@
 		{% block content %}{% endblock %}
 	</div>
 
-	<div class="container-fluid fixed-bottom navbar-dark bg-dark mt-5 text-right">
-		<span class="navbar-text ml-auto" style="color:#ccc; font-size:0.8em">
+	<div class="container-fluid fixed-bottom navbar-dark bg-dark mt-5" id="footerLAS">
+		<span class="navbar-text ml-auto" style="color:#ccc; font-size:0.8em;float: right;">
 			Copyright {% now "Y" %} | IRCC | All rights reserved
 		</span>
 	</div>
@@ -66,41 +66,45 @@
 	<div class="modal">
 		<!-- Place at bottom of page -->
 	</div>
-
 	<script src="{% static "node_modules/jquery/dist/jquery.min.js" %}"></script>
-	<script src="{% static "node_modules/popper.js/dist/umd/popper.min.js" %}"></script>
+	<script defer src="{% static "node_modules/popper.js/dist/umd/popper.min.js" %}"></script>
+	
 	<script defer src="{% static "node_modules/bootstrap/dist/js/bootstrap.min.js" %}"></script>
-	<script src="{% static "js/intersection-observer.min.js" %}"></script>
+	<script defer src="{% static "node_modules/intersection-observer/intersection-observer.js" %}"></script>
+	
 	<script defer src="{% static "node_modules/datatables.net/js/jquery.dataTables.min.js" %}"></script>
 	<script defer src="{% static "node_modules/datatables.net-bs4/js/dataTables.bootstrap4.min.js" %}"></script>
 	<script defer src="{% static "node_modules/cookieconsent/build/cookieconsent.min.js" %}"></script>
 	<script defer src="{% static "node_modules/toastr/build/toastr.min.js" %}"></script>
 	<script defer src="{% static "node_modules/pdfmake/build/pdfmake.min.js" %}"></script>
 	<script defer src="{% static "node_modules/pdfmake/build/vfs_fonts.js" %}"></script>
-	<script defer src="{% static "js/bootstrap-ajax-typeahead-master/js/bootstrap-typeahead.min.js" %}"
-		type="text/javascript"></script>
-	<script defer src="{% static "node_modules/@fancyapps/fancybox/dist/jquery.fancybox.min.js" %}"></script>
 	<script defer src="{% static "node_modules/moment/min/moment-with-locales.min.js" %}"></script>
-	<script defer
-		src="{% static "node_modules/tempusdominus-bootstrap-4/build/js/tempusdominus-bootstrap-4.min.js" %}"></script>
+	<script defer src="{% static "node_modules/tempusdominus-bootstrap-4/build/js/tempusdominus-bootstrap-4.min.js" %}"></script>
 
 	<script defer src="{% static "node_modules/multiselect/js/jquery.multi-select.js" %}"></script>
 
+	<script defer src="{% static "node_modules/underscore/underscore-min.js" %}"></script>
+
+	<script defer src="{% static "node_modules/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.js" %}"></script>
+
+	<script defer src="{% static "node_modules/jquery-typeahead/dist/jquery.typeahead.min.js" %}"></script>
+	<script defer src="{% static "node_modules/uuid-random/uuid-random.min.js" %}"></script>
 
 
-	<link async rel="stylesheet" type="text/css"
-		href="{% static "node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css" %}" />
-	<link async rel="stylesheet" type="text/css"
-		href="{% static "node_modules/cookieconsent/build/cookieconsent.min.css"  %}" />
+	<link async href="{% static "node_modules/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.css" %}" rel="stylesheet">
+
+
+	<link async rel="stylesheet" type="text/css" href="{% static "node_modules/@fortawesome/fontawesome-free/css/all.min.css" %}" />
+	<link async rel="stylesheet" type="text/css" href="{% static "node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css" %}" />
+	<link async rel="stylesheet" type="text/css" href="{% static "node_modules/cookieconsent/build/cookieconsent.min.css"  %}" />
 	<link async rel="stylesheet" type="text/css" href="{% static "node_modules/toastr/build/toastr.min.css" %}" />
-	<link async rel="stylesheet" type="text/css"
-		href="{% static "node_modules/@fancyapps/fancybox/dist/jquery.fancybox.min.css" %}" />
-	<link async rel="stylesheet" type="text/css"
-		href="{% static "node_modules/tempusdominus-bootstrap-4/build/css/tempusdominus-bootstrap-4.min.css" %}" />
+	<link async rel="stylesheet" type="text/css" href="{% static "node_modules/tempusdominus-bootstrap-4/build/css/tempusdominus-bootstrap-4.min.css" %}" />
 	<link async rel="stylesheet" type="text/css" href="{% static "node_modules/multiselect/css/multi-select.css" %}" />
 
+	<link async rel="stylesheet" type="text/css" href="{% static "node_modules/jquery-typeahead/dist/jquery.typeahead.min.css"  %}"/>
 
-	<script defer type="text/javascript" src="{% static "js/csrfToken.js" %}"></script>
+
+	<script defer type="text/javascript" src="{% static "js/_general/csrfToken.js" %}"></script>
 	<script type="text/javascript">
 
 		window.addEventListener("load", function () {
@@ -127,6 +131,12 @@
 
 
 		$(document).ready(function () {
+			$('body').on('change', '.custom-file-input', function() { 
+				console.log($(this), $(this).val())
+				let fileName = $(this).val().split('\\').pop(); 
+				console.log(fileName)
+				$(this).next('.custom-file-label').addClass("selected").html(fileName); 
+			});
 
 			toastr.options = {
 				"closeButton": false,
@@ -145,39 +155,16 @@
 				"showMethod": "fadeIn",
 				"hideMethod": "fadeOut"
 			}
-			//ADD WORKING GROUPS HEADER FOR FUTURE AJAX CALLS!!
-			workingGroups = "";
-			{% if request.workingGroups %}
-			workingGroups = "{{request.workingGroups}}";
-			$.ajaxSetup({
-				beforeSend: function (request) {
-					request.setRequestHeader("workingGroups", workingGroups);
-				}
-			});
-			{% endif %}
-
-
+			
+			
 			$('body').ajaxComplete(function (e, xhr, settings) {
 				if (xhr.status == 278) {
 					window.location.href = xhr.getResponseHeader("Location").replace(/\?.*$/, "?next=" + window.location.pathname);
 				}
 			});
 
-			$("span.home").click(function () {
-				window.location = "{% url 'index' %}";
-			});
-
 		});
 
-		function startLag() {
-			console.log("start");
-			timer = setTimeout(function () { $("body").addClass("loading"); }, 1000);
-		}
-
-		function endLag() {
-			clearTimeout(timer);
-			$("body").removeClass("loading");
-		}
 	</script>
 
 	{% block script %} {% endblock %}
