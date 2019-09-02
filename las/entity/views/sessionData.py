@@ -1,5 +1,7 @@
 from . import *
 
+#idea: use aggregation framweowrk associated to rel and/or entities to validate new insertion or updates
+# to define where save this information (semantic part or a dedicated collection?)
 
 
 def validateEntity(entity):
