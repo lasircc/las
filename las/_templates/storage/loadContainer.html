@@ -7,8 +7,8 @@
 	<div class="col-6">
         <form id='singleContainer'></form>
     </div>	
-    <div class="col-6 text-right">
-        <div id="finish"></div>
+    <div class="col-6">
+        <div id="posContainer"></div>
     </div>
 </div>
 
@@ -24,12 +24,7 @@
 
 {% block script %} 
 
-<script>
-    let viewName = '{{request.resolver_match.view_name}}';
-</script>
-
-<script defer src="{% static "js/_general/pageData.js" %}"></script>
-<script defer src="{% static "js/_general/lasForm.js" %}"></script>
+<script defer src="{% static "js/_general/container.js" %}"></script>
 <script defer src="{% static "js/storage/loadContainer.js" %}"></script>
 
 {% endblock %}

@@ -52,8 +52,8 @@ urlpatterns = [
 
 
     path('storage/', include('storage.urls', namespace='storage')),
-    path('biobank/', include('biobank.urls')),
-    path('pdx/', include('pdx.urls')),
+    path('biobank/', include('biobank.urls', namespace='biobank')),
+    path('pdx/', include('pdx.urls', namespace='pdx')),
 
     re_path(r'^accounts/changePwd/$', auth_views.PasswordChangeView.as_view(template_name='user/changePwd.html'), name='changePwd'),
     re_path(r'^accounts/changePwdDone/$', auth_views.PasswordChangeDoneView.as_view(template_name='user/changePwdDone.html'), name='password_change_done'),

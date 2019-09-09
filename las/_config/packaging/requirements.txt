@@ -19,6 +19,7 @@ networkx>=2.2
 django-crispy-forms>=1.7.2
 drf_yasg==1.15.1 # waiting for fixes before moving on to next versions
 ete3>=3.1.1
+#djongo>=1.2.35
 git+https://github.com/lasircc/djongo.git@django2.2
 ontospy>=1.9.8.2
 django-redis>=4.10.0

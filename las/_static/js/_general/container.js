@@ -2,11 +2,12 @@
 const LASContainer = (function() {
 
     let lasData 
+    let pageData
     let lasDb = null;
     let currentEntity = null;
 
     // information about aliquot features (needed to update feature of aliquot)
-    let aliquotFeatures = {};
+    let aliquotFeatures = {'VT': {}};
 
 
     // function to init all the container divs, summary table, card current entity
@@ -25,6 +26,16 @@ const LASContainer = (function() {
                 'db': 'namedb'
             }
     */
+   function initPage(info, pageData){
+    lasData = info;
+    pageData = pageData;
+    for (var i=0; i<lasData.length; i++){
+        //generate empty container div
+        initContainer(lasData[i])
+    }
+   }
+
+    /*
     function initPage(info){
 
         lasData = info;
@@ -76,6 +87,7 @@ const LASContainer = (function() {
     
         
     }
+    */
     
     // init the div dedicated to the summary (log)
     function initSummary(){
@@ -131,9 +143,23 @@ const LASContainer = (function() {
     
     // init the div dedicated to a container with the corresponding functionalities
     function initContainer(divInfo){
-        $.get("/static/templates/container.html", function( data ) {
+        $.get("/las_static/templates/container.html", function( data ) {
             t = $.parseHTML(data)[0];
             htmlCont = renderContainer(null, 'render');
+            switch(divInfo['type']){
+                case 'pos':
+                    htmlTitle = '<h5>Position</h5>'
+                    t.content.querySelector('.card-header').innerHTML = htmlTitle;
+
+                    break;
+                case 'inc':
+
+                    break;
+                case 'dec':
+                    break;
+            }
+            
+            /*
             if (divInfo['aliqType'].length == 1){
                 htmlTitle = '<h5>' + divInfo['aliqType'][0]['label'] + '</h5>' + "<input name='aliqType' type='hidden' value='"+ divInfo['aliqType'][0]['code'] + "'>"
                 t.content.querySelector('.card-header').innerHTML = htmlTitle;
@@ -169,6 +195,8 @@ const LASContainer = (function() {
                 }
                 t.content.querySelector('.entityInfo').innerHTML = formEntity
             }
+
+            */
             t.content.querySelector('.lascontainer').innerHTML= htmlCont;
             var clone = document.importNode(t.content, true);
             $('#'+ divInfo['id']).append(clone);
@@ -406,6 +434,9 @@ const LASContainer = (function() {
                     });
                 });
             });
+        }).fail(function(){
+            toastr["error"]("Something went wrong");
+            dfd.resolve();
         });
         return dfd.promise();
     }
@@ -811,9 +842,9 @@ const LASContainer = (function() {
 
     return {
 
-        init: function(info) {
+        init: function(info, pageData) {
             if(!lasData){
-                lasData = initPage(info);
+                lasData = initPage(info, pageData);
             }
             return lasData;
         },

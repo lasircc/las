@@ -9,3 +9,9 @@ class LoadContainer(View):
 class LoadContainerBatch(View):
     def get(self, request):
         return render(request, 'storage/loadContainerBatch.html')
+
+
+@method_decorator([login_required], name='dispatch')
+class MoveContainer(View):
+    def get(self, request):
+        return render(request, 'storage/moveContainer.html')

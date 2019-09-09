@@ -55,6 +55,9 @@ INSTALLED_APPS = [
     'storage',
     'biobank',
     'pdx',
+    'cells',
+    'query',
+    'scheduler',
 ]
 
 MIDDLEWARE = [

@@ -167,6 +167,15 @@
 
 	</script>
 
+	<script>
+		let viewName = '{{request.resolver_match.view_name}}';
+	</script>
+
+	<script defer src="{% static "js/_general/pageData.js" %}"></script>
+	<script defer src="{% static "js/_general/lasForm.js" %}"></script>
+
+
+
 	{% block script %} {% endblock %}
 
 </body>

@@ -2,7 +2,7 @@ $(document).ready(function () {
     pageData = LASData.init({ 
     'summary': {
         'div': 'divsum',
-        'header': [{"title": "Type", "data": "@type"}, {"title": "Geometry", "data": "dim", "render": function ( data, type, row, meta ) {
+        'header': [{"title": "Barcode", "data": "features.barcode"}, {"title": "Type", "data": "@type"}, {"title": "Geometry", "data": "features.dim", "render": function ( data, type, row, meta ) {
             return data.x + 'X' + data.y;
           }}],
         /*
@@ -11,13 +11,21 @@ $(document).ready(function () {
         }
         */
     },
-    'db': viewName,
-    'finish': {'div': 'finish', 'href':'/storage/'}
+    'db': viewName
     });
+
+
+    LASContainer.init([
+      {'id': 'posContainer', 
+      'type': 'pos', 
+      'generate': false, 
+      'aliqType': [{'label':'Viable', 'code': 'VT'}]}
+      ], pageData);
 
 
     
     form = $('#singleContainer').lasForm();
+
     form.setOptions({
         "schema": {
             "@type":{
@@ -25,18 +33,35 @@ $(document).ready(function () {
                 "type": "string",
                 "required": true
             },
-            "identifier": {
-              "title": "Barcode",
-              "type": "string",
-              "required": true,
-            },
-            "disposable": {
-              "title": "Disposable",
-              "type": "boolean",
+            "features": {
+              "type": "object",
+              "title": "Info",
+              "properties":{
+                "barcode": {
+                  "title": "Barcode",
+                  "type": "string",
+                  "required": true,
+                },
+                "disposable": {
+                  "title": "Disposable",
+                  "type": "boolean",
+                }
+              }
             }
           },
           "form": [
             '*',
+            /*
+            { 
+              "type": "button",
+              "title": "Click me",
+              "htmlClass": "btn-info",
+              "onClick": function (evt) {
+                evt.preventDefault();
+                
+              }
+
+            },*/
             {
                 "key": "@type",
                 "type": "typeahead",
@@ -60,10 +85,10 @@ $(document).ready(function () {
         onSubmit: function (errors, values) {
             console.log(errors, values)
             node = values;
-            LASData.addEntity(node).then(function(data){
+            LASData.newEntity(node).then(function(data){
                 console.log(data)
                 LASData.addLog(data);
-                $('#singleContainer [name="identifier"]').val('');
+                $('#singleContainer [name="features.identifier"]').val('');
             });            
             return;
         }

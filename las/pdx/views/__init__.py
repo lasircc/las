@@ -41,3 +41,8 @@ from openpyxl import load_workbook
 
 
 from .main import *
+from .animals import *
+from .experiments import *
+from .measures import *
+from .surgery import *
+from .treatments import *

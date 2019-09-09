@@ -77,7 +77,6 @@ const LASData = (function() {
             var db = event.target.result;
             if (!db.objectStoreNames.contains('entity')) {
                 objStore = db.createObjectStore('entity', {keyPath: '_id.$oid'});
-                objStore.createIndex("identifier", "identifier", { unique: true });
             }
             if (!db.objectStoreNames.contains('todo')) {
                 objStore = db.createObjectStore('todo', {keyPath: 'oid'});
@@ -113,34 +112,59 @@ const LASData = (function() {
         _initAdvancedOptions();
     }
 
+    function checkSessionData(data){
+        nEntity=0;
+        nRel = 0;
+        for (var i=0; i<data['entity'].length; i++){
+            if (data['entity'][i].hasOwnProperty('session')){
+                nEntity += 1;
+            }
+        }
+        for (var i=0; i<data['relationships'].length; i++){
+            if (data['relationships'][i].hasOwnProperty('session')){
+                nRel += 1;
+            }
+        }
+        if (nRel + nEntity){
+            return true;
+        }
+        return false;
+    }
+
     /*
     [private] Init finish button
     */
     function _initFinish(){
-        t = '<div class="finishSession text-right mt-2"><button class="btn btn-success">Save</button></div>'
+        uuidFinish ='f' + uuid();
+        t = '<div class="finishSession text-right mt-2"><button class="btn btn-success" id="' + uuidFinish+ '">Save</button></div>'
+        
         $('#'+ lasData['finish']['div']).prepend(t);
-        $('#'+ lasData['finish']['div'] + ' button').on('click', function(){
+        $('#'+ uuidFinish ).on('click', function(){
             _getData().then(function(error, jsonString){
                 console.log(error, jsonString);
                 if (!error){
-                    $.ajax({
-                        type: 'post',
-                        url: '/entity/sessionData/',
-                        data : {
-                            'viewname': lasData['db'],
-                            'csrf': csrf,
-                            'data': JSON.stringify(jsonString)
-                        }
+                    if (checkSessionData(jsonString)){ // TODO manage data generated in session 
+                        $.ajax({
+                            type: 'post',
+                            url: '/entity/sessionData/',
+                            data : {
+                                'viewname': lasData['db'],
+                                'csrf': csrf,
+                                'data': JSON.stringify(jsonString)
+                            }
 
-                    }).done(function(){
-                        _deleteDb().then(function(){
-                            sessionStorage.removeItem("csrf");
-                            window.location = lasData['finish']['href'];
+                        }).done(function(){
+                            _deleteDb().then(function(){
+                                sessionStorage.removeItem("csrf");
+                                window.location = lasData['finish']['href'];
+                            });
                         });
-                    })
+                    }
+                    else{
+                        toastr["warning"]("no data to submit")
+                    }
                     
-                    
-                }            
+                }
             })
         })
     }
@@ -200,7 +224,6 @@ const LASData = (function() {
             columnsDef.splice(0,0, {"title": "Delete", "data": "id", "render": function ( data, type, row, meta ) {
                 return "<button class='close' style='float:left' type='button' data-logid='" + data + "'><span aria-hidden='true' style='color:#c82333'>&times;</span></button>";}});
             columnsDef.splice(1,0, {"title": "ID Operation", "data": "id"})
-            columnsDef.splice(2,0, {"title": "Identifier", "data": "identifier"})
 
             var objectStore = lasDb.transaction(['log'], "readonly").objectStore('log');
             var objectStoreRequest =objectStore.getAll();
@@ -223,9 +246,12 @@ const LASData = (function() {
                         $('#' + lasData['summary']['div'] + ' table').DataTable().row( $(this).parents('tr')[0] ).remove().draw(false);
                         getLog(logid).then(function(data){
                             deleteLog(logid);
+                            deleteEntity(data['_id']['$oid']);
+                            /*
                             getEntityByKey(data['identifier']).then(function(data){
-                                deleteEntity(data['_id']['$oid']);
+                                
                             });
+                            */
                         });
                     }
                 });
@@ -368,7 +394,7 @@ const LASData = (function() {
     /*
     insert new entity
     */
-    function addEntity(data){
+    function newEntity(data){
         var dfd = $.Deferred();
         
          $.ajax({
@@ -381,11 +407,13 @@ const LASData = (function() {
             objectStoreRequest.onsuccess = function() {
                 // grab the data object returned as the result
                 var dataPut = objectStoreRequest.result;
+                /*
                 if (data['mother'] == true){ // to think about
                     getEntity(dataPut).then(function(data){
                         addTodo(data);
                     });
                 }
+                */
                 dfd.resolve(response['doc']);
             }
             objectStoreRequest.onerror = function(){
@@ -399,6 +427,34 @@ const LASData = (function() {
             toastr['error'](response.responseJSON['error']);
         })
 
+        
+        return dfd.promise();
+    }
+    /*
+    add an entity retrieved form the db
+    */
+    function addEntity(data){
+        var dfd = $.Deferred();
+        
+        var objectStore = lasDb.transaction(['entity'], "readwrite").objectStore('entity');
+        var objectStoreRequest = objectStore.put(data);
+        objectStoreRequest.onsuccess = function() {
+            // grab the data object returned as the result
+            var dataPut = objectStoreRequest.result;
+            /*
+            if (data['mother'] == true){ // to think about
+                getEntity(dataPut).then(function(data){
+                    addTodo(data);
+                });
+            }
+            */
+            dfd.resolve(response['doc']);
+        }
+        objectStoreRequest.onerror = function(){
+            console.log("There has been an error with retrieving your data: " + objectStoreRequest.error);
+            toastr['error']("Entity already insert!");
+            dfd.reject();
+        }
         
         return dfd.promise();
     }
@@ -416,19 +472,6 @@ const LASData = (function() {
         return dfd.promise();
     }
 
-    /*
-    get entity data according to the identifier attribute
-    */
-    function getEntityByKey(key){
-        var dfd = $.Deferred();
-        var objectStore = lasDb.transaction(['entity'], "readwrite").objectStore('entity');
-        var myIndex = objectStore.index('identifier'); 
-        var getRequest = myIndex.get(key);
-        getRequest.onsuccess = function() {
-            dfd.resolve(getRequest.result);
-        }
-        return dfd.promise();
-    }
 
     /*
     delete an entity and all its relationships
@@ -726,9 +769,9 @@ const LASData = (function() {
             }
             return lasData;
         },
+        newEntity: newEntity,
         addEntity: addEntity,
         getEntity: getEntity,
-        getEntityByKey: getEntityByKey,
         addLog: addLog,
     }
 
