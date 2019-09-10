@@ -42,15 +42,23 @@ class EntityViewSet (ViewSet):
             print ('EntityViewSet list: ' , request.user, request, self.kwargs, dbcollection, request.user.is_superuser)
             start = int(request.query_params.get('start', 0))
             length = int(request.query_params.get('length', settings.REST_FRAMEWORK['PAGE_SIZE']))
-            startFilter = request.query_params.get('startFilter', {})
-            endFilter = request.query_params.get('filter', {})
-            print (json.loads(startFilter))
+            startFilter = json.loads(request.query_params.get('startFilter', '{}'))
+            endFilter = json.loads(request.query_params.get('filter', '{}'))
+            q = request.query_params.get('q', None)
+            prop = request.query_params.get('prop', None)
+            if q and prop:
+                print ('regex')
+                search = '(.*)' + q.strip() + '(.*)'
+                search = search.replace(' ', '(.*)')
+                regex = re.compile(search, re.IGNORECASE)
+                startFilter[prop] = {"$regex":regex }
+            print (startFilter, endFilter)
             if request.user.is_superuser:
                 print ('is_superuser')
-                resp = paginate(dbcollection, None, start, length, startFilter=json.loads(startFilter), filter=json.loads(endFilter))
+                resp = paginate(dbcollection, None, start, length, startFilter=startFilter, filter=endFilter)
             else:
                 print ('no superuser')
-                resp = paginate(dbcollection, request.user['heritage']['w'], start, length, startFilter=json.loads(startFilter), filter=json.loads(endFilter))
+                resp = paginate(dbcollection, request.user['heritage']['w'], start, length, startFilter=startFilter, filter=endFilter)
 
             return Response(resp)
         except Exception as e:

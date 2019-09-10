@@ -23,3 +23,4 @@ ete3>=3.1.1
 git+https://github.com/lasircc/djongo.git@django2.2
 ontospy>=1.9.8.2
 django-redis>=4.10.0
+boltons>=19.1.0

@@ -29,6 +29,7 @@ def validateEntity(entity, acl):
         doc['features']['dim'] = dim
     
     doc['acl'] = acl
+    doc['available'] = True
 
     if 'Container' in doc['@type']:
         res = db.entity.find({'features.barcode': doc['features']['barcode']}).count()
@@ -36,8 +37,27 @@ def validateEntity(entity, acl):
             return doc, False, 'Duplicated barcode'
     return doc, True, errMess
 
-def validateRelationship(nodes, relationship, acl):
-    return True
+
+
+
+def removeOid(path, key, old_parent, new_parent, new_items):
+    ret = default_exit(path, key, old_parent, new_parent, new_items)
+    if "$oid" in ret:
+        ret =  ObjectId(ret["$oid"])
+    #if isinstance(value, ObjectId) or isinstance(value, datetime.datetime):
+    #    return 
+    return ret
+
+
+
+def validateRelationship(doc, acl):
+    errMess = None
+    doc['acl'] = acl
+    doc['startt'] = datetime.datetime.now()
+    doc['endt'] = None
+    #print ('remap---->',  remap(doc, exit=removeOid))
+    doc = remap(doc, exit=removeOid)
+    return doc, True, errMess
 
 
 
@@ -71,9 +91,8 @@ class DocSessionView(APIView):
                 entity = json.loads(request.data['doc'])
                 doc, valid, errMess = validateEntity(entity, userProfile['acl'])
             elif typeDoc == 'relationship':
-                docs = json.loads(request.data['docs'])
-                reltype = json.loads(request.data['reltype'], userProfile['acl'])
-                rel = validateRelationship(docs, reltype, userProfile['acl'])
+                rel = json.loads(request.data['doc'])
+                doc, valid, errMess = validateRelationship(rel, userProfile['acl'])
             else:
                 raise Exception('Error in typedoc')
             
@@ -153,37 +172,37 @@ class SessionDataView (APIView):
             viewname = request.data['viewname']
 
             sessionData = json.loads(request.data['data'])
+            storeTracked = {'entity': 'e', 'relationships': 'r', 'oplog': 'o'}
 
             jsonSessionData = {}
             for storeName in sessionData:
-                jsonSessionData[storeName] = []
-                for item in sessionData[storeName]:
-                    if 'session' in item:
-                        del item['session']
-                    if '_id' in  item:
-                        if '$oid' in item['_id']:
-                            item['_id'] = ObjectId( item['_id']['$oid'])
-                    if 'acl' in item:
-                        rList = []
-                        for r in item['acl']['r']:
-                            rList.append(ObjectId(r['$oid']) )
-                        item['acl']['r'] = rList
-                        wList = []
-                        for w in item['acl']['w']:
-                            wList.append(ObjectId(w['$oid']) )
-                        item['acl']['w'] = wList
-                        oList = []
-                        for o in item['acl']['o']:
-                            oList.append(ObjectId(o['$oid']) )
-                        item['acl']['o'] = oList
+                if storeName in storeTracked.keys():
+                    jsonSessionData[storeTracked[storeName]] = []
+                    for item in sessionData[storeName]:
+                        if 'session' in item:
+                            del item['session']
+                        if '_id' in  item:
+                            if '$oid' in item['_id']:
+                                item['_id'] = ObjectId( item['_id']['$oid'])
+                        if 'acl' in item:
+                            item['acl'] = self.cleanAcl(item['acl'])
+                            
+                        if storeName == 'oplog':
+                            item['o']['_id'] = ObjectId(item['o']['_id']['$oid'])
+                            if 'session' in item['o']:
+                                del item['o']['session']
+                            if 'acl' in item['o']:
+                                item['o']['acl'] = self.cleanAcl(item['o']['acl'])
 
 
-
-                    if storeName in ['entity', 'relationship']:
-                        db[storeName].update_one({'_id': item['_id']}, {"$unset": {'session':""} })
-
-                    
-                    jsonSessionData[storeName].append(item)
+                        if storeName in ['entity', 'relationship']:
+                            db[storeName].update_one({'_id': item['_id']}, {"$unset": {'session':""} })
+                        
+                        drop_falsey = lambda path, key, value: bool(value)
+                        itemCleaned = remap(item, visit=drop_falsey)
+                        
+                        print (itemCleaned)
+                        jsonSessionData[storeTracked[storeName]].append(itemCleaned)
                 
             print (jsonSessionData)
             db.log.insert_one({ 
@@ -197,7 +216,23 @@ class SessionDataView (APIView):
             print ('SaveSessionView error: ', e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
+    def cleanAcl(self, data):
+        obj = {'r':[], 'w':[], 'o': []}
+        rList = []
+        for r in data['r']:
+            rList.append(ObjectId(r['$oid']) )
+        obj['r'] = rList
+        wList = []
+        for w in data['w']:
+            wList.append(ObjectId(w['$oid']) )
+        obj['w'] = wList
+        oList = []
+        for o in data['o']:
+            oList.append(ObjectId(o['$oid']) )
+        obj['o'] = oList
+        return obj
 
+    
     @swagger_auto_schema(
         operation_description="Update csrf for enities and relationships",
         request_body = openapi.Schema(
@@ -250,4 +285,3 @@ class SessionDataView (APIView):
 
 
 
-    
