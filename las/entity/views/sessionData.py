@@ -16,22 +16,22 @@ def validateEntity(entity, acl):
     # TODO use inheritance of models
     doctype = None
     dim = None
-    if doc['@type'] == 'Plate1':
+    if doc['_type'] == 'Plate1':
         doctype = 'Plate1'
         dim = {"x": 4, "y": 6}
-    if doc['@type'] == 'Tube':
+    if doc['_type'] == 'Tube':
         doctype = 'Tube'
         dim = {"x": 1, "y": 1}
     
     if doctype:
-        doc['@type'] = ['Container', doctype]
+        doc['_type'] = ['Container', doctype]
     if dim:
         doc['features']['dim'] = dim
     
     doc['acl'] = acl
     doc['available'] = True
 
-    if 'Container' in doc['@type']:
+    if 'Container' in doc['_type']:
         res = db.entity.find({'features.barcode': doc['features']['barcode']}).count()
         if res > 0:
             return doc, False, 'Duplicated barcode'
@@ -44,6 +44,8 @@ def removeOid(path, key, old_parent, new_parent, new_items):
     ret = default_exit(path, key, old_parent, new_parent, new_items)
     if "$oid" in ret:
         ret =  ObjectId(ret["$oid"])
+    elif "$date" in ret:
+        ret = datetime.datetime.utcfromtimestamp(ret['$date']/ 1e3)
     #if isinstance(value, ObjectId) or isinstance(value, datetime.datetime):
     #    return 
     return ret
@@ -172,37 +174,30 @@ class SessionDataView (APIView):
             viewname = request.data['viewname']
 
             sessionData = json.loads(request.data['data'])
-            storeTracked = {'entity': 'e', 'relationships': 'r', 'oplog': 'o'}
+            storeTracked = {'entity': 'e', 'relationship': 'r', 'oplog': 'o'}
 
             jsonSessionData = {}
             for storeName in sessionData:
                 if storeName in storeTracked.keys():
                     jsonSessionData[storeTracked[storeName]] = []
                     for item in sessionData[storeName]:
+                        print (item)
                         if 'session' in item:
                             del item['session']
-                        if '_id' in  item:
-                            if '$oid' in item['_id']:
-                                item['_id'] = ObjectId( item['_id']['$oid'])
-                        if 'acl' in item:
-                            item['acl'] = self.cleanAcl(item['acl'])
-                            
-                        if storeName == 'oplog':
-                            item['o']['_id'] = ObjectId(item['o']['_id']['$oid'])
-                            if 'session' in item['o']:
-                                del item['o']['session']
-                            if 'acl' in item['o']:
-                                item['o']['acl'] = self.cleanAcl(item['o']['acl'])
 
-
-                        if storeName in ['entity', 'relationship']:
-                            db[storeName].update_one({'_id': item['_id']}, {"$unset": {'session':""} })
-                        
+                        print ('before--------', item)
+                        itemCleaned = remap(item, exit=removeOid)
                         drop_falsey = lambda path, key, value: bool(value)
-                        itemCleaned = remap(item, visit=drop_falsey)
+                        itemCleaned = remap(itemCleaned, visit=drop_falsey)
+                        print ('cleaned------------', itemCleaned)
                         
-                        print (itemCleaned)
+                        if storeName in ['entity', 'relationship']:
+                            print ('remove session', storeName, itemCleaned['_id'])
+                            db[storeName].update_one({'_id': itemCleaned['_id']}, {"$unset": {'session':""} })
+                        
+                        
                         jsonSessionData[storeTracked[storeName]].append(itemCleaned)
+                        
                 
             print (jsonSessionData)
             db.log.insert_one({ 

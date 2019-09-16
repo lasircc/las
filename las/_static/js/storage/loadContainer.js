@@ -6,7 +6,7 @@ $(document).ready(function () {
     pageData = LASData.init({ 
     'summary': {
         'div': 'divsum',
-        'header': [{"title": "Barcode", "data": "features.barcode"}, {"title": "Type", "data": "@type"}, {"title": "Geometry", "data": "features.dim", "render": function ( data, type, row, meta ) {
+        'header': [{"title": "Barcode", "data": "features.barcode"}, {"title": "Type", "data": "_type"}, {"title": "Geometry", "data": "features.dim", "render": function ( data, type, row, meta ) {
             return data.x + 'X' + data.y;
           }}],
         /*
@@ -34,7 +34,7 @@ $(document).ready(function () {
 
     form.setOptions({
         "schema": {
-            "@type":{
+            "_type":{
                 "title": "Container type",
                 "type": "string",
                 "required": true
@@ -53,6 +53,10 @@ $(document).ready(function () {
                   "type": "boolean",
                 }
               }
+            },
+            "position": {
+              "title": "Position now",
+              "type": "boolean",
             }
           },
           "form": [
@@ -69,7 +73,7 @@ $(document).ready(function () {
 
             },*/
             {
-                "key": "@type",
+                "key": "_type",
                 "type": "typeahead",
                 "event": {
                     source: {data:[ {"name":"Plate1", "_id": "plate1", "dim": {"x": 4, "y": 6}}, {"name":"Tube", "_id": "tube", "dim": {"x": 1, "y": 1} } ]},
@@ -90,14 +94,26 @@ $(document).ready(function () {
             ],
         onSubmit: function (errors, values) {
             console.log(errors, values)
+            positioning = values['position']
             node = values;
+            delete node['position'];
             LASData.insertOne('entity', node, false ).then(function(data){
-                console.log(data)
-                currentNode = data;
-                //LASData.addSummary(data);
-                $('#singleContainer [name="features.identifier"]').val('');
-                $('#posContainer [name="child"]').val(data['features']['barcode']);
-            });            
+                console.log(data, positioning)
+                if (positioning == true ){
+                  $('#posContainer').show();
+                  currentNode = data;
+                  //LASData.addSummary(data);
+                  $('#singleContainer [name="features.barcode"]').val('');
+                  $('#posContainer [name="child"]').val(data['features']['barcode']);
+                }
+                else{
+                  sumData = node
+                  sumData['father'] = '';
+                  sumData['pos'] = '';
+                  LASData.addSummary(sumData);
+                }
+                
+            });
             return;
         }
       });
@@ -116,6 +132,7 @@ $(document).ready(function () {
                 "title": "Father",
                 "type": "string",
                 "required": true
+                
             },
             "pos":{
               "title": "Position",
@@ -125,6 +142,10 @@ $(document).ready(function () {
           },
           "form": [
             '*',
+            {
+              "key": "child",
+              "disabled": true
+            },
             {
                 "key": "father",
                 "type": "typeahead",
@@ -168,14 +189,15 @@ $(document).ready(function () {
         onSubmit: function (errors, values) {
             console.log(errors, values, parentNode, currentNode);
             node = values;
-            rel = {'parent': parentNode['_id'], 'child': currentNode['_id'], '@type': 'contains', "data":{'pos': values['pos']}}
+            rel = {'parent': parentNode['_id'], 'child': currentNode['_id'], '_type': 'contains', "data":{'pos': values['pos']}}
             
-            LASData.insertOne('relationships', rel, false ).then(function(data){
+            LASData.insertOne('relationship', rel, false ).then(function(data){
                 //console.log(data)
                 sumData = currentNode
                 sumData['father'] = parentNode;
                 sumData['pos'] = values['pos'];
-                LASData.addSummary(data);
+                LASData.addSummary(sumData);
+                $('#posContainer').hide();
                 //$('#singleContainer [name="features.identifier"]').val('');
             });
             

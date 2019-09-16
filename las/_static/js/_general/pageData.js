@@ -79,13 +79,13 @@ const LASData = (function() {
             if (!db.objectStoreNames.contains('entity')) {
                 objStore = db.createObjectStore('entity', {keyPath: '_id.$oid'});
             }
-            if (!db.objectStoreNames.contains('relationships')) {
-                objStore = db.createObjectStore('relationships', {keyPath: '_id.$oid'});
-                objStore.createIndex("parent", 'parent', { unique: false });
-                objStore.createIndex("child", 'child', { unique: false });
-                objStore.createIndex("rel", ['parent', 'child'] ,{ unique: true });
+            if (!db.objectStoreNames.contains('relationship')) {
+                objStore = db.createObjectStore('relationship', {keyPath: '_id.$oid'});
+                objStore.createIndex("parent", 'parent.$oid', { unique: false });
+                objStore.createIndex("child", 'child.$oid', { unique: false });
+                objStore.createIndex("rel", ['parent.$oid', 'child.$oid', '_type'] ,{ unique: true });
             }
-            /* operation done on objects (entitie and relationships)*/
+            /* operation done on objects (entity and relationship)*/
 
             if (!db.objectStoreNames.contains('oplog')) {
                 objStore = db.createObjectStore('oplog', {keyPath: 'id', autoIncrement: true});
@@ -124,7 +124,7 @@ const LASData = (function() {
     }
 
     /*
-    [private] check if there are data to submit to server. At the moment check if entity and relationships contains session property
+    [private] check if there are data to submit to server. At the moment check if entity and relationship contains session property
     */
     function _checkSessionData(data){
         nEntity=0;
@@ -134,8 +134,8 @@ const LASData = (function() {
                 nEntity += 1;
             }
         }
-        for (var i=0; i<data['relationships'].length; i++){
-            if (data['relationships'][i].hasOwnProperty('session')){
+        for (var i=0; i<data['relationship'].length; i++){
+            if (data['relationship'][i].hasOwnProperty('session')){
                 nRel += 1;
             }
         }
@@ -442,7 +442,11 @@ const LASData = (function() {
     */
     function _addEntity(data){
         var dfd = $.Deferred();
-        
+        removeKeys = ['matchedKey', 'group']
+        for (i in removeKeys){
+            delete data[removeKeys[i]];
+
+        }
         var objectStore = lasDb.transaction(['entity'], "readwrite").objectStore('entity');
         var objectStoreRequest = objectStore.put(data);
         objectStoreRequest.onsuccess = function() {
@@ -474,7 +478,7 @@ const LASData = (function() {
 
 
     /*
-    [private] delete an entity and all its relationships
+    [private] delete an entity and all its relationship
     */
     function _deleteEntity(id){
         var dfd = $.Deferred();
@@ -504,13 +508,13 @@ const LASData = (function() {
     }
 
 
-    // ------------relationships functions --------------
+    // ------------relationship functions --------------
 
 
     function _addRel(data){
         var dfd = $.Deferred();
         
-        var objectStore = lasDb.transaction(['relationships'], "readwrite").objectStore('relationships');
+        var objectStore = lasDb.transaction(['relationship'], "readwrite").objectStore('relationship');
         var objectStoreRequest = objectStore.put(data);
         objectStoreRequest.onsuccess = function() {
             // grab the data object returned as the result
@@ -536,12 +540,12 @@ const LASData = (function() {
             url: "/entity/docSession/",
             data: {'csrf': csrf, 'type': 'relationship', 'doc': JSON.stringify(data)}
         }).done(function(response){
-            var objectStore = lasDb.transaction(['relationships'], "readwrite").objectStore('relationships');
+            var objectStore = lasDb.transaction(['relationship'], "readwrite").objectStore('relationship');
             var objectStoreRequest = objectStore.put(response['doc']);
             objectStoreRequest.onsuccess = function() {
                 // grab the data object returned as the result
                 var dataPut = objectStoreRequest.result;
-                _addOplog('entity', 'i', response['doc'], null);
+                _addOplog('relationship', 'i', response['doc'], null);
                
                 dfd.resolve(response['doc']);
             }
@@ -563,11 +567,11 @@ const LASData = (function() {
     }
 
     /*
-    [private] delete relationships based on the entity id
+    [private] delete relationship based on the entity id
     */
     function _deleteRel(entityId){
         var dfd = $.Deferred();
-        var objectStore = lasDb.transaction(['relationships'], "readwrite").objectStore('relationships');
+        var objectStore = lasDb.transaction(['relationship'], "readwrite").objectStore('relationship');
         var indexParent = objectStore.index('parent'); 
         var deleteCursorParentRequest = indexParent.openCursor(entityId);
         deleteCursorParentRequest.onsuccess = function(event) {
@@ -896,7 +900,7 @@ const LASData = (function() {
                     dfd.resolve(data);
                 });
                 break;
-            case 'relationships':
+            case 'relationship':
                 break;
         }
         return dfd.promise();
@@ -923,7 +927,7 @@ const LASData = (function() {
                     });
                 }
                 break;
-            case 'relationships':
+            case 'relationship':
                 if (existing){
                     _addRel(data).then(function(data){
                         dfd.resolve(data);
@@ -951,7 +955,7 @@ const LASData = (function() {
         switch(ns){
             case 'entity':
                 break;
-            case 'relationships':
+            case 'relationship':
                 break;
         }
         return dfd.promise();
@@ -971,7 +975,7 @@ const LASData = (function() {
                     dfd.resolve();
                 });
                 break;
-            case 'relationships':
+            case 'relationship':
                 break;
         }
         return dfd.promise();
