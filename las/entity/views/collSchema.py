@@ -77,7 +77,7 @@ class CollectionSchema():
         return data
 
 
-    def extract_collection_schema(self, pymongo_collection, with_count=True):
+    def extract_collection_schema(self, pymongo_collection, with_count=True, match = {}):
         """ Iterate through all document of a collection to create its schema
         - Init collection schema
         - Add every document from MongoDB collection to the schema
@@ -90,10 +90,10 @@ class CollectionSchema():
             "object": self.init_empty_object_schema()
         }
         print (pymongo_collection)
-        n = pymongo_collection.count()
+        n = pymongo_collection.find(match).count()
         print (n)
         i = 0
-        for document in pymongo_collection.find({}):
+        for document in pymongo_collection.find(match):
             print (document)
             collection_schema['count'] += 1
             self.add_document_to_object_schema(document, collection_schema['object'])

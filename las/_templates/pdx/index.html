@@ -6,12 +6,37 @@
 
 <div class="row pt-3">
 	<div class="col-4">
-		<div class="card mb-3 border-danger">
-			<div class="card-header text-white bg-danger">Xeno</div>
+		<div class="card mb-3 border-success">
+			<div class="card-header text-white bg-success">Animals</div>
 			<div class="card-body">
 				<div class="list-group">
-					<a class="list-group-item list-group-item-action" href=''>Load mouse</a>
-					
+					<a class="list-group-item list-group-item-action" href='{% url "pdx:implant" %}'>Implantation</a>
+					<a class="list-group-item list-group-item-action" href='{% url "pdx:explant" %}'>Explantation</a>
+					<a class="list-group-item list-group-item-action" href='{% url "pdx:registerAnimals" %}'>Register mice</a>
+					<a class="list-group-item list-group-item-action" href='{% url "pdx:statusAnimals" %}'>Status</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-4">
+		<div class="card mb-3 border-info">
+			<div class="card-header text-white bg-info">Experiments</div>
+			<div class="card-body">
+				<div class="list-group">
+					<a class="list-group-item list-group-item-action" href='{% url "pdx:groupExperiments" %}'>Define</a>
+					<a class="list-group-item list-group-item-action" href='{% url "pdx:exploreExperiments" %}'>Explore</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-4">
+		<div class="card mb-3 border-primary">
+			<div class="card-header text-white bg-primary">Treatment</div>
+			<div class="card-body">
+				<div class="list-group">
+					<a class="list-group-item list-group-item-action" href='{% url "pdx:defineTreatment" %}'>Define</a>
+					<a class="list-group-item list-group-item-action" href='{% url "pdx:finalizeTreatment" %}'>Finalize</a>
 				</div>
 			</div>
 		</div>

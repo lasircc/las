@@ -107,7 +107,7 @@ $(document).ready(function () {
                   $('#posContainer [name="child"]').val(data['features']['barcode']);
                 }
                 else{
-                  sumData = node
+                  sumData = data
                   sumData['father'] = '';
                   sumData['pos'] = '';
                   LASData.addSummary(sumData);
