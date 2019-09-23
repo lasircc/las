@@ -21,11 +21,11 @@ if [ ! -f /las_status/las-init.flag ]; then
     echo 'Create user admin'
     python manage.py createAdmin --username admin --email las@ircc.it --password admin --noinput
 
-    echo 'Creating the data model repository in GraphDB'
-    curl -X POST http://graphdb:7200/rest/repositories -H 'Accept: application/json' -H 'Content-Type: multipart/form-data' -F "config=@/graphdb/config.ttl"
+    # echo 'Creating the data model repository in GraphDB'
+    # curl -X POST http://graphdb:7200/rest/repositories -H 'Accept: application/json' -H 'Content-Type: multipart/form-data' -F "config=@/graphdb/config.ttl"
 
-    echo 'Loading starting model'
-    curl -X POST -H "Content-Type:application/x-turtle" -T /graphdb/model.ttl  http://graphdb:7200/repositories/las_ontology/statements
+    # echo 'Loading starting model'
+    # curl -X POST -H "Content-Type:application/x-turtle" -T /graphdb/model.ttl  http://graphdb:7200/repositories/las_ontology/statements
 
     mkdir -p /data/las_status/
     touch /las_status/las-init.flag

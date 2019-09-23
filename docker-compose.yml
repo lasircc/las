@@ -20,7 +20,7 @@ services:
       - "8000:8000"
     depends_on:
       - lasmongodb1
-      - graphdb
+      #- graphdb
 
   redis:
     container_name: redis
@@ -71,13 +71,14 @@ services:
 
 
   lasmongosetup:
-    image: "mongo-setup"
-    build: "./mongo-setup"
-    container_name: "lasmongosetup"
+    image: mongo:4
+    container_name: lasmongosetup
     depends_on:
       - lasmongodb1
     volumes:
       - lasstatus:/data/
+      - ./mongo-setup:/config
+    entrypoint: [ "bash",  "/config/mongo-setup.sh"]
 
   # nginx:
   #   build: ./nginx-pagespeed/
@@ -117,23 +118,23 @@ services:
     ports:  
       - 8888:8888
 
-  graphdb:
-    container_name: "graphdb"
-    image: "lascandiolo/graphdb:8.10.1-free"
-    restart: always
-    ports:
-      - "7200:7200"
-    command: 
-      - -Dgraphdb.workbench.cors.enable=true
-      - -Dgraphdb.home=/opt/graphdb/home
-    volumes:
-      - "lasgraphdb:/opt/graphdb/home"
+  # graphdb:
+  #   container_name: "graphdb"
+  #   image: "lascandiolo/graphdb:8.10.1-free"
+  #   restart: always
+  #   ports:
+  #     - "7200:7200"
+  #   command: 
+  #     - -Dgraphdb.workbench.cors.enable=true
+  #     - -Dgraphdb.home=/opt/graphdb/home
+  #   volumes:
+  #     - "lasgraphdb:/opt/graphdb/home"
 
 volumes:
   las_static:
   #assets:
-  lasmongodata1:
+  lasmongodata1:                                                                                  
   lasmongodata2:
   lasmongodata3:
   lasstatus:
-  lasgraphdb:
+  ##lasgraphdb:

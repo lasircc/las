@@ -16,7 +16,7 @@ ENV PYTHONUNBUFFERED=1
 COPY --from=build /assets /assets
 
 #RUN mkdir /graphdb
-COPY _config/graphdb graphdb/
+#COPY _config/graphdb graphdb/
 
 RUN mkdir /data
 WORKDIR /data
