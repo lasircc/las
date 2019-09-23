@@ -1,0 +1,164 @@
+{% extends "_general/base.html" %}
+{% load static %}
+{% load las_tags %}
+
+{% block content %}
+
+<div class="row pt-3">
+    <div class="col-12">
+        <button class="btn btn-info" id="addTrigger">Add Trigger</button>
+    </div>
+</div>
+<div class="row pt-3">
+    <div class="col-6">
+        <table id="tabTriggers" class="table table-striped table-bordered" style="width:100%">
+        </table>
+    </div>
+
+    <div class="col-6" style="display: none" id="editTrigger">
+        <div class="card">
+            <div class="card-header">
+                <h5>Edit</h5>
+            </div>
+            <div class="card-body">
+                    <form method="POST" id="formTrigger">
+                            {% csrf_token %}
+                            <input type="hidden" name="oid">
+            
+                            <div class="form-group">
+                                <label>Namespace</label>
+                                <select class="form-control" required name="ns">
+                                    <option value="">--- Select one ---</option>
+                                    <option value="entity">Entity</option>
+                                    <option value="relationship">Relationship</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Class</label>
+                                <div class="typeahead__container">
+                                    <div class="typeahead__field">
+                                        <div class="typeahead__query">
+                                            <input class="js-typeahead-class" name="_class" type="search" placeholder="Search" autocomplete="off" required>
+                                        </div>
+                                        <div class="typeahead__button">
+                                            <button disabled>
+                                                <i class="typeahead__search-icon"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Event</label>
+                                <select class="form-control" required name="e">
+                                    <option value="">--- Select one ---</option>
+                                    <option value="i">Insert</option>
+                                    <option value="u">Update</option>
+                                    <option value="d">Delete</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>When</label>
+                                <button class="btn btn-primary" id="editWhen">Define conditions</button>
+                                <button class="btn btn-warning" id="clearWhen">Clear</button>
+                                <textarea disabled name="when" class="form-control mt-2"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Pipeline</label>
+                                <button class="btn btn-primary" id="editPipeline">Define steps</button>
+                                <button class="btn btn-warning" id="clearPipeline">Clear</button>
+                                <textarea disabled name="pipeline" class="form-control mt-2"></textarea>
+                            </div>
+            
+                            
+                            <button type="submit" class="btn btn-success">Save</button>
+                        </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="modal" tabindex="-1" role="dialog" id="modalWhen">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">When</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row pt-3">
+                    <div class="col-12">
+                        <button id="addWhenCond" class="btn btn-info"><span class="fa fa-plus"></span></button>
+                    </div>
+                </div>
+                <div class="row pt-3">
+                    <div class="col-12" id="whenList">
+    
+                    </div>
+                </div>
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="saveWhen">Save</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" id="modalPipeline">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Pipeline</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row pt-3">
+                    <div class="col-12">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label>Function</label>
+                                    <select class="form-control" id="pipelineFunc">
+                                        <option value="">--- Select one ---</option>
+                                        <option value="unique">Unique</option>
+                                        <option value="schema">Schema</option>
+                                        <option value="update">Update</option>
+                                        <option value="inherit">Inherit</option>
+                                    </select>
+                            </div>
+                            <button id="addPipelineStep" class="btn btn-info"><span class="fa fa-plus"></span></button>
+                        </div>
+                    </div>
+                </div>
+                <div id="pipelineList">
+
+                </div>
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="saveMapFunc">Save</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}
+
+{% block script %}
+
+
+<script defer type="text/javascript" src="{% static "/js/private/triggers.js" %}"></script>
+{% endblock %}

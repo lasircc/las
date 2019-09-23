@@ -49,6 +49,7 @@ urlpatterns = [
     path('notification/', include('notification.urls')),
     path('datamodel/', include('datamodel.urls')),
     path('entity/', include('entity.urls')),
+    path('private/', include('private.urls')),
 
 
     path('storage/', include('storage.urls', namespace='storage')),

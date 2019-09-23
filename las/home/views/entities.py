@@ -160,3 +160,4 @@ class ManageGenid(View):
                 return False
 
         return True
+

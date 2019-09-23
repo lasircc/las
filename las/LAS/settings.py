@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     'user',
     'entity',
     'home',
+
+    'private',
     
     'storage',
     'biobank',

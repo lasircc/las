@@ -18,5 +18,7 @@ urlpatterns = [
 
     # superuser
     path('genid/', ManageGenid.as_view(), name='manageGenid'),
+
+    
     
 ]

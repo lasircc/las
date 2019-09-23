@@ -1,0 +1,29 @@
+<template id="Tunique">
+    <div class="card mt-2">
+        <div class="card-header">
+            <h5>Unique
+            <button type="button" class="close" >
+            <span aria-hidden="true">&times;</span>
+            </button></h5>
+        </div>
+        <div class="card-body">
+            <input type="hidden" value="unique" name="typeFunc">
+            <div class="form-group">
+                <label>Features</label>
+                <div class="typeahead__container">
+                    <div class="typeahead__field">
+                        <div class="typeahead__query">
+                            <input class="js-typeahead track" name="featSearch" type="search" placeholder="Search" autocomplete="off">
+                        </div>
+                        <div class="typeahead__button">
+                            <button type="submit" disabled>
+                                <i class="typeahead__search-icon"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</template>
