@@ -30,11 +30,14 @@ import pymongo
 
 from boltons.iterutils import remap, default_enter, default_exit
 
+from .pipelineSteps import *
+from .validateDoc import *
 from .collSchema import CollectionSchema
 from .entity import EntityViewSet
 from .collection import CollectionViewSet
 from .sessionData import SessionDataView, DocSessionView
 from .genealogyID import *
+
 
 
 

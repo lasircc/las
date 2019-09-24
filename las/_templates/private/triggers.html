@@ -63,18 +63,19 @@
                                 <label>When</label>
                                 <button class="btn btn-primary" id="editWhen">Define conditions</button>
                                 <button class="btn btn-warning" id="clearWhen">Clear</button>
-                                <textarea disabled name="when" class="form-control mt-2"></textarea>
+                                <textarea readonly name="when" class="form-control mt-2"></textarea>
                             </div>
 
                             <div class="form-group">
                                 <label>Pipeline</label>
                                 <button class="btn btn-primary" id="editPipeline">Define steps</button>
                                 <button class="btn btn-warning" id="clearPipeline">Clear</button>
-                                <textarea disabled name="pipeline" class="form-control mt-2"></textarea>
+                                <textarea readonly name="pipeline" class="form-control mt-2"></textarea>
                             </div>
             
                             
                             <button type="submit" class="btn btn-success">Save</button>
+                            <button id="cancelEdit" class="btn btn-warning">Cancel</button>
                         </form>
             </div>
         </div>
@@ -146,7 +147,7 @@
                 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="saveMapFunc">Save</button>
+                <button type="button" class="btn btn-primary" id="savePipeline">Save</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
