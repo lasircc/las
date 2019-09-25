@@ -79,7 +79,7 @@ $(document).ready(function() {
         display: ['name'],
         source: {
             data:
-            [{"name": "Container"}]
+            [{"name":"Container"}, {"name":"Mouse"}]
             /*
             {
                 ajax: {
@@ -609,7 +609,7 @@ function formPipeline(stepType, params){
                     emptyTemplate: 'No result for "{{query}}"',
                     display: ['name'],
                     source: {
-                        data: [ {"name":"Container"} ]
+                        data: [ {"name":"Container"}, {"name":"Mouse"} ]
                         /*
                             {
                             ajax: {

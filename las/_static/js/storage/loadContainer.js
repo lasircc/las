@@ -34,15 +34,15 @@ $(document).ready(function () {
 
     form.setOptions({
         "schema": {
-            "_type":{
-                "title": "Container type",
-                "type": "string",
-                "required": true
-            },
             "features": {
               "type": "object",
               "title": "Info",
               "properties":{
+                "contType":{
+                  "title": "Container type",
+                  "type": "string",
+                  "required": true
+                },
                 "barcode": {
                   "title": "Barcode",
                   "type": "string",
@@ -73,10 +73,10 @@ $(document).ready(function () {
 
             },*/
             {
-                "key": "_type",
+                "key": "features.contType",
                 "type": "typeahead",
                 "event": {
-                    source: {data:[ {"name":"Plate1", "_id": "plate1", "dim": {"x": 4, "y": 6}}, {"name":"Tube", "_id": "tube", "dim": {"x": 1, "y": 1} } ]},
+                    source: {data:[ {"name":"Thermo", "_id": "Thermo", "dim": {"x": 4, "y": 6}}, {"name":"Tube", "_id": "tube", "dim": {"x": 1, "y": 1} } ]},
                     display: ['name'],
                     minLength: 1,
                     /*template: "{{display}} <small style='color:#999;'>{{group}}</small>",
@@ -96,6 +96,7 @@ $(document).ready(function () {
             console.log(errors, values)
             positioning = values['position']
             node = values;
+            node['_type'] = ['Container']
             delete node['position'];
             LASData.insertOne('entity', node, false ).then(function(data){
                 console.log(data, positioning)

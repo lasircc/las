@@ -1,4 +1,18 @@
-from . import *
+from rest_framework.viewsets import ViewSet
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import authentication, permissions, status
+
+from LASUtils.mongodb import *
+import json, re, datetime, os
+from bson.objectid import ObjectId
+import pymongo
+
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi 
+
+from .validateDoc import *
+
 
 class DocSessionView(APIView):
 
@@ -14,7 +28,7 @@ class DocSessionView(APIView):
                 }
         ),
     )
-    #TODO: implement relationship part
+    
     def post(self, request, format=None):
         try:
             print (request.data)
@@ -25,26 +39,19 @@ class DocSessionView(APIView):
             typeDoc = request.data['type']
             errMess = 'Something went wrong'
             
+            d = Document(json.loads(request.data['doc']))
+            valid, errMess = d.validate({'ns': typeDoc, 'e':'i'})
 
-            if typeDoc == 'entity':
-                entity = json.loads(request.data['doc'])
-                doc, valid, errMess = validate(entity, userProfile['acl'], {'ns': 'entity', 'e':'i'})
-            elif typeDoc == 'relationship':
-                rel = json.loads(request.data['doc'])
-                doc, valid, errMess = validate(rel, userProfile['acl'], {'ns': 'relationship', 'e':'i'})
-            else:
-                raise Exception('Error in typedoc')
             
             if not valid:
-                raise Exception('no valid data')
+                raise Exception(errMess)
             
-            doc['session'] = {"csrf": csrf, "t": datetime.datetime.now() }
+            d.addSession(csrf)
             
-            docid = db[typeDoc].insert_one(doc).inserted_id
+            docid = db[typeDoc].insert_one(d.getDoc()).inserted_id
             print (docid)
             doc = db[typeDoc].find_one({'_id': docid})
 
-            #db[typeDoc].update_one({'_id':docid}, {"$set": {"session": {"csrf": csrf, "t": datetime.datetime.now() }}})
 
             indexes = db[typeDoc].index_information()
             if "sessionData" not in indexes:
@@ -118,22 +125,18 @@ class SessionDataView (APIView):
                 if storeName in storeTracked.keys():
                     jsonSessionData[storeTracked[storeName]] = []
                     for item in sessionData[storeName]:
-                        print (item)
-                        if 'session' in item:
-                            del item['session']
+                        
+                        d = Document(item)
+                        d.removeSession()
+                        d.cleanDoc()
+                        newDoc = d.getDoc()
 
-                        print ('before--------', item)
-                        itemCleaned = remap(item, exit=removeOid)
-                        drop_falsey = lambda path, key, value: bool(value)
-                        itemCleaned = remap(itemCleaned, visit=drop_falsey)
-                        print ('cleaned------------', itemCleaned)
-                        
                         if storeName in ['entity', 'relationship']:
-                            print ('remove session', storeName, itemCleaned['_id'])
-                            db[storeName].update_one({'_id': itemCleaned['_id']}, {"$unset": {'session':""} })
+                            print ('remove session', storeName, newDoc['_id'])
+                            db[storeName].update_one({'_id': newDoc['_id']}, {"$unset": {'session':""} })
                         
                         
-                        jsonSessionData[storeTracked[storeName]].append(itemCleaned)
+                        jsonSessionData[storeTracked[storeName]].append(newDoc)
                         
                 
             print (jsonSessionData)

@@ -83,9 +83,9 @@ $(document).ready(function () {
         onSubmit: function (errors, values) {
             console.log(errors, values)
             node = values;
-            node['_type'] = 'Mouse';
+            node['_type'] = ['Mouse'];
             LASData.insertOne('entity', node, false ).then(function(data){
-                console.log(data, positioning)
+                console.log(data)
                 sumData = data
                 LASData.addSummary(sumData);
                 $('#registerMouse [name="features.barcode"]').val('');
