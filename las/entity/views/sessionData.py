@@ -16,18 +16,6 @@ from .validateDoc import *
 
 class DocSessionView(APIView):
 
-    @swagger_auto_schema(
-        operation_description="Add doc in entity or relationship collection. Inherit model properties and validate constraints",
-        request_body = openapi.Schema(
-            title="Add doc",
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'csrf': openapi.Schema(title="csrf", type=openapi.TYPE_STRING),
-                'type': openapi.Schema(title="type of doc: entity or relationship", type=openapi.TYPE_STRING),
-                'doc': openapi.Schema(title="doc data", type=openapi.TYPE_OBJECT)
-                }
-        ),
-    )
     
     def post(self, request, format=None):
         try:
@@ -35,36 +23,66 @@ class DocSessionView(APIView):
             print (request.user)
             userProfile = db.user.find_one({'_id': request.user.username})
             print (userProfile)
-            csrf = request.data['csrf']
-            typeDoc = request.data['type']
+            csrf = request.META.get('HTTP_X_CSRFTOKEN')
+            docs = json.loads(request.data['docs'])
+            typeDoc = request.data['ns']
             errMess = 'Something went wrong'
-            
-            d = Document(json.loads(request.data['doc']))
-            valid, errMess = d.validate({'ns': typeDoc, 'e':'i'})
 
+            print (docs)
             
-            if not valid:
-                raise Exception(errMess)
+            returnDocs = {'entity': [], 'relationship': [], 'origin': []}
+            for doc in docs:
+                d = Document(doc, typeDoc)
+                valid, errMess = d.validate('i')
             
-            d.addSession(csrf)
-            
-            docid = db[typeDoc].insert_one(d.getDoc()).inserted_id
-            print (docid)
-            doc = db[typeDoc].find_one({'_id': docid})
+                if not valid:
+                    raise Exception(errMess)
+                
+                if not d.alreadyExists():
+                    d.addSession(csrf)
+                    
+                    docid = db[typeDoc].insert_one(d.getDoc()).inserted_id
+                    print (docid)
 
+                    docDb = db[typeDoc].find_one({'_id': docid})
+                    returnDocs[typeDoc].append({'doc': docDb, 'op': 'i', 'o2': None})
+                else:
+                    docid = d.getId()
+                    returnDocs[typeDoc].append({'doc': d.getDoc(), 'op': 'a', 'o2': None})
+                
+                returnDocs['origin'].append(docid)
+                
+                indexes = db[typeDoc].index_information()
+                if "sessionData" not in indexes:
 
-            indexes = db[typeDoc].index_information()
-            if "sessionData" not in indexes:
-
-                print (indexes, 'create index')
-                db[typeDoc].create_index([("csrf.t", pymongo.DESCENDING)],name = "sessionData",expireAfterSeconds= 14400)
+                    print (indexes, 'create index')
+                    db[typeDoc].create_index([("csrf.t", pymongo.DESCENDING)],name = "sessionData",expireAfterSeconds= 14400)
+                
             
-            
-            
-            return Response({'doc': to_json(doc)}, status=status.HTTP_200_OK)
+            return Response({'docs': to_json(returnDocs)}, status=status.HTTP_200_OK)
         except Exception as e:
-            print ('SessionDataView error: ', e)
+            print ('DocSessionView error: ', e)
             return Response({'error': errMess}, status=status.HTTP_400_BAD_REQUEST)
+
+    @swagger_auto_schema(
+        operation_description="Update session documents",
+        request_body = openapi.Schema(
+            title="Update session documents",
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'old': openapi.Schema(title="old csrf", type=openapi.TYPE_STRING),
+                'new': openapi.Schema(title="new csrf", type=openapi.TYPE_STRING)
+                }
+        ),
+    )
+    def put(self, request, format=None):
+        try:
+            csrf = request.META.get('HTTP_X_CSRFTOKEN')
+
+            return Response({}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print ('DocSessionView error: ', e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
     
     @swagger_auto_schema(
@@ -82,7 +100,7 @@ class DocSessionView(APIView):
     def delete(self, request, format=None):
         try:
             print (request.data)
-            csrf = request.data['csrf']
+            csrf = request.META.get('HTTP_X_CSRFTOKEN')
             typeDoc = request.data['type']
             entity_id = ObjectId(request.data['id'])
             print (csrf)
@@ -126,9 +144,9 @@ class SessionDataView (APIView):
                     jsonSessionData[storeTracked[storeName]] = []
                     for item in sessionData[storeName]:
                         
-                        d = Document(item)
+                        d = Document(item, storeName)
                         d.removeSession()
-                        d.cleanDoc()
+                        #d.cleanDoc()
                         newDoc = d.getDoc()
 
                         if storeName in ['entity', 'relationship']:

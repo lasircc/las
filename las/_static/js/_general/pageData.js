@@ -402,66 +402,30 @@ const LASData = (function() {
         });
     }
 
-    // ------------entity functions ---------------
-    /*
-    [private] insert new entity
-    */
-    function _newEntity(data){
+
+    function _addDoc(data, ns){
         var dfd = $.Deferred();
         
-         $.ajax({
-            type:'post',
-            url: "/entity/docSession/",
-            data: {'csrf': csrf, 'type': 'entity', 'doc': JSON.stringify(data)}
-        }).done(function(response){
-            var objectStore = lasDb.transaction(['entity'], "readwrite").objectStore('entity');
-            var objectStoreRequest = objectStore.put(response['doc']);
-            objectStoreRequest.onsuccess = function() {
-                // grab the data object returned as the result
-                var dataPut = objectStoreRequest.result;
-                _addOplog('entity', 'i', response['doc'], null);
-               
-                dfd.resolve(response['doc']);
-            }
-            objectStoreRequest.onerror = function(){
-                console.log("There has been an error with retrieving your data: " + objectStoreRequest.error);
-                toastr['error']("Entity already insert!");
-                dfd.reject();
-            }
-
-        }).fail(function(response){
-            console.log(response);
-            toastr['error'](response.responseJSON['error']);
-        })
-
-        
-        return dfd.promise();
-    }
-    /*
-    [private] add an entity retrieved form the db
-    */
-    function _addEntity(data){
-        var dfd = $.Deferred();
-        removeKeys = ['matchedKey', 'group']
-        for (i in removeKeys){
-            delete data[removeKeys[i]];
-
-        }
-        var objectStore = lasDb.transaction(['entity'], "readwrite").objectStore('entity');
-        var objectStoreRequest = objectStore.put(data);
+        var objectStore = lasDb.transaction([ns], "readwrite").objectStore(ns);
+        var objectStoreRequest = objectStore.put(data['doc']);
         objectStoreRequest.onsuccess = function() {
             // grab the data object returned as the result
             var dataPut = objectStoreRequest.result;
+            _addOplog(ns, data['op'], data['doc'], data['o2']);
             dfd.resolve(data);
         }
         objectStoreRequest.onerror = function(){
             console.log("There has been an error with retrieving your data: " + objectStoreRequest.error);
-            toastr['error']("Entity already insert!");
+            toastr['error']("Doc already insert!");
             dfd.reject();
         }
         
         return dfd.promise();
+
     }
+
+    // ------------entity functions ---------------
+    
     
     /*
     [private] get entity data according to the object id
@@ -511,60 +475,8 @@ const LASData = (function() {
     // ------------relationship functions --------------
 
 
-    function _addRel(data){
-        var dfd = $.Deferred();
-        
-        var objectStore = lasDb.transaction(['relationship'], "readwrite").objectStore('relationship');
-        var objectStoreRequest = objectStore.put(data);
-        objectStoreRequest.onsuccess = function() {
-            // grab the data object returned as the result
-            var dataPut = objectStoreRequest.result;
-            dfd.resolve(data);
-        }
-        objectStoreRequest.onerror = function(){
-            console.log("There has been an error with retrieving your data: " + objectStoreRequest.error);
-            toastr['error']("Relationship already insert!");
-            dfd.reject();
-        }
-        
-        return dfd.promise();
+    
 
-    }
-
-
-    function _newRel(data){
-        var dfd = $.Deferred();
-        
-         $.ajax({
-            type:'post',
-            url: "/entity/docSession/",
-            data: {'csrf': csrf, 'type': 'relationship', 'doc': JSON.stringify(data)}
-        }).done(function(response){
-            var objectStore = lasDb.transaction(['relationship'], "readwrite").objectStore('relationship');
-            var objectStoreRequest = objectStore.put(response['doc']);
-            objectStoreRequest.onsuccess = function() {
-                // grab the data object returned as the result
-                var dataPut = objectStoreRequest.result;
-                _addOplog('relationship', 'i', response['doc'], null);
-               
-                dfd.resolve(response['doc']);
-            }
-            objectStoreRequest.onerror = function(){
-                console.log("There has been an error with retrieving your data: " + objectStoreRequest.error);
-                toastr['error']("Entity already insert!");
-                dfd.reject();
-            }
-
-        }).fail(function(response){
-            console.log(response);
-            toastr['error'](response.responseJSON['error']);
-        })
-
-        
-        return dfd.promise();
-
-
-    }
 
     /*
     [private] delete relationship based on the entity id
@@ -621,7 +533,7 @@ const LASData = (function() {
         }
         objectStoreRequest.onerror = function(){
             console.log("There has been an error with retrieving your data: " + objectStoreRequest.error);
-            toastr['error']("Entity already insert!");
+            toastr['error']("oplog error!");
             dfd.reject();
         }
         
@@ -870,7 +782,7 @@ const LASData = (function() {
             _.each(lasDb.objectStoreNames, function(storeName) {
                 _.each(data[storeName], function(item){
                     if (storeName == 'entity'){
-                        importObject.push( _addEntity(item) );
+                        importObject.push( _addDoc(item, 'entity') );
                     }
                     else{
                         importObject.push( transaction.objectStore(storeName).put(item) );
@@ -912,34 +824,31 @@ const LASData = (function() {
     data: object to insert
     existing: if it is an instance retireved from mongodb or a new entry that should be generated from the server
     */
-    function insertOne(ns, data, existing){
+    function insert(ns, data){
         var dfd = $.Deferred();
-        switch(ns){
-            case 'entity':
-                if (existing){
-                    _addEntity(data).then(function(data){
-                        dfd.resolve(data);
-                    });
-                }
-                else{
-                    _newEntity(data).then(function(data){
-                        dfd.resolve(data);
-                    });
-                }
-                break;
-            case 'relationship':
-                if (existing){
-                    _addRel(data).then(function(data){
-                        dfd.resolve(data);
-                    });
-                }
-                else{
-                    _newRel(data).then(function(data){
-                        dfd.resolve(data);
-                    });
-                }
-                break;
-        }
+
+        $.ajax({
+            type:'post',
+            url: "/entity/docSession/",
+            data: {'ns': ns, 'docs': JSON.stringify(data)}
+        }).done(function(response){
+            var importObject = [];
+            _.each(response['docs']['entity'], function(item) {
+                importObject.push( _addDoc(item, 'entity') );
+            });
+            _.each(response['docs']['relationship'], function(item) {
+                importObject.push( _addDoc(item, 'relationship') );
+            });
+
+            $.when(importObject).done(function(){
+                dfd.resolve(response['docs']['origin']);
+            });
+
+        }).fail(function(response){
+            console.log(response);
+            toastr['error'](response.responseJSON['error']);
+        })
+
         return dfd.promise();
 
     }
@@ -982,8 +891,6 @@ const LASData = (function() {
 
     }
 
-
-
     /*
     public function list
     */
@@ -997,7 +904,7 @@ const LASData = (function() {
         },
         addSummary: addSummary,
         findOne: findOne,
-        insertOne: insertOne,
+        insert: insert,
         updateOne: updateOne,
         deleteOne: deleteOne
 

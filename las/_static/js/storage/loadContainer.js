@@ -8,7 +8,7 @@ $(document).ready(function () {
         'div': 'divsum',
         'header': [{"title": "Barcode", "data": "features.barcode"}, {"title": "Type", "data": "_type"}, {"title": "Geometry", "data": "features.dim", "render": function ( data, type, row, meta ) {
             return data.x + 'X' + data.y;
-          }}],
+          }}, {"title": "Father", "data": "father"}, {"title": "Position", "data": "pos"}],
         /*
           'deleteCb': function(logid){
             console.log('summarycallback', logid);
@@ -98,20 +98,27 @@ $(document).ready(function () {
             node = values;
             node['_type'] = ['Container']
             delete node['position'];
-            LASData.insertOne('entity', node, false ).then(function(data){
+            LASData.insert('entity', [node] ).then(function(data){
                 console.log(data, positioning)
+                $('#singleContainer [name="features.barcode"]').val('');
                 if (positioning == true ){
                   $('#posContainer').show();
-                  currentNode = data;
-                  //LASData.addSummary(data);
-                  $('#singleContainer [name="features.barcode"]').val('');
-                  $('#posContainer [name="child"]').val(data['features']['barcode']);
+                  LASData.findOne('entity', data[0]['$oid']).then(function(nodeToPos){
+                    currentNode = nodeToPos;
+                    $('#posContainer [name="child"]').val(currentNode['features']['barcode']);
+                  })
+                  
                 }
                 else{
-                  sumData = data
-                  sumData['father'] = '';
-                  sumData['pos'] = '';
-                  LASData.addSummary(sumData);
+                  _.each(data, function(item) {
+                    console.log('sumData iter', item['$oid'])
+                    LASData.findOne('entity', item['$oid']).then (function(sumData){
+                      console.log(sumData)
+                      sumData['father'] = '';
+                      sumData['pos'] = '';
+                      LASData.addSummary(sumData);
+                    });
+                  });
                 }
                 
             });
@@ -125,7 +132,7 @@ $(document).ready(function () {
     form.setOptions({
         "schema": {
             "child": {
-              "title": "Father",
+              "title": "Child",
               "type": "string",
               "required": true
             },
@@ -171,9 +178,12 @@ $(document).ready(function () {
                         onClickAfter: function (node, a, item, event) {
                             //event.preventDefault();
                             console.log(node, a, item, event);
-                            LASData.insertOne('entity', item, true ).then(function(data){
+                            LASData.insert('entity', [item] ).then(function(data){
                               console.log(data)
-                              parentNode = data;
+                              LASData.findOne('entity', data[0]['$oid']).then(function(node){
+                                parentNode = node;
+                              })
+                              
                             })
                         },
                         onCancel: function(node, item, event){
@@ -190,12 +200,12 @@ $(document).ready(function () {
         onSubmit: function (errors, values) {
             console.log(errors, values, parentNode, currentNode);
             node = values;
-            rel = {'parent': parentNode['_id'], 'child': currentNode['_id'], '_type': 'contains', "data":{'pos': values['pos']}}
+            rel = {'parent': parentNode["_id"], 'child': currentNode['_id'], '_type': ['contains'], "features":{'pos': values['pos']}}
             
-            LASData.insertOne('relationship', rel, false ).then(function(data){
+            LASData.insert('relationship', [rel] ).then(function(data){
                 //console.log(data)
                 sumData = currentNode
-                sumData['father'] = parentNode;
+                sumData['father'] = parentNode['features']['barcode'];
                 sumData['pos'] = values['pos'];
                 LASData.addSummary(sumData);
                 $('#posContainer').hide();

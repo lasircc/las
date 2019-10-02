@@ -35,16 +35,29 @@ from .trigger import *
 
 
 class Document:
-    def __init__(self, doc):
+    def __init__(self, doc, ns):
         self.doc = doc
+        self.ns = ns
+
+        self.cleanDoc()
+        
+        if self.alreadyExists():
+            self.doc = db[self.ns].find_one({'_id': self.getId()})
+        else:
+            self.doc['ts'] = datetime.datetime.now()
+            
+
 
 
     def validate(self, event):
         valid = True
         errMess = None
+        if event == 'i':
+            if self.alreadyExists():
+                return valid, errMess
 
         for typeDoc in self.doc['_type']:
-            triggers = db.triggers.find({"ns" : event['ns'], "_class" : typeDoc, 'e': event['e']})
+            triggers = db.triggers.find({"ns" : self.ns, "_class" : typeDoc, 'e': event})
             for trigger in triggers:
                 try:
                     p = Trigger(self.doc, trigger)
@@ -65,6 +78,14 @@ class Document:
 
     def addSession(self, csrf):
         self.doc['session'] = {"csrf": csrf, "t": datetime.datetime.now() }
+
+    def alreadyExists(self):
+        if '_id' in self.doc:
+            return True
+        return False
+
+    def getId(self):
+        return self.doc['_id']
 
 
     # private function to remap and normalize objectid and date fields
