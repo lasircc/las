@@ -35,16 +35,24 @@ from .trigger import *
 
 
 class Document:
-    def __init__(self, doc, ns):
+    def __init__(self, doc, ns, session):
         self.doc = doc
         self.ns = ns
+        self.session = session
 
         self.cleanDoc()
         
         if self.alreadyExists():
             self.doc = db[self.ns].find_one({'_id': self.getId()})
+            if self.checkLog():
+                if self.ns == 'entity':
+                    db[self.ns].update_one({'_id': self.getId()}, {"$set": {"session": self.session} })
+                    self.doc = db[self.ns].find_one({'_id': self.getId()})
+            else:
+                raise Exception('Locked resource')
         else:
             self.doc['ts'] = datetime.datetime.now()
+            self.addSession()
             
 
 
@@ -72,12 +80,20 @@ class Document:
 
         return valid, errMess
 
+    def checkLog(self):
+        if 'session' in self.doc:
+            if self.doc['session']['csrf'] != self.session['csrf']:
+                return False
+
+        return True
+
     def removeSession(self):
         if 'session' in self.doc:
             del self.doc['session']
 
-    def addSession(self, csrf):
-        self.doc['session'] = {"csrf": csrf, "t": datetime.datetime.now() }
+    def addSession(self):
+        self.doc['session'] = self.session
+        self.doc['session']['t'] = datetime.datetime.now()
 
     def alreadyExists(self):
         if '_id' in self.doc:

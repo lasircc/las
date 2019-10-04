@@ -32,14 +32,13 @@ class DocSessionView(APIView):
             
             returnDocs = {'entity': [], 'relationship': [], 'origin': []}
             for doc in docs:
-                d = Document(doc, typeDoc)
+                d = Document(doc, typeDoc, {'csrf': csrf, 'user': request.user.username})
                 valid, errMess = d.validate('i')
             
                 if not valid:
                     raise Exception(errMess)
                 
                 if not d.alreadyExists():
-                    d.addSession(csrf)
                     
                     docid = db[typeDoc].insert_one(d.getDoc()).inserted_id
                     print (docid)
@@ -143,10 +142,8 @@ class SessionDataView (APIView):
                 if storeName in storeTracked.keys():
                     jsonSessionData[storeTracked[storeName]] = []
                     for item in sessionData[storeName]:
-                        
-                        d = Document(item, storeName)
+                        d = Document(item, storeName, {'csrf': csrf, 'user': request.user.username})
                         d.removeSession()
-                        #d.cleanDoc()
                         newDoc = d.getDoc()
 
                         if storeName in ['entity', 'relationship']:
@@ -227,11 +224,12 @@ class SessionDataView (APIView):
             print (request.data)
             csrf = request.data['csrf']
             print (csrf)
-            entityDel = db.entity.delete_many( {'session.csrf': csrf}).deleted_count
-            relDel = db.relationship.delete_many( {'session.csrf': csrf}).deleted_count
-            print (entityDel, relDel)
+            entityDel = db.entity.delete_many( {'session.csrf': csrf, 'session.t': {'$exists': True} }).deleted_count
+            relDel = db.relationship.delete_many( {'session.csrf': csrf, 'session.t': {'$exists': True}}).deleted_count
+            entityUpdate = db.entity.update_many( {'session.csrf': csrf }, {"$unset": {'session':""}}).modified_count
+            print (entityDel, relDel, entityUpdate)
 
-            return Response({'entityDel': entityDel, 'relDel': relDel}, status=status.HTTP_200_OK)
+            return Response({'entityDel': entityDel, 'relDel': relDel, 'entityUpdate': entityUpdate}, status=status.HTTP_200_OK)
         except Exception as e:
             print ('SessionDataView error: ', e)
             return Response(status=status.HTTP_400_BAD_REQUEST)

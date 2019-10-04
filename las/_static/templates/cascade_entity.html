@@ -1,0 +1,74 @@
+<template id="TcascadeEntity">
+    <div class="card mt-2">
+        <div class="card-header">
+            <h5>Cascade
+            <button type="button" class="close" >
+            <span aria-hidden="true">&times;</span>
+            </button></h5>
+        </div>
+        <div class="card-body">
+            <input type="hidden" value="cascade" name="typeFunc">
+            <input type="hidden" class="track" value="[]" name="fToCopy" json="true">
+
+
+            <div class="form-group">
+                <label>Candidate Parents or Children</label>
+            </div>
+            <div class="form-group">
+                <label class="switch ml-2"><input type="checkbox" class="default track" name="candidates_parent" >
+                <span class="slider round"></span></label>
+            </div>
+
+            <div class="form-group">
+                <label>Type of relationship</label>
+                <div class="typeahead__container">
+                    <div class="typeahead__field">
+                        <div class="typeahead__query">
+                            <input class="js-typeahead track" name="typeRel" type="search" placeholder="Search" autocomplete="off">
+                        </div>
+                        <div class="typeahead__button">
+                            <button type="submit" disabled>
+                                <i class="typeahead__search-icon"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Type of candidate documents</label>
+                <div class="typeahead__container">
+                    <div class="typeahead__field">
+                        <div class="typeahead__query">
+                            <input class="js-typeahead track" name="typeCandidates" type="search" placeholder="Search" autocomplete="off">
+                        </div>
+                        <div class="typeahead__button">
+                            <button type="submit" disabled>
+                                <i class="typeahead__search-icon"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label>Features to copy</label>
+                <div class="typeahead__container">
+                    <div class="typeahead__field">
+                        <div class="typeahead__query">
+                            <input class="js-typeahead" name="featCopySearch" type="search" placeholder="Search" autocomplete="off">
+                        </div>
+                        <div class="typeahead__button">
+                            <button type="submit" disabled>
+                                <i class="typeahead__search-icon"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+
+        </div>
+    </div>
+</template>

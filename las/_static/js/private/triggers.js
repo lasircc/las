@@ -1,4 +1,5 @@
 $(document).ready(function() {
+    currentNs = undefined;
     $('#tabTriggers').DataTable({
         'ajax': {
             'url': '/private/triggers/'
@@ -16,21 +17,34 @@ $(document).ready(function() {
         ]
     });
 
-    $('#addTrigger').on('click', function(){
-        $('#editTrigger').show();
+    $('#addTriggerEntity').on('click', function(){
+        currentNs = 'entity';
+        $('#formTrigger').trigger("reset");
+        $('#formTrigger select[name="ns"]').val(currentNs);
         $('textarea[name="when"]').val('[]')
-        $('textarea[name="pipeline"]').val('[]')
+        $('textarea[name="pipeline"]').val('[]');
+        $('#editTrigger').show();
+    });
+
+    $('#addTriggerRel').on('click', function(){
+        currentNs = 'relationship';
+        $('#formTrigger').trigger("reset");
+        $('#formTrigger select[name="ns"]').val(currentNs);
+        $('textarea[name="when"]').val('[]')
+        $('textarea[name="pipeline"]').val('[]');
+        $('#editTrigger').show();
     });
 
     $('#tabTriggers').on('click', '.editTrigger', function(){
         var data = $('#tabTriggers').DataTable().row( $(this).parents('tr') ).data();
         console.log(data)
         $('#formTrigger input[name="oid"]').val(data['_id']['$oid'])
-        $('#formTrigger select[name="ns"]').val(data['ns'])
+        $('#formTrigger select[name="ns"]').val(data['ns']);
+        currentNs = data['ns'];
         $('#formTrigger input[name="_class"]').val(data['_class'])
         $('#formTrigger input[name="_class"]').trigger('input.typeahead')
         $($('#formTrigger input[name="_class"]').parents('.typeahead__container').find('.typeahead__item')[0]).trigger('click')
-        $('#formTrigger select[name="e"]').val(data['e'])        
+        $('#formTrigger select[name="e"]').val(data['e'])
         $('#formTrigger textarea[name="when"]').val(JSON.stringify( data['when'] ) )
         $('#formTrigger textarea[name="pipeline"]').val( JSON.stringify(data['pipeline']) )
         
@@ -40,7 +54,7 @@ $(document).ready(function() {
 
     $('#cancelEdit').on('click', function(){
         $('#editTrigger').hide();
-        
+        currentNs = undefined;
         $('#formTrigger').trigger("reset");
     })
 
@@ -700,6 +714,47 @@ function formPipeline(stepType, params){
                 }
             });
             break;
+
+        case 'cascade':
+            switch(currentNs){
+                case 'entity':
+                    $.get("/las_static/templates/cascade_entity.html", function( data ) {
+
+                        t = $.parseHTML(data)[0];
+                        console.log(t)
+                        cardId = 'c' + uuid();
+                        t.content.querySelector('.card').id = cardId;
+                        var clone = document.importNode(t.content, true);
+                        
+                        $('#pipelineList').append(clone);
+        
+                        $('#'+ cardId + ' .close').on('click', function(){
+                            idCard = $(this).parents('.card').prop('id')
+                            $('#'+ idCard).remove();
+                        });
+                    });
+                    break;
+                case 'relationship':
+                    $.get("/las_static/templates/cascade_rel.html", function( data ) {
+
+                        t = $.parseHTML(data)[0];
+                        console.log(t)
+                        cardId = 'c' + uuid();
+                        t.content.querySelector('.card').id = cardId;
+                        var clone = document.importNode(t.content, true);
+                        
+                        $('#pipelineList').append(clone);
+        
+                        $('#'+ cardId + ' .close').on('click', function(){
+                            idCard = $(this).parents('.card').prop('id')
+                            $('#'+ idCard).remove();
+                        });
+                    });
+                    break;
+                default: 
+                    toastr['error']("namespace is not set!")
+
+            }
     }
 
 }

@@ -525,7 +525,17 @@ const LASData = (function() {
 
     function _addOplog(ns, op, o, o2){
         var dfd = $.Deferred();
-        data = {'op': op, 'ns': ns, 'o': o, 'o2': o2}
+        obj = o;
+        obj2 = o2;
+        if (obj.hasOwnProperty('session')){
+            delete obj['session'];
+        }
+        if (obj2){
+            if (obj2.hasOwnProperty('session')){
+                delete obj2['session'];
+            }
+        }
+        data = {'op': op, 'ns': ns, 'o': obj, 'o2': obj2}
         var objectStore = lasDb.transaction(['oplog'], "readwrite").objectStore('oplog');
         var objectStoreRequest = objectStore.put(data);
         objectStoreRequest.onsuccess = function() {

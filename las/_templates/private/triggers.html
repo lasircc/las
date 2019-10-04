@@ -6,7 +6,8 @@
 
 <div class="row pt-3">
     <div class="col-12">
-        <button class="btn btn-info" id="addTrigger">Add Trigger</button>
+        <button class="btn btn-info" id="addTriggerEntity">Add for Entity</button>
+        <button class="btn btn-info" id="addTriggerRel">Add for Relationship</button>
     </div>
 </div>
 <div class="row pt-3">
@@ -27,7 +28,7 @@
             
                             <div class="form-group">
                                 <label>Namespace</label>
-                                <select class="form-control" required name="ns">
+                                <select class="form-control" required name="ns" readonly>
                                     <option value="">--- Select one ---</option>
                                     <option value="entity">Entity</option>
                                     <option value="relationship">Relationship</option>
@@ -135,6 +136,7 @@
                                         <option value="schema">Schema</option>
                                         <option value="update">Update</option>
                                         <option value="inherit">Inherit</option>
+                                        <option value="cascade">Cascade</option>
                                     </select>
                             </div>
                             <button id="addPipelineStep" class="btn btn-info"><span class="fa fa-plus"></span></button>
