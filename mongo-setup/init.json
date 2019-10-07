@@ -1,14 +1,100 @@
 [
-    {
-      "name": "Joe Smith",
-      "email": "jsmith@gmail.com",
-      "age": 40,
-      "admin": false
-    },
-    {
-      "name": "Jen Ford",
-      "email": "jford@gmail.com",
-      "age": 45,
-      "admin": true
-    }
+  {
+    "*id": "http://las.ircc.it/schemas/entities/person",
+    "*schema": "http://json-schema.org/draft-07/schema#",
+    "slug": "person",
+    "type": "object",
+    "allOf": [
+        {
+            "properties": {
+                "features": {
+                    "type": "object",
+                    "allOf": [
+                        {
+                            "properties": {
+                                "firstName":    {"type": "string"},
+                                "lastName":     {"type": "string"},
+                                "address":      {"-ref": "http://las.ircc.it/schemas/entities/address"}
+                            },
+                            "required": ["firstName", "lastName"]
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+},
+{
+    "*id": "http://las.ircc.it/schemas/entities/student",
+    "*schema": "http://json-schema.org/draft-07/schema#",
+    "slug": "student",
+    "type": "object",
+    "allOf": [
+        {
+            "properties": {
+                "features": {
+                    "type": "object",
+                    "allOf": [
+                        {
+                            "properties": {
+                                "student-id": {"type": "string"}
+                            },
+                            "required": ["student-id"]
+                        }
+                    ]
+                }
+            }
+        },
+        {"-ref": "http://las.ircc.it/schemas/entities/person"}
+    ]
+},
+{
+    "*id": "http://las.ircc.it/schemas/entities/professor",
+    "*schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "slug": "professor",
+    "allOf": [
+        {
+            "properties": {
+                "features": {
+                    "type": "object",
+                    "allOf": [
+                        {
+                            "properties": {
+                                "faculty": {"type": "string"}
+                            },
+                            "required": ["faculty"]
+                        }
+                    ]
+                }
+            }
+        },
+        {"-ref": "http://las.ircc.it/schemas/entities/person"}
+    ]
+},
+{
+    "*id": "http://las.ircc.it/schemas/entities/address",
+    "*schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "slug": "address",
+    "allOf": [
+        {
+            "properties": {
+                "features": {
+                    "type": "object",
+                    "allOf": [
+                        {
+                            "properties": {
+                                "street-address": {"type": "string"},
+                                "city":           {"type": "string"},
+                                "state":          {"type": "string"}
+                            },
+                            "required": ["city", "state", "street-address"]
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
   ]

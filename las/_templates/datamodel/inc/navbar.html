@@ -3,13 +3,13 @@
         <a class="nav-link" href="{% url "manageModel" %}">Model
             {% if current_page == "manageModel" %}<span class="sr-only">(current)</span>{% endif %}</a>
     </li>
-    <li class="nav-item {% if current_page == "classes-tree" %}active{% endif %}">
-        <a class="nav-link" href="{% url "classes-tree" %}">Classes
-            {% if current_page == "classes-tree" %}<span class="sr-only">(current)</span>{% endif %}</a>
+    <li class="nav-item {#% if current_page == "classes-tree" %#}active{#% endif %#}">
+        <a class="nav-link" href="{#% url "classes-tree" %#}">Classes
+            {#% if current_page == "classes-tree" %#}<span class="sr-only">(current)</span>{#% endif %#}</a>
     </li>
-    <li class="nav-item {% if current_page == "properties-tree" %}active{% endif %}">
-        <a class="nav-link" href="{% url "properties-tree" %}">Properties
-            {% if current_page == "properties-tree" %}<span class="sr-only">(current)</span>{% endif %}</a>
+    <li class="nav-item {#% if current_page == "properties-tree" %#}active{#% endif %}#">
+        <a class="nav-link" href="{#% url "properties-tree" %#}">Properties
+            {#% if current_page == "properties-tree" %#}<span class="sr-only">(current)</span>{#% endif %#}</a>
     </li>
 
 </ul>

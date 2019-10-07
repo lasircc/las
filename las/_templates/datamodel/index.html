@@ -1,5 +1,6 @@
 {% extends "_general/base.html" %}
 {% load static %}
+{% load las_tags %}
 {% block title %}Data Model{% endblock %}
 
 {% block extrastyle %}
@@ -71,13 +72,13 @@
                     <div class="col-sm-6">
                         <div class="card">
                             <div class="card-header">
-                                Classes ({{model.all_classes|length}})
+                                Classes ({{entities.count}})
                             </div>
                             <div class="card-body entities-list" style="overflow: auto;">
                                 <dl>
-                                    {% for c in model.all_classes %}
+                                    {% for c in entities.uris %}
                                     <dt>
-                                        <a href="{% url "entity-info" c.id %}">{{ c.qname }}</a>
+                                        <a href="{% url "entity-info" c.slug %}">{{ c.slug }}</a>
                                     </dt>
                                     {% endfor %}
                                 </dl>
