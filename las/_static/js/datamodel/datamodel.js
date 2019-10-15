@@ -26,5 +26,31 @@ $(document).ready(function () {
         customFilter($(this), $(".entities-list td"));
     });
 
+    $('#createEntity .js-typeahead').typeahead({
+        display: ['slug'],
+        minLength: 1,
+        dynamic: true,
+        searchOnFocus: true,
+        mustSelectItem:true,
+        emptyTemplate: 'No result for "{{query}}"',
+        source: {
+            schemas:{
+            ajax: {
+                url: "/entity/entities/schemas/",
+                path: 'recordsTotal.data',
+                data: {
+                "q": "{{query}}",
+                "prop": "slug"
+                }
+            }
+            }
+        },
+        callback: {
+            onSubmit: function (node, form, item, event) {
+                $('#createEntity .js-typeahead').val(item['_id']);
+            }
+        }
+    })
+
 
 });

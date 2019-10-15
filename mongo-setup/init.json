@@ -1,7 +1,7 @@
 [
   {
-    "*id": "http://las.ircc.it/schemas/entities/person",
-    "*schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://las.ircc.it/schemas/entities/person",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "slug": "person",
     "type": "object",
     "allOf": [
@@ -14,7 +14,7 @@
                             "properties": {
                                 "firstName":    {"type": "string"},
                                 "lastName":     {"type": "string"},
-                                "address":      {"-ref": "http://las.ircc.it/schemas/entities/address"}
+                                "address":      {"$ref": "http://las.ircc.it/schemas/entities/address"}
                             },
                             "required": ["firstName", "lastName"]
                         }
@@ -25,8 +25,8 @@
     ]
 },
 {
-    "*id": "http://las.ircc.it/schemas/entities/student",
-    "*schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://las.ircc.it/schemas/entities/student",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "slug": "student",
     "type": "object",
     "allOf": [
@@ -45,12 +45,12 @@
                 }
             }
         },
-        {"-ref": "http://las.ircc.it/schemas/entities/person"}
+        {"$ref": "http://las.ircc.it/schemas/entities/person"}
     ]
 },
 {
-    "*id": "http://las.ircc.it/schemas/entities/professor",
-    "*schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://las.ircc.it/schemas/entities/professor",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "slug": "professor",
     "allOf": [
@@ -69,12 +69,12 @@
                 }
             }
         },
-        {"-ref": "http://las.ircc.it/schemas/entities/person"}
+        {"$ref": "http://las.ircc.it/schemas/entities/person"}
     ]
 },
 {
-    "*id": "http://las.ircc.it/schemas/entities/address",
-    "*schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://las.ircc.it/schemas/entities/address",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "slug": "address",
     "allOf": [

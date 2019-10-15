@@ -7,20 +7,11 @@
 <link async href="{% static "css/datamodel/style.css" %}" rel="stylesheet">
 {% endblock %}
 
-<!-- Override base navbar -->
-{% block navbar_items %}
-{% include "datamodel/inc/navbar.html" with current_page=request.resolver_match.url_name %}
-{% endblock %}
-
-
 {% block content %}
 
 {% block breadcrumb %}
 {% include "datamodel/inc/breadcrumb.html" with current_page=request.resolver_match.url_name %}
 {% endblock %}
-
-
-
 
 
 <div class="row">
@@ -32,12 +23,12 @@
                     aria-controls="outline" aria-selected="true">Model index</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="meta-tab" data-toggle="tab" href="#meta" role="tab" aria-controls="meta"
-                    aria-selected="false">Metadata</a>
+                <a class="nav-link" id="schemas-tab" data-toggle="tab" href="#schemas" role="tab" aria-controls="schemas"
+                    aria-selected="false">Schemas</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="danger-tab" data-toggle="tab" href="#danger" role="tab" aria-controls="danger"
-                    aria-selected="false" style="background-color: #e8282830">Danger Zone</a>
+                <a class="nav-link" id="classes-tab" data-toggle="tab" href="#classes" role="tab" aria-controls="classes"
+                    aria-selected="false">Classes</a>
             </li>
 
         </ul>
@@ -78,7 +69,7 @@
                                 <dl>
                                     {% for c in entities.uris %}
                                     <dt>
-                                        <a href="{% url "entity-info" c.slug %}">{{ c.slug }}</a>
+                                        <a href="{% url 'datamodel:entity-info' c.slug %}">{{ c.slug }}</a>
                                     </dt>
                                     {% endfor %}
                                 </dl>
@@ -94,7 +85,7 @@
                                 <dl>
                                     {% for p in model.all_properties %}
                                     <dt>
-                                        <a href="{% url "entity-info" p.id %}">{{ p.qname }}</a>
+                                        <a href="{% url 'datamodel:entity-info' p.id %}">{{ p.qname }}</a>
                                     </dt>
                                     {% endfor %}
                                 </dl>
@@ -104,9 +95,43 @@
                 </div>
             </div>
 
-            <!-- Tab Metadata -->
-            <div class="tab-pane fade" id="meta" role="tabpanel" aria-labelledby="meta-tab">
+            <!-- Tab Schemas -->
+            <div class="tab-pane fade" id="schemas" role="tabpanel" aria-labelledby="schemas-tab">
                 <div class="row">
+                    <div class="col-6">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label>Json schema</label>
+                                <textarea class="form-control" name="json-schema"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-success">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="card">
+                            <div class="card-header">
+                                Schemas ({{schemas.count}})
+                            </div>
+                            <div class="card-body entities-list" style="overflow: auto;">
+                                <dl>
+                                    {% for c in schemas.uris %}
+                                    <dt>
+                                        {{ c.slug }}
+                                    </dt>
+                                    {% endfor %}
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                    <!--
                     <div class="col-sm-6">
                         <div class="row">
                             <div class="col-md-12">
@@ -172,62 +197,50 @@
                             </div>
                         </div>
                     </div>
+                    -->
 
-
-                </div>
             </div>
 
-            <!-- Tab Danger Zone -->
-            <div class="tab-pane fade" id="danger" role="tabpanel" aria-labelledby="danger-tab">
+            <!-- Tab classes -->
+            <div class="tab-pane fade" id="classes" role="tabpanel" aria-labelledby="classes-tab">
                 <div class="row">
-                    <!-- Reload Data -->
+                    
                     <div class="col-md-6">
                         <div class="card">
-                            <div class="card-header text-white bg-danger">
-                                Reload data model
+                            <div class="card-header">
+                                Define classes
                             </div>
                             <div class="card-body">
-                                <form class="was-validated" method="post" action="." enctype="multipart/form-data">
+                                <form method="post" action="{% url 'datamodel:entity-create' %}" enctype="multipart/form-data" id="createEntity">
                                     {% csrf_token %}
-                                    <div class="custom-control custom-checkbox mb-3">
-                                        <input type="checkbox" class="custom-control-input"
-                                            id="customControlValidation1" required>
-                                        <label class="custom-control-label"
-                                            for="customControlValidation1">Delete'n'reload</label>
-                                        <div class="invalid-feedback">Delete current model and reload a new one from
-                                            scratch</div>
+                                    <div class="form-group">
+                                        <label>Name</label>
+                                        <input type="text" class="form-control" name="name">
                                     </div>
-
-                                    <div class="custom-file">
-                                        <input type="file" class="custom-file-input" id="ttlFile" name='ttlFile'
-                                            required>
-                                        <label class="custom-file-label" for="ttlFile">Choose
-                                            a Turtle file...</label>
-                                        <div class="invalid-feedback">Please, select the turtle file with the new data
-                                            model (small files only, for the moment)</div>
+                                    <div class="form-group">
+                                        <div class="typeahead__container">
+                                            <div class="typeahead__field">
+                                                <div class="typeahead__query">
+                                                    <input class="js-typeahead" name="schema" type="search" placeholder="Search" autocomplete="off">
+                                                </div>
+                                                <div class="typeahead__button">
+                                                    <button disabled>
+                                                        <i class="typeahead__search-icon"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <button type="submit" class="btn btn-danger" style="margin-top: 10px;">Reload
-                                        All</button>
-
+                                    <div class="form-group">
+                                        <input type="submit" class="btn btn-success" value="Save"></div>
+                                    </div>
                                 </form>
                             </div>
                         </div>
 
 
                     </div>
-                    <!-- Future work -->
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header text-white bg-danger">
-                                Another scary feature...
-                            </div>
-                            <div class="card-body">
-                                <p>E.g., update controlled dicts from Wikidata</p>
-                            </div>
-                        </div>
-
-
-                    </div>
+                    
 
                 </div>
             </div>
@@ -245,7 +258,7 @@
 <script defer type="text/javascript">
     $(document).ready(function () {
         {% for message in messages %}
-        toastr['{{message.tags}}']("{{message}}");
+        toastr['{{message.tags}}']("{{message.text}}");
         {% endfor %}
     });
 </script>
