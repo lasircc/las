@@ -13,7 +13,7 @@ def normalizePagResult (documents):
         documents['count'] = documents['count'][0]['count']
     return documents
 
-def paginate(doc, userAccess, start= 0, length = settings.REST_FRAMEWORK['PAGE_SIZE'], startFilter={}, filter={}) :
+def paginate(doc, userAccess, start= 0, length = settings.REST_FRAMEWORK['PAGE_SIZE'], startFilter={}, filter={}, distinct=None) :
     print (doc)
 
     finalFilter = {**startFilter, **filter}
@@ -51,10 +51,15 @@ def paginate(doc, userAccess, start= 0, length = settings.REST_FRAMEWORK['PAGE_S
             'count': [ {'$count': 'count'} ]
             }
     }
+
+    if distinct:
+        aggregationPipeline.append({'$group': {'_id': '$' + distinct }})
+        aggregationPipelineFilter.append({'$group': {'_id': '$' + distinct }})
     
     aggregationPipeline.append(paginationStage)
     aggregationPipelineFilter.append(paginationStage)
 
+    
 
     documentsTotal = db[doc].aggregate(aggregationPipeline)
     documents = db[doc].aggregate(aggregationPipelineFilter)
@@ -68,4 +73,5 @@ def paginate(doc, userAccess, start= 0, length = settings.REST_FRAMEWORK['PAGE_S
         'start': start,
         'lenght': length
     }
+    print(resp)
     return resp

@@ -78,6 +78,7 @@ class EntityViewSet (ViewSet):
             endFilter = json.loads(request.query_params.get('filter', '{}'))
             q = request.query_params.get('q', None)
             prop = request.query_params.get('prop', None)
+            distinct = request.query_params.get('distinct', None)
             if q and prop:
                 print ('regex')
                 search = '(.*)' + q.strip() + '(.*)'
@@ -87,10 +88,10 @@ class EntityViewSet (ViewSet):
             print (startFilter, endFilter)
             if request.user.is_superuser:
                 print ('is_superuser')
-                resp = paginate(dbcollection, None, start, length, startFilter=startFilter, filter=endFilter)
+                resp = paginate(dbcollection, None, start, length, startFilter=startFilter, filter=endFilter, distinct=distinct)
             else:
                 print ('no superuser')
-                resp = paginate(dbcollection, request.user['heritage']['w'], start, length, startFilter=startFilter, filter=endFilter)
+                resp = paginate(dbcollection, request.user['heritage']['w'], start, length, startFilter=startFilter, filter=endFilter, distinct=distinct)
 
             return Response(resp)
         except Exception as e:

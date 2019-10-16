@@ -43,13 +43,17 @@ $(document).ready(function() {
         currentNs = data['ns'];
         $('#formTrigger input[name="_class"]').val(data['_class'])
         $('#formTrigger input[name="_class"]').trigger('input.typeahead')
-        $($('#formTrigger input[name="_class"]').parents('.typeahead__container').find('.typeahead__item')[0]).trigger('click')
-        $('#formTrigger select[name="e"]').val(data['e'])
-        $('#formTrigger textarea[name="when"]').val(JSON.stringify( data['when'] ) )
-        $('#formTrigger textarea[name="pipeline"]').val( JSON.stringify(data['pipeline']) )
+        setTimeout(function () {
+            $($('#formTrigger input[name="_class"]').parents('.typeahead__container').find('.typeahead__item')[0]).trigger('click')
+            $('#formTrigger select[name="e"]').val(data['e'])
+            $('#formTrigger textarea[name="when"]').val(JSON.stringify( data['when'] ) )
+            $('#formTrigger textarea[name="pipeline"]').val( JSON.stringify(data['pipeline']) )
+            $('#editTrigger').show();
+        }, 500);
+        
         
 
-        $('#editTrigger').show();
+        
     });
 
     $('#cancelEdit').on('click', function(){
@@ -89,22 +93,22 @@ $(document).ready(function() {
         accent: true,
         searchOnFocus: true,
         mustSelectItem:true,
+        dynamic: true,
         emptyTemplate: 'No result for "{{query}}"',
-        display: ['name'],
+        display: ['_id'],
         source: {
-            data:
-            [{"name":"Container"}, {"name":"Mouse"}]
-            /*
-            {
-                ajax: {
-                url: "/entity/entities/classes/",
+            classes:{
+            ajax: {
+                url: "/entity/entities/features/",
                 path: 'recordsTotal.data',
                 data: {
-                  "q": "{{query}}"
+                "startFilter": function(){return JSON.stringify({'ns': currentNs}); },
+                "q": "{{query}}",
+                "prop": "class",
+                "distinct": "class"
                 }
-              }
             }
-            */
+            }
         },
         callback: {
             onClickAfter: function (node, a, item, event) {
@@ -193,7 +197,12 @@ $(document).ready(function() {
             elems = cards[i].querySelectorAll('.track:not(div):not(.typeahead__hint)')
             params = {};
             for (var j=0; j<elems.length; j++){
-                val = $(elems[j]).val();
+                if ( $(elems[j]).prop('type') == 'checkbox'){
+                    val = $(elems[j]).prop('checked');
+                }
+                else{
+                    val = $(elems[j]).val();
+                }
                 name = elems[j].getAttribute('name');
                 jsonType = elems[j].getAttribute('json')
                 
@@ -252,21 +261,21 @@ function formWhen(whenCond){
             accent: true,
             searchOnFocus: true,
             mustSelectItem:true,
+            dynamic: true,
             emptyTemplate: 'No result for "{{query}}"',
-            display: ['name'],
+            display: ['path'],
             source: {
-                data: [ {"name":"features.barcode", "_type": "string"},{"name":"features.contType", "_type": "string"}, {"name":"features.available", "_type": "boolean" }, {"name":"features.dim.x", "_type": "number" }, {"name":"features.dim.y", "_type": "number" } ]
-                /*
-                    {
+                features:{
                     ajax: {
-                    url: "/entity/entities/features/",
-                    path: 'recordsTotal.data',
-                    data: {
-                      "q": "{{query}}"
+                        url: "/entity/entities/features/",
+                        path: 'recordsTotal.data',
+                        data: {
+                        "startFilter": function(){console.log($('input.js-typeahead-class').val()); return JSON.stringify({'ns': currentNs, 'class':  $('input.js-typeahead-class').val()}); },
+                        "q": "{{query}}",
+                        "prop": "path",
+                        }
                     }
-                  }
-                  }
-                    */
+                }
             },
             callback: {
                 onClickAfter: function (node, a, item, event) {
@@ -274,7 +283,7 @@ function formWhen(whenCond){
                     currentCard = $($(this.selector)[0]).parents('.card').prop('id')
                     console.log(node, a, item, event);
                     $('#'+ currentCard + ' .value').empty();
-                    html = defineValue(currentCard, item['_type']);
+                    html = defineValue(currentCard, item['type']);
                     $('#'+ currentCard + ' .value').append(html);
                     
                 },
@@ -287,15 +296,18 @@ function formWhen(whenCond){
         
         if (whenCond){
             $('#'+ cardId + ' input[name="featSearch"]').val(whenCond['f'])
-            $('#'+ cardId + ' input[name="featSearch"]').trigger('input.typeahead')
-            $($('#'+ cardId + ' input[name="featSearch"]').parents('.typeahead__container').find('.typeahead__item')[0]).trigger('click');
             
-            if (whenCond['ftype'] == 'boolean'){
-                $('#'+ cardId + ' input[name="value"]').prop('checked', whenCond['v'])
-            }
-            else{
-                $('#'+ cardId + ' input[name="value"]').val(whenCond['v'])
-            }
+
+            $('#'+ cardId + ' input[name="featSearch"]').trigger('input.typeahead')
+            setTimeout(function () {
+                $($('#'+ cardId + ' input[name="featSearch"]').parents('.typeahead__container').find('.typeahead__item')[0]).trigger('click');
+                if (whenCond['ftype'] == 'boolean'){
+                    $('#'+ cardId + ' input[name="value"]').prop('checked', whenCond['v'])
+                }
+                else{
+                    $('#'+ cardId + ' input[name="value"]').val(whenCond['v'])
+                }    
+            }, 500);
         }
     });
 
@@ -325,6 +337,25 @@ function defineValue(id, nodeType){
 }
 
 
+
+function multiSelect(params) {
+    return new Promise((resolve, reject) => {
+        cardId = params['cardId']
+        value = params['value']
+        nameField = params['field']
+        $('#' +cardId + ' input[name="'+ nameField+ '"]').val(value)
+        $('#' +cardId + ' input[name="'+ nameField+ '"]').trigger('input.typeahead')
+        setTimeout(() => {
+            $($('#' +cardId + ' input[name="'+ nameField+ '"]').parents('.typeahead__container').find('.typeahead__item')[0]).trigger('click')
+            console.log('Resolve! ', params);
+    
+            resolve();
+        }, 1000);
+    });
+  }
+  
+
+
 function formPipeline(stepType, params){
     switch(stepType){
         case 'unique':
@@ -351,54 +382,70 @@ function formPipeline(stepType, params){
                     hint: true,
                     accent: true,
                     searchOnFocus: false,
+                    dynamic: true,
                     mustSelectItem:true,
                     emptyTemplate: 'No result for "{{query}}"',
-                    display: ['name'],
                     multiselect: {
-                        matchOn: ["name"],
+                        matchOn: ["path"],
                         cancelOnBackspace: true,
+                        callback:{
+                            onCancel: function(node, item, event){
+                                currentCard = $($(this.selector)[0]).parents('.card').prop('id')
+                                //$('#'+ currentCard + ' .value').empty();
+                                currentVals = JSON.parse($('#' +currentCard + ' input[name="fields"]').val());
+                                console.log(currentVals)
+                                currentVals = _.without(currentVals, item['path'] ); 
+                                console.log('onCancel',item, currentVals);
+                                $('#' +currentCard + ' input[name="fields"]').val(JSON.stringify(currentVals) )
+                                
+    
+                            },
+                        }
+                        
                     },
+                    display: ['path'],
                     source: {
-                        data: [ {"name":"features.barcode", "_type": "string"},{"name":"features.contType", "_type": "string"}, {"name":"features.available", "_type": "boolean" }, {"name":"features.dim.x", "_type": "number" }, {"name":"features.dim.y", "_type": "number" }]
-                        /*
-                            {
+                        features:{
                             ajax: {
-                            url: "/entity/entities/features/",
-                            path: 'recordsTotal.data',
-                            data: {
-                              "q": "{{query}}"
+                                url: "/entity/entities/features/",
+                                path: 'recordsTotal.data',
+                                data: {
+                                "startFilter": function(){console.log($('input.js-typeahead-class').val()); return JSON.stringify({'ns': currentNs,'class':  $('input.js-typeahead-class').val()}); },
+                                "q": "{{query}}",
+                                "prop": "path",
+                                }
                             }
-                          }
-                          }
-                            */
+                        }
                     },
                     callback: {
+                        
                         onClickAfter: function (node, a, item, event) {
                             event.preventDefault();
                             currentCard = $($(this.selector)[0]).parents('.card').prop('id')
-                            console.log(node, a, item, event);
+                            
                             currentVals = JSON.parse ( $('#' +currentCard + ' input[name="fields"]').val() );
-                            currentVals.push(item['name']);
+                            console.log('onClickAfter', item, currentVals);
+                            currentVals.push(item['path']);
                             $('#' +currentCard + ' input[name="fields"]').val(JSON.stringify(currentVals) )
-                        },
-                        onCancel: function(node, item, event){
-                            currentCard = $($(this.selector)[0]).parents('.card').prop('id')
-                            $('#'+ currentCard + ' .value').empty();
-                            currentVals = $('#' +currentCard + ' input[name="fields"]').val()
-                            currentVals = _.without(currentVals, item['name'] ); 
-                            $('#' +currentCard + ' input[name="fields"]').val(JSON.stringify(currentVals) )
-
                         }
+                        
                     }
                 });
 
                 if (params){
+
+                    listPromises = []
                     for (var i=0; i<params['fields'].length; i++){
-                        $('#' +cardId + ' input[name="featSearch"]').val(params['fields'][i])
-                        $('#' +cardId + ' input[name="featSearch"]').trigger('input.typeahead')
-                        $($('#'+cardId + ' input[name="featSearch"]').parents('.typeahead__container').find('.typeahead__item')[0]).trigger('click')
+                        listPromises.push({'cardId':cardId, 'value': params['fields'][i], 'field':'featSearch' })
                     }
-                }
+
+                    listPromises.reduce( (previousPromise, nextID) => {
+                        return previousPromise.then(() => {
+                          return multiSelect(nextID);
+                        });
+                      }, Promise.resolve());
+
+                    }
             });
             break;
         case 'schema':
@@ -444,20 +491,20 @@ function formPipeline(stepType, params){
                     searchOnFocus: true,
                     mustSelectItem:true,
                     emptyTemplate: 'No result for "{{query}}"',
-                    display: ['name'],
+                    display: ['path'],
+                    dynamic: true,
                     source: {
-                        data: [ {"name":"features.barcode", "_type": "string"},{"name":"features.contType", "_type": "string"}, {"name":"features.available", "_type": "boolean" }, {"name":"features.dim.x", "_type": "number" }, {"name":"features.dim.y", "_type": "number" } ]
-                        /*
-                            {
+                        features:{
                             ajax: {
-                            url: "/entity/entities/features/",
-                            path: 'recordsTotal.data',
-                            data: {
-                              "q": "{{query}}"
+                                url: "/entity/entities/features/",
+                                path: 'recordsTotal.data',
+                                data: {
+                                "startFilter": function(){console.log($('input.js-typeahead-class').val()); return JSON.stringify({'ns': currentNs, 'class':  $('input.js-typeahead-class').val()}); },
+                                "q": "{{query}}",
+                                "prop": "class",
+                                }
                             }
-                          }
-                          }
-                            */
+                        }
                     },
                     callback: {
                         onClickAfter: function (node, a, item, event) {
@@ -465,7 +512,7 @@ function formPipeline(stepType, params){
                             currentCard = $($(this.selector)[0]).parents('.card').prop('id')
                             console.log(node, a, item, event);
                             $('#'+ currentCard + ' .value').empty();
-                            html = defineValue(currentCard, item['_type']);
+                            html = defineValue(currentCard, item['type']);
                             $('#'+ currentCard + ' .value').append(html);
                             
                         },
@@ -569,21 +616,51 @@ function formPipeline(stepType, params){
                     searchOnFocus: true,
                     mustSelectItem:true,
                     emptyTemplate: 'No result for "{{query}}"',
-                    display: ['name'],
+                    display: ['path'],
+                    dynamic: true,
                     source: {
-                        data: [ {"name":"features.barcode", "_type": "string"},{"name":"features.contType", "_type": "string"}, {"name":"features.available", "_type": "boolean" }, {"name":"features.dim.x", "_type": "number" }, {"name":"features.dim.y", "_type": "number" } ]
-                        /*
-                            {
+                        features:{
                             ajax: {
-                            url: "/entity/entities/features/",
-                            path: 'recordsTotal.data',
-                            data: {
-                              "q": "{{query}}"
+                                url: "/entity/entities/features/",
+                                path: 'recordsTotal.data',
+                                data: {
+                                "startFilter": function(){console.log($('input.js-typeahead-class').val()); return JSON.stringify({'ns': currentNs ,'class':  $('input.js-typeahead-class').val()}); },
+                                "q": "{{query}}",
+                                "prop": "path",
+                                }
                             }
-                          }
-                          }
-                            */
-                    }
+                        }
+                    },
+                });
+
+                
+                $.typeahead({
+                    input: '#'+ cardId + ' input[name="typeDoc"]',
+                    minLength: 0,
+                    maxItem: 15,
+                    order: "asc",
+                    hint: true,
+                    accent: true,
+                    mustSelectItem:true,
+                    emptyTemplate: 'No result for "{{query}}"',
+                    display: ['_id'],
+                    dynamic: true,
+                    source: {
+                        typeDoc:{
+                            ajax: {
+                                url: "/entity/entities/features/",
+                                path: 'recordsTotal.data',
+                                data: {
+                                "startFilter": function(){
+                                    currentCard = $($(this.selector)[0]).parents('.card').prop('id');
+                                    console.log($('input.js-typeahead-class').val()); return JSON.stringify({'ns':  $('#'+ currentCard + ' select[name="ns"]').val()}); },
+                                "q": "{{query}}",
+                                "prop": "class",
+                                "distinct": "class"
+                                }
+                            }
+                        }
+                    },
                 });
 
                 $.typeahead({
@@ -595,47 +672,23 @@ function formPipeline(stepType, params){
                     accent: true,
                     mustSelectItem:true,
                     emptyTemplate: 'No result for "{{query}}"',
-                    display: ['name'],
+                    display: ['path'],
+                    dynamic: true,
                     source: {
-                        data: [ {"name":"features.barcode", "_type": "string"},{"name":"features.contType", "_type": "string"}, {"name":"features.available", "_type": "boolean" }, {"name":"features.dim.x", "_type": "number" }, {"name":"features.dim.y", "_type": "number" } ]
-                        /*
-                            {
+                        features:{
                             ajax: {
-                            url: "/entity/entities/features/",
-                            path: 'recordsTotal.data',
-                            data: {
-                              "q": "{{query}}"
-                            }searchOnFocus: true,
-                          }searchOnFocus: true,
-                          }searchOnFocus: true,
-                            */
-                    }
-                });
-
-                $.typeahead({
-                    input: '#'+ cardId + ' input[name="typeDoc"]',
-                    minLength: 0,
-                    maxItem: 15,
-                    order: "asc",
-                    hint: true,
-                    accent: true,
-                    mustSelectItem:true,
-                    emptyTemplate: 'No result for "{{query}}"',
-                    display: ['name'],
-                    source: {
-                        data: [ {"name":"Container"}, {"name":"Mouse"} ]
-                        /*
-                            {
-                            ajax: {
-                            url: "/entity/entities/features/",
-                            path: 'recordsTotal.data',
-                            data: {
-                              "q": "{{query}}"
+                                url: "/entity/entities/features/",
+                                path: 'recordsTotal.data',
+                                data: {
+                                "startFilter": function(){
+                                    currentCard = $($(this.selector)[0]).parents('.card').prop('id');
+                                     return JSON.stringify({'ns':  $('#'+ currentCard + ' select[name="ns"]').val(), 'class':  $('input[name="typeDoc"]').val() } )  },
+                                "q": "{{query}}",
+                                "prop": "path",
+                                }
                             }
-                          }
-                          }
-                            */
-                    }
+                        }
+                    },
                 });
 
                 $.typeahead({
@@ -646,25 +699,37 @@ function formPipeline(stepType, params){
                     hint: true,
                     accent: true,
                     mustSelectItem:true,
+                    dynamic: true,
                     emptyTemplate: 'No result for "{{query}}"',
-                    display: ['name'],
                     multiselect: {
-                        matchOn: ["name"],
+                        matchOn: ["path"],
                         cancelOnBackspace: true,
-                    },
-                    source: {
-                        data: [ {"name":"features.barcode", "_type": "string"},{"name":"features.contType", "_type": "string"}, {"name":"features.available", "_type": "boolean" }, {"name":"features.dim.x", "_type": "number" }, {"name":"features.dim.y", "_type": "number" } ]
-                        /*
-                            {
-                            ajax: {
-                            url: "/entity/entities/features/",
-                            path: 'recordsTotal.data',
-                            data: {
-                              "q": "{{query}}"
+                        callback:{
+                            onCancel: function(node, item, event){
+                                currentCard = $($(this.selector)[0]).parents('.card').prop('id')
+                                $('#'+ currentCard + ' .value').empty();
+                                currentVals = $('#' +currentCard + ' input[name="fToCopy"]').val()
+                                currentVals = _.without(currentVals, item['path'] ); 
+                                $('#' +currentCard + ' input[name="fToCopy"]').val(JSON.stringify(currentVals) )
+    
                             }
-                          }
-                          }
-                            */
+                        }
+                    },
+                    display: ['path'],
+                    source: {
+                        features:{
+                            ajax: {
+                                url: "/entity/entities/features/",
+                                path: 'recordsTotal.data',
+                                data: {
+                                "startFilter": function(){
+                                    currentCard = $($(this.selector)[0]).parents('.card').prop('id');
+                                    return JSON.stringify({'ns':  $('#'+ currentCard + ' select[name="ns"]').val(), 'class': $('input[name="typeDoc"]').val()}); },
+                                "q": "{{query}}",
+                                "prop": "path",
+                                }
+                            }
+                        }
                     },
                     callback: {
                         onClickAfter: function (node, a, item, event) {
@@ -672,45 +737,50 @@ function formPipeline(stepType, params){
                             currentCard = $($(this.selector)[0]).parents('.card').prop('id')
                             console.log(node, a, item, event);
                             currentVals = JSON.parse ( $('#' +currentCard + ' input[name="fToCopy"]').val() );
-                            currentVals.push(item['name']);
+                            currentVals.push(item['path']);
                             $('#' +currentCard + ' input[name="fToCopy"]').val(JSON.stringify(currentVals) )
                         },
-                        onCancel: function(node, item, event){
-                            currentCard = $($(this.selector)[0]).parents('.card').prop('id')
-                            $('#'+ currentCard + ' .value').empty();
-                            currentVals = $('#' +currentCard + ' input[name="fToCopy"]').val()
-                            currentVals = _.without(currentVals, item['name'] ); 
-                            $('#' +currentCard + ' input[name="fToCopy"]').val(JSON.stringify(currentVals) )
-
-                        }
+                        
                     }
                 });
 
                 if (params){
                     $('#' +cardId + ' input[name="inputField"]').val(params['inputField'])
                     $('#' +cardId + ' input[name="inputField"]').trigger('input.typeahead')
-                    $($('#'+cardId + ' input[name="inputField"]').parents('.typeahead__container').find('.typeahead__item')[0]).trigger('click')
+                    setTimeout(function () {
+                        $($('#'+cardId + ' input[name="inputField"]').parents('.typeahead__container').find('.typeahead__item')[0]).trigger('click')
+                    }, 500);
+                    
 
                     $('#'+cardId + ' select[name="ns"]').val(params['ns'])
 
                     $('#' +cardId + ' input[name="typeDoc"]').val(params['typeDoc'])
                     $('#' +cardId + ' input[name="typeDoc"]').trigger('input.typeahead')
-                    $($('#'+cardId + ' input[name="typeDoc"]').parents('.typeahead__container').find('.typeahead__item')[0]).trigger('click')
+                    setTimeout(function () {
+                        $($('#'+cardId + ' input[name="typeDoc"]').parents('.typeahead__container').find('.typeahead__item')[0]).trigger('click')
+                    }, 500);
+                    
 
                     $('#' +cardId + ' input[name="joinField"]').val(params['joinField'])
                     $('#' +cardId + ' input[name="joinField"]').trigger('input.typeahead')
-                    $($('#'+cardId + ' input[name="joinField"]').parents('.typeahead__container').find('.typeahead__item')[0]).trigger('click')
-
-
+                    setTimeout(function () {
+                        $($('#'+cardId + ' input[name="joinField"]').parents('.typeahead__container').find('.typeahead__item')[0]).trigger('click')
+                    }, 500);
+                    
 
                     
-                    
-                    
+                    listPromises = []
                     for (var i=0; i<params['fToCopy'].length; i++){
-                        $('#' +cardId + ' input[name="featCopySearch"]').val(params['fToCopy'][i])
-                        $('#' +cardId + ' input[name="featCopySearch"]').trigger('input.typeahead')
-                        $($('#'+cardId + ' input[name="featCopySearch"]').parents('.typeahead__container').find('.typeahead__item')[0]).trigger('click')
+                        listPromises.push({'cardId':cardId, 'value': params['fToCopy'][i], 'field':'featCopySearch' })
                     }
+
+                    listPromises.reduce( (previousPromise, nextID) => {
+                        return previousPromise.then(() => {
+                          return multiSelect(nextID);
+                        });
+                      }, Promise.resolve());
+
+                    
                 }
             });
             break;
@@ -732,6 +802,120 @@ function formPipeline(stepType, params){
                             idCard = $(this).parents('.card').prop('id')
                             $('#'+ idCard).remove();
                         });
+                        $.typeahead({
+                            input: '#'+ cardId + ' input[name="typeRel"]',
+                            minLength: 0,
+                            maxItem: 15,
+                            order: "asc",
+                            hint: true,
+                            accent: true,
+                            searchOnFocus: true,
+                            mustSelectItem:true,
+                            emptyTemplate: 'No result for "{{query}}"',
+                            display: ['_id'],
+                            dynamic: true,
+                            source: {
+                                typeDoc:{
+                                    ajax: {
+                                        url: "/entity/entities/features/",
+                                        path: 'recordsTotal.data',
+                                        data: {
+                                        "startFilter": function(){
+                                            currentCard = $($(this.selector)[0]).parents('.card').prop('id');
+                                            return JSON.stringify({'ns': 'relationship' }); },
+                                        "q": "{{query}}",
+                                        "prop": "class",
+                                        "distinct": "class"
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
+                        $.typeahead({
+                            input: '#'+ cardId + ' input[name="typeCandidates"]',
+                            minLength: 0,
+                            maxItem: 15,
+                            order: "asc",
+                            hint: true,
+                            accent: true,
+                            searchOnFocus: true,
+                            mustSelectItem:true,
+                            emptyTemplate: 'No result for "{{query}}"',
+                            display: ['_id'],
+                            dynamic: true,
+                            source: {
+                                typeDoc:{
+                                    ajax: {
+                                        url: "/entity/entities/features/",
+                                        path: 'recordsTotal.data',
+                                        data: {
+                                        "startFilter": function(){
+                                            currentCard = $($(this.selector)[0]).parents('.card').prop('id');
+                                            return JSON.stringify({'ns': 'entity' }); },
+                                        "q": "{{query}}",
+                                        "prop": "class",
+                                        "distinct": "class"
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
+
+                        $.typeahead({
+                            input: '#'+ cardId + ' input[name="featCopySearch"]',
+                            minLength: 0,
+                            maxItem: 15,
+                            order: "asc",
+                            hint: true,
+                            accent: true,
+                            mustSelectItem:true,
+                            dynamic: true,
+                            emptyTemplate: 'No result for "{{query}}"',
+                            multiselect: {
+                                matchOn: ["path"],
+                                cancelOnBackspace: true,
+                                callback:{
+                                    onCancel: function(node, item, event){
+                                        currentCard = $($(this.selector)[0]).parents('.card').prop('id')
+                                        $('#'+ currentCard + ' .value').empty();
+                                        currentVals = $('#' +currentCard + ' input[name="fToCopy"]').val()
+                                        currentVals = _.without(currentVals, item['path'] ); 
+                                        $('#' +currentCard + ' input[name="fToCopy"]').val(JSON.stringify(currentVals) )
+            
+                                    }
+                                }
+                            },
+                            display: ['path'],
+                            source: {
+                                features:{
+                                    ajax: {
+                                        url: "/entity/entities/features/",
+                                        path: 'recordsTotal.data',
+                                        data: {
+                                        "startFilter": function(){
+                                            currentCard = $($(this.selector)[0]).parents('.card').prop('id');
+                                            return JSON.stringify({'ns':  'entity', 'class': $('input[name="typeCandidates"]').val()}); },
+                                        "q": "{{query}}",
+                                        "prop": "path",
+                                        }
+                                    }
+                                }
+                            },
+                            callback: {
+                                onClickAfter: function (node, a, item, event) {
+                                    event.preventDefault();
+                                    currentCard = $($(this.selector)[0]).parents('.card').prop('id')
+                                    console.log(node, a, item, event);
+                                    currentVals = JSON.parse ( $('#' +currentCard + ' input[name="fToCopy"]').val() );
+                                    currentVals.push(item['path']);
+                                    $('#' +currentCard + ' input[name="fToCopy"]').val(JSON.stringify(currentVals) )
+                                },
+                                
+                            }
+                        });
+                        
                     });
                     break;
                 case 'relationship':
@@ -749,6 +933,10 @@ function formPipeline(stepType, params){
                             idCard = $(this).parents('.card').prop('id')
                             $('#'+ idCard).remove();
                         });
+
+
+
+
                     });
                     break;
                 default: 

@@ -118,12 +118,13 @@ class CreateEntity(View):
 
         features = test.get_features_paths(schema_store)
         className = request.POST.get('name')
+        ns = request.POST.get('ns')
 
-        #TODO save features for class
+        #TODO update save features for class with new structure
 
         for feat in features:
             for p, t in feat.items():
-                db.features.update({'path': p, 'class': className}, {'path': p, 'class': className, 'required': True, 'type': t }, True)
+                db.features.update({'ns': ns, 'path': p, 'class': className}, {'ns': ns, 'path': p, 'class': className, 'required': True, 'type': t }, True)
 
 
 
