@@ -29,15 +29,6 @@ schema_store = Schema_Store(getter = getter, saver = saver)
 
 
 
-
-
-
-
-
-
-
-
-
 # import ontospy
 # import requests
 # # The low-level cache API

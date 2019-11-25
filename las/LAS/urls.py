@@ -47,7 +47,7 @@ urlpatterns = [
     #path('admin/', LASAdmin.site.urls),
     path('user/', include('user.urls')),
     path('notification/', include('notification.urls')),
-    path('datamodel/', include('datamodel.urls', namespace='datamodel')),
+    #path('datamodel/', include('datamodel.urls', namespace='datamodel')),
     path('entity/', include('entity.urls')),
     path('private/', include('private.urls')),
 

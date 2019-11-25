@@ -6,6 +6,7 @@ FROM node AS build
 RUN mkdir /assets
 WORKDIR /assets
 COPY _config/packaging/package.json /assets
+RUN npm update
 RUN npm install
 
 

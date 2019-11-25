@@ -38,4 +38,8 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadReque
 from django.urls import reverse
 
 
+from jsondesign.schema_store import Schema_Store
+
+
 from .triggers import *
+from .datamodel import *

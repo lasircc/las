@@ -46,7 +46,7 @@ INSTALLED_APPS = [
 
     'LASUtils',
     
-    'datamodel',
+    #'datamodel',
     'notification',
     'user',
     'entity',
