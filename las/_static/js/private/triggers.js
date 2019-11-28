@@ -1,5 +1,6 @@
 $(document).ready(function() {
     currentNs = undefined;
+    
     $('#tabTriggers').DataTable({
         'ajax': {
             'url': '/private/triggers/'
@@ -23,7 +24,10 @@ $(document).ready(function() {
         $('#formTrigger select[name="ns"]').val(currentNs);
         $('textarea[name="when"]').val('[]')
         $('textarea[name="pipeline"]').val('[]');
+        
         $('#editTrigger').show();
+        initPipeline();
+        
     });
 
     $('#addTriggerRel').on('click', function(){
@@ -33,6 +37,8 @@ $(document).ready(function() {
         $('textarea[name="when"]').val('[]')
         $('textarea[name="pipeline"]').val('[]');
         $('#editTrigger').show();
+        initPipeline();
+        
     });
 
     $('#tabTriggers').on('click', '.editTrigger', function(){
@@ -231,6 +237,71 @@ $(document).ready(function() {
         stepType = $('#pipelineFunc').val();
         formPipeline(stepType, null);
     });
+
+
+    $('#selectBlock').on('click', function(){
+        var selected = $('#blockType').val();
+        var node = ggen.currentSelectedNode();
+        if (selected){
+            nodetype = 'block';
+            toInsert = true;
+            var nodeconfig = { 'endif': 0, 'uuid': uuid()};
+
+            if (node.type != 'start'){
+                nodeconfig['endif'] = node.config.endif;
+            }
+            
+
+
+            switch(selected){
+                case 'end':
+                    ggen.connectNodeToEnd(node)
+                    toInsert = false
+                    break;
+                case 'ifelse':
+                    nodeclass="ifelse"
+                    nodeconfig['endif'] += 1 ;
+                    title ="If-else" + '(' + nodeconfig['endif'] + ')'
+                    break;
+                case 'endif':
+                    if (node.data.op == 'ifelse'){
+                        toastr['error']("Connot concatenate this block");
+                        return;
+                    }
+                    endifId = 0;
+                    titleId = nodeconfig['endif']
+                    if ($('#blockType option:selected').data('uuid') != undefined){
+                        toInsert = false;
+                        endifId = $('#blockType option:selected').data('uuid')
+                    }
+                    nodeconfig['endif'] -= 1;
+                    nodeclass="ifelse"
+                    nodetype = 'operator'
+                    title=selected + '(' + titleId + ')';
+                    if (!toInsert){
+                        op = ggen.getAvailableOperators()[endifId];
+                        ggen.addArc(node, op);
+                    }
+                    break;
+                default:
+                    nodeclass="block"
+                    title = selected;
+                    break;
+            }
+            if (toInsert){
+                var n1 = ggen.addNode(type=nodetype, title=title, parent=node, nodeclass=nodeclass);
+            }
+            if(toInsert && n1!=undefined){
+                n1.data = { 'op': selected, 'name': title };
+                n1.config = nodeconfig;
+            }
+            $('#modalBlock').modal('hide');
+            
+        }
+        else{
+            toastr['error']("Select one block type");
+        }
+    })
     
 });
 
@@ -270,7 +341,7 @@ function formWhen(whenCond){
                         url: "/entity/entities/features/",
                         path: 'recordsTotal.data',
                         data: {
-                        "startFilter": function(){console.log($('input.js-typeahead-class').val()); return JSON.stringify({'ns': currentNs, 'class':  $('input.js-typeahead-class').val()}); },
+                        "startFilter": function(){console.log($('input.js-typeahead-class').val()); return JSON.stringify({'ns': currentNs, 'class':  $('input.js-typeahead-class').val(), 'type': { '$ne': 'object'}}); },
                         "q": "{{query}}",
                         "prop": "path",
                         }
@@ -355,6 +426,82 @@ function multiSelect(params) {
   }
   
 
+var f_block = function buildBlockModal(node){
+    ggen.currentSelectedNode(node);
+    
+    if(node.data.op !="ifelse" && node.children.length>0){
+        toastr["warning"]("You cannot add additonal node")
+        return;
+    }
+    else{
+        if (node.data.op =="ifelse" && node.children.length==2){
+            toastr["warning"]("If-else block can have only two braches");
+            return;
+        }
+    }
+
+    $('#blockType').empty();
+
+    options = ['<option value="">--- Select one ---</option>', '<option value=query>Query</option>', '<option value="update">Update</option>', '<option value="insert">Insert</option>', '<option value="delete">Delete</option>', '<option value="ifelse">If-Else</option>']
+    options.forEach( (op,i) => {
+        $('#blockType').append(op);
+    });
+
+    availableops = ggen.getAvailableOperators();
+    addtionalEndif = true;
+    availableops.forEach( (op,i) => {
+        if (op.config.endif < node.config.endif ){
+            $('#blockType').append('<option value="endif" data-uuid="' + i + '">Endif ('+ i +')</option>')
+            addtionalEndif = false
+        }
+    });
+
+    if (node.type != 'start'){
+        if (node.config.endif && node.data.op != 'ifelse' && addtionalEndif){
+            $('#blockType').append('<option value="endif">Endif</option>')
+        }
+        if (node.config.endif == 0){
+            $('#blockType').append('<option value="end">End</option>')
+        }
+    }
+
+
+    
+
+
+    
+
+    $('#modalBlock').modal();
+
+}
+
+var f_config = function buildBlockModal(node){
+    ggen.currentSelectedNode(node);
+    
+    if(node.type!="start" && node.children.length>0){
+        return;
+    }
+    console.log('show modal')
+}
+
+
+
+function initPipeline(){
+    $('#pipeline').empty();
+    ggen.initCanvas('#pipeline');
+    
+    n0 = ggen.addNode(type="start", title="+");
+    ggen.setCustomFunction(f_block, 'start');
+    //add function to other blocks to open modal to add block
+    ggen.setCustomFunction(f_block, 'block',3);
+
+    //add function to other blocks fro configuration
+    ggen.setCustomFunction(f_config, 'block',1);
+
+    ggen.setCustomFunction(function(){return;}, 'end',1);
+
+}
+
 
 function formPipeline(stepType, params){
     switch(stepType){
@@ -410,7 +557,7 @@ function formPipeline(stepType, params){
                                 url: "/entity/entities/features/",
                                 path: 'recordsTotal.data',
                                 data: {
-                                "startFilter": function(){console.log($('input.js-typeahead-class').val()); return JSON.stringify({'ns': currentNs,'class':  $('input.js-typeahead-class').val()}); },
+                                "startFilter": function(){console.log($('input.js-typeahead-class').val()); return JSON.stringify({'ns': currentNs,'class':  $('input.js-typeahead-class').val(), 'type': { '$ne': 'object'}}); },
                                 "q": "{{query}}",
                                 "prop": "path",
                                 }
@@ -499,7 +646,7 @@ function formPipeline(stepType, params){
                                 url: "/entity/entities/features/",
                                 path: 'recordsTotal.data',
                                 data: {
-                                "startFilter": function(){console.log($('input.js-typeahead-class').val()); return JSON.stringify({'ns': currentNs, 'class':  $('input.js-typeahead-class').val()}); },
+                                "startFilter": function(){console.log($('input.js-typeahead-class').val()); return JSON.stringify({'ns': currentNs, 'class':  $('input.js-typeahead-class').val(), 'type': { '$ne': 'object'}}); },
                                 "q": "{{query}}",
                                 "prop": "class",
                                 }
@@ -624,7 +771,7 @@ function formPipeline(stepType, params){
                                 url: "/entity/entities/features/",
                                 path: 'recordsTotal.data',
                                 data: {
-                                "startFilter": function(){console.log($('input.js-typeahead-class').val()); return JSON.stringify({'ns': currentNs ,'class':  $('input.js-typeahead-class').val()}); },
+                                "startFilter": function(){console.log($('input.js-typeahead-class').val()); return JSON.stringify({'ns': currentNs ,'class':  $('input.js-typeahead-class').val(), 'type': { '$ne': 'object'}}); },
                                 "q": "{{query}}",
                                 "prop": "path",
                                 }
@@ -653,7 +800,7 @@ function formPipeline(stepType, params){
                                 data: {
                                 "startFilter": function(){
                                     currentCard = $($(this.selector)[0]).parents('.card').prop('id');
-                                    console.log($('input.js-typeahead-class').val()); return JSON.stringify({'ns':  $('#'+ currentCard + ' select[name="ns"]').val()}); },
+                                    console.log($('input.js-typeahead-class').val()); return JSON.stringify({'ns':  $('#'+ currentCard + ' select[name="ns"]').val(), 'type': { '$ne': 'object'}}); },
                                 "q": "{{query}}",
                                 "prop": "class",
                                 "distinct": "class"
@@ -682,7 +829,7 @@ function formPipeline(stepType, params){
                                 data: {
                                 "startFilter": function(){
                                     currentCard = $($(this.selector)[0]).parents('.card').prop('id');
-                                     return JSON.stringify({'ns':  $('#'+ currentCard + ' select[name="ns"]').val(), 'class':  $('input[name="typeDoc"]').val() } )  },
+                                     return JSON.stringify({'ns':  $('#'+ currentCard + ' select[name="ns"]').val(), 'class':  $('input[name="typeDoc"]').val(), 'type': { '$ne': 'object'} } )  },
                                 "q": "{{query}}",
                                 "prop": "path",
                                 }
@@ -724,7 +871,7 @@ function formPipeline(stepType, params){
                                 data: {
                                 "startFilter": function(){
                                     currentCard = $($(this.selector)[0]).parents('.card').prop('id');
-                                    return JSON.stringify({'ns':  $('#'+ currentCard + ' select[name="ns"]').val(), 'class': $('input[name="typeDoc"]').val()}); },
+                                    return JSON.stringify({'ns':  $('#'+ currentCard + ' select[name="ns"]').val(), 'class': $('input[name="typeDoc"]').val(), 'type': { '$ne': 'object'}}); },
                                 "q": "{{query}}",
                                 "prop": "path",
                                 }

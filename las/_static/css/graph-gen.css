@@ -1,0 +1,46 @@
+
+
+.strt-nd circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 3px;
+}
+
+.block rect {
+    fill: #fff;
+    stroke: steelblue;
+    stroke-width: 3px;
+    fill:#81bb81;
+}
+
+.block text, .strt-nd text{
+    cursor: default;
+}
+
+.block circle {
+    fill: black;
+}
+
+.block .clickable, .strt-nd .clickable {
+    cursor: pointer;
+}
+
+.arc-group path{
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 3px;
+}
+
+.block circle.circlenode{
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 3px;
+}
+
+
+.ifelse rect
+{
+    fill:#ffe766;
+}
+
+

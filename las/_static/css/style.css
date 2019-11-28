@@ -121,3 +121,7 @@ input:checked + .slider:before {
         transform: translateY(0);
     }
 }
+
+::-webkit-scrollbar{
+  display: none!important;
+}

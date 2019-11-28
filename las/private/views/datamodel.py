@@ -47,16 +47,16 @@ class Manage(View):
 
             
 
-        context.update({'entities': {
-                            'count': db.dataModel.count_documents({}),
-                            'uris': db.dataModel.find({},{"_id":True, "slug":True})
+        context = {'entities': {
+                            'count': len(db.features.distinct('class')),
+                            'uris': db.features.distinct('class')
                             },
-                        'schemas': 
+                    'schemas': 
                             {
                             'count': db.schemas.count_documents({}),
                             'uris': db.schemas.find({},{"_id":True, "slug":True})
-                        }
-        })
+                    }
+        }
         return render(request, 'private/datamodel.html', context)
 
 

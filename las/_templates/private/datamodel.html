@@ -27,11 +27,12 @@
             <div class="tab-pane fade  show active" id="schemas" role="tabpanel" aria-labelledby="schemas-tab">
                 <div class="row">
                     <div class="col-6">
-                        <form method="POST">
+                        <form method="POST" id="formSchema">
                             {% csrf_token %}
                             <div class="form-group">
                                 <label>Json schema</label>
-                                <textarea class="form-control" name="json-schema"></textarea>
+                                <div id="editorJsonSchema" style="height: 400px; width: 100%"></div>
+                                <input class="form-control" type="hidden" name="json-schema"></textarea>
                             </div>
                             <div class="form-group">
                                 <button class="btn btn-success">Submit</button>
@@ -163,6 +164,7 @@
 
 
 {% block script %}
+<script src="{% static "/node_modules/ace-builds/src/ace.js" %}" type="text/javascript" charset="utf-8"></script>
 <script defer src="{% static "js/private/datamodel.js" %}"></script>
 
 

@@ -11,12 +11,12 @@
     </div>
 </div>
 <div class="row pt-3">
-    <div class="col-6">
+    <div class="col-4">
         <table id="tabTriggers" class="table table-striped table-bordered" style="width:100%">
         </table>
     </div>
 
-    <div class="col-6" style="display: none" id="editTrigger">
+    <div class="col-8" style="display: none" id="editTrigger">
         <div class="card">
             <div class="card-header">
                 <h5>Edit</h5>
@@ -69,9 +69,11 @@
 
                             <div class="form-group">
                                 <label>Pipeline</label>
-                                <button class="btn btn-primary" id="editPipeline">Define steps</button>
+                                <div id="pipeline" style="height: 600px">
+                                </div>
+                                <!--button class="btn btn-primary" id="editPipeline">Define steps</button>
                                 <button class="btn btn-warning" id="clearPipeline">Clear</button>
-                                <textarea readonly name="pipeline" class="form-control mt-2"></textarea>
+                                <textarea readonly name="pipeline" class="form-control mt-2"></textarea-->
                             </div>
             
                             
@@ -114,6 +116,39 @@
         </div>
     </div>
 </div>
+
+<div class="modal" tabindex="-1" role="dialog" id="modalBlock">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Select block</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row pt-3">
+                    <div class="col-12">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label>Function</label>
+                                    <select class="form-control" id="blockType">
+                                        
+                                    </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="selectBlock">Select</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <div class="modal" tabindex="-1" role="dialog" id="modalPipeline">
     <div class="modal-dialog modal-lg" role="document">
@@ -162,6 +197,9 @@
 
 {% block script %}
 
-
+<script src="{% static "/node_modules/d3/dist/d3.min.js" %}" type="text/javascript" charset="utf-8"></script>
+<script src="{% static "/node_modules/ace-builds/src/ace.js" %}" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" src="{% static "/js/_general/graph-gen.js" %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static "/css/graph-gen.css" %}" />
 <script defer type="text/javascript" src="{% static "/js/private/triggers.js" %}"></script>
 {% endblock %}
