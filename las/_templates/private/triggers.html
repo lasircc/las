@@ -71,9 +71,8 @@
                                 <label>Pipeline</label>
                                 <div id="pipeline" style="height: 600px">
                                 </div>
-                                <!--button class="btn btn-primary" id="editPipeline">Define steps</button>
                                 <button class="btn btn-warning" id="clearPipeline">Clear</button>
-                                <textarea readonly name="pipeline" class="form-control mt-2"></textarea-->
+                                
                             </div>
             
                             
@@ -133,7 +132,6 @@
                             <div class="form-group">
                                 <label>Function</label>
                                     <select class="form-control" id="blockType">
-                                        
                                     </select>
                             </div>
                         </div>
@@ -150,11 +148,11 @@
 </div>
 
 
-<div class="modal" tabindex="-1" role="dialog" id="modalPipeline">
+<div class="modal" tabindex="-1" role="dialog" id="modalConfigBlock">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Pipeline</h5>
+                <h5 class="modal-title">Block config</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
@@ -162,29 +160,15 @@
             <div class="modal-body">
                 <div class="row pt-3">
                     <div class="col-12">
-                        <div class="col-12">
-                            <div class="form-group">
-                                <label>Function</label>
-                                    <select class="form-control" id="pipelineFunc">
-                                        <option value="">--- Select one ---</option>
-                                        <option value="unique">Unique</option>
-                                        <option value="schema">Schema</option>
-                                        <option value="update">Update</option>
-                                        <option value="inherit">Inherit</option>
-                                        <option value="cascade">Cascade</option>
-                                    </select>
-                            </div>
-                            <button id="addPipelineStep" class="btn btn-info"><span class="fa fa-plus"></span></button>
-                        </div>
+                        <div id="configBlock"></div>
+                        
                     </div>
                 </div>
-                <div id="pipelineList">
-
-                </div>
                 
+
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="savePipeline">Save</button>
+                <button type="button" class="btn btn-primary" id="saveBlockConfig">Save</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
