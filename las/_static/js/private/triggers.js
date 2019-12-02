@@ -216,7 +216,7 @@ $(document).ready(function() {
                     title ="If-else" + '(' + nodeconfig['endif'] + ')'
                     break;
                 case 'endif':
-                    if (node.data.op == 'ifelse'){
+                    if (node.config.op == 'ifelse'){
                         toastr['error']("Connot concatenate this block");
                         return;
                     }
@@ -244,7 +244,9 @@ $(document).ready(function() {
                 var n1 = ggen.addNode(type=nodetype, title=title, parent=node, nodeclass=nodeclass);
             }
             if(toInsert && n1!=undefined){
-                n1.data = { 'op': selected, 'name': title };
+                nodeconfig['op'] = selected;
+                //nodeconfig['name'] = title ;
+                n1.data = {'title': title}
                 n1.config = nodeconfig;
             }
             $('#modalBlock').modal('hide');
@@ -253,6 +255,55 @@ $(document).ready(function() {
         else{
             toastr['error']("Select one block type");
         }
+    })
+
+
+    $('#saveBlockConfig').on('click', function(){
+        var node = ggen.currentSelectedNode();
+        var data = node.config
+        switch (node.config.op){
+            case 'ifelse':
+                data['cond'] =  '"""' +  editor['filter'].getValue() + '"""';
+                break;
+            case 'endif':
+                // do nothing
+                return;
+            case 'query':
+                data['var'] =$('#modalConfigBlock input[name="var"]').val(); 
+                data['ns'] = $('#modalConfigBlock select[name="ns"]').val();
+                data['aggr'] = $('#modalConfigBlock input[name="aggregation"]').prop('checked');
+                data['many'] = $('#modalConfigBlock input[name="many"]').prop('checked');
+                data['count'] = $('#modalConfigBlock input[name="many"]').prop('checked');
+                data['filter'] ='"""' +  editor['filter'].getValue() + '"""';
+                data['project'] ='"""' +  editor['project'].getValue() + '"""';
+                data['schema'] ='"""' +  editor['schema'].getValue() + '"""';
+                break;
+            case 'delete':
+                data['ns'] = $('#modalConfigBlock select[name="ns"]').val();
+                data['many'] = $('#modalConfigBlock input[name="many"]').prop('checked');
+                data['filter'] ='"""' +  editor['filter'].getValue() + '"""';
+                break;
+            case 'update':
+                data['ns'] = $('#modalConfigBlock select[name="ns"]').val();
+                data['many'] = $('#modalConfigBlock input[name="many"]').prop('checked');
+                data['filter'] ='"""' +  editor['filter'].getValue() + '"""';
+                data['update'] ='"""' +  editor['updateOp'].getValue() + '"""';
+                break;
+            case 'insert':
+                data['ns'] = $('#modalConfigBlock select[name="ns"]').val();
+                data['filter'] ='"""' +  editor['filter'].getValue() + '"""';
+                break;
+        }
+        console.log(data);
+        node.config = data;
+        $('#modalConfigBlock').modal('hide');
+        
+    });
+
+    $('#formTrigger').on('submit', function(e){
+        pipeline = ggen.getJsonStrGraph();
+        $('#formTrigger input[name="pipeline"]').val(JSON.stringify(pipeline))
+        return true;
     })
     
 });
@@ -381,12 +432,12 @@ function multiSelect(params) {
 var f_block = function buildBlockModal(node){
     ggen.currentSelectedNode(node);
     
-    if(node.data.op !="ifelse" && node.children.length>0){
+    if(node.config.op !="ifelse" && node.children.length>0){
         toastr["warning"]("You cannot add additonal node")
         return;
     }
     else{
-        if (node.data.op =="ifelse" && node.children.length==2){
+        if (node.config.op =="ifelse" && node.children.length==2){
             toastr["warning"]("If-else block can have only two braches");
             return;
         }
@@ -409,7 +460,7 @@ var f_block = function buildBlockModal(node){
     });
 
     if (node.type != 'start'){
-        if (node.config.endif && node.data.op != 'ifelse' && addtionalEndif){
+        if (node.config.endif && node.config.op != 'ifelse' && addtionalEndif){
             $('#blockType').append('<option value="endif">Endif</option>')
         }
         if (node.config.endif == 0){
@@ -418,10 +469,6 @@ var f_block = function buildBlockModal(node){
     }
 
 
-    
-
-
-    
 
     $('#modalBlock').modal();
 
@@ -435,15 +482,22 @@ var f_config = function buildBlockModal(node){
     if(node.type=="start" || node.type=="end"){
         return;
     }
-    switch (node.data.op){
+    switch (node.config.op){
         case 'ifelse':
             // show modal for if constraints
-            $.get("/las_static/templates/triggers/blockQIfElse.html", function( data ) {
+            $.get("/las_static/templates/triggers/blockIfElse.html", function( data ) {
                 t = $.parseHTML(data)[0];
                 console.log(t)
                 var clone = document.importNode(t.content, true);
                 $('#configBlock').empty();
                 $('#configBlock').append(clone);
+
+                editor['filter'] = ace.edit("filterEditor");
+                editor['filter'].setTheme("ace/theme/twilight");
+                editor['filter'].session.setMode("ace/mode/json");
+                if (node.config.hasOwnProperty('cond')){
+                    editor['filter'].session.setValue( node.config.cond.replace (RegExp('"""', 'g' ), '' ) )
+                }
                 
 
                 $('#modalConfigBlock').modal();
@@ -466,6 +520,40 @@ var f_config = function buildBlockModal(node){
                 editor['filter'].setTheme("ace/theme/twilight");
                 editor['filter'].session.setMode("ace/mode/json");
 
+                if (node.config.hasOwnProperty('filter')){
+                    editor['filter'].session.setValue( node.config.filter.replace (RegExp('"""', 'g' ), '' ) )
+                }
+
+
+                editor['project'] = ace.edit("projectEditor");
+                editor['project'].setTheme("ace/theme/twilight");
+                editor['project'].session.setMode("ace/mode/json");
+
+                if (node.config.hasOwnProperty('project')){
+                    editor['project'].session.setValue( node.config.project.replace (RegExp('"""', 'g' ), '' ) )
+                }
+                
+
+                editor['schema'] = ace.edit("schemaEditor");
+                editor['schema'].setTheme("ace/theme/twilight");
+                editor['schema'].session.setMode("ace/mode/json");
+
+                if (node.config.hasOwnProperty('schema')){
+                    editor['schema'].session.setValue( node.config.schema.replace (RegExp('"""', 'g' ), '' ) )
+                }
+
+                
+                if (node.config.hasOwnProperty('var'))
+                    $('#modalConfigBlock input[name="var"]').val(node.config['var']); 
+                if (node.config.hasOwnProperty('ns'))
+                    $('#modalConfigBlock select[name="ns"]').val(node.config['ns']);
+                if (node.config.hasOwnProperty('aggr'))
+                    $('#modalConfigBlock input[name="aggregation"]').prop('checked', node.config['aggr']);
+                if (node.config.hasOwnProperty('many'))
+                    $('#modalConfigBlock input[name="many"]').prop('checked', node.config['many']);
+                if (node.config.hasOwnProperty('many'))
+                    $('#modalConfigBlock input[name="many"]').prop('checked', node.config['count']);
+
 
                 $('#modalConfigBlock').modal();
             });
@@ -479,6 +567,21 @@ var f_config = function buildBlockModal(node){
                 $('#configBlock').empty();
                 $('#configBlock').append(clone);
 
+                editor['filter'] = ace.edit("filterEditor");
+                editor['filter'].setTheme("ace/theme/twilight");
+                editor['filter'].session.setMode("ace/mode/json");
+
+                if (node.config.hasOwnProperty('filter')){
+                    editor['filter'].session.setValue( node.config.filter.replace (RegExp('"""', 'g' ), '' ) )
+                }
+
+                if (node.config.hasOwnProperty('ns'))
+                    $('#modalConfigBlock select[name="ns"]').val(node.config['ns']);
+                if (node.config.hasOwnProperty('many'))
+                    $('#modalConfigBlock input[name="many"]').prop('checked',node. data['many']);
+
+                
+                
                 $('#modalConfigBlock').modal();
             });
             break;
@@ -495,9 +598,45 @@ var f_config = function buildBlockModal(node){
                 editor['filter'].setTheme("ace/theme/twilight");
                 editor['filter'].session.setMode("ace/mode/json");
 
+                if (node.config.hasOwnProperty('filter')){
+                    editor['filter'].session.setValue( node.config.filter.replace (RegExp('"""', 'g' ), '' ) )
+                }
+
                 editor['updateOp'] = ace.edit("updateEditor");
                 editor['updateOp'].setTheme("ace/theme/twilight");
                 editor['updateOp'].session.setMode("ace/mode/json");
+
+                if (node.config.hasOwnProperty('update')){
+                    editor['updateOp'].session.setValue( node.config.update.replace (RegExp('"""', 'g' ), '' ) )
+                }
+
+                if (node.config.hasOwnProperty('ns'))
+                    $('#modalConfigBlock select[name="ns"]').val(node.config['ns']);
+                if (node.config.hasOwnProperty('many'))
+                    $('#modalConfigBlock input[name="many"]').prop('checked', node.config['many']);
+
+                $('#modalConfigBlock').modal();
+            });
+            break;
+        case 'insert':
+            // show modal for insert
+            $.get("/las_static/templates/triggers/blockInsert.html", function( data ) {
+                t = $.parseHTML(data)[0];
+                console.log(t)
+                var clone = document.importNode(t.content, true);
+                $('#configBlock').empty();
+                $('#configBlock').append(clone);
+
+                editor['filter'] = ace.edit("insertEditor");
+                editor['filter'].setTheme("ace/theme/twilight");
+                editor['filter'].session.setMode("ace/mode/json");
+
+                if (node.config.hasOwnProperty('filter')){
+                    editor['filter'].session.setValue( node.config.filter.replace (RegExp('"""', 'g' ), '' ) )
+                }
+
+                if (node.config.hasOwnProperty('ns'))
+                    $('#modalConfigBlock select[name="ns"]').val(node.config['ns']);
 
                 $('#modalConfigBlock').modal();
             });

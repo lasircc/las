@@ -1,7 +1,17 @@
 <template id="updateBlock">
     <div class="form-group">
-        <label>Variable</label>
-        <input type="text" class="form-control">
+        <label>Namespace</label>
+        <select class="form-control" required name="ns">
+            <option value="">--- Select one ---</option>
+            <option value="entity">Entity</option>
+            <option value="relationship">Relationship</option>
+            <option value="catalog">Catalog</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>One/Many</label>
+        <label class="switch ml-2"><input type="checkbox" class="default" name="many">
+        <span class="slider round"></span></label>
     </div>
     <div class="form-group">
         <label>Filter</label>

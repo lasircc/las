@@ -1,10 +1,48 @@
 <template id="TqueryBlock">
     <div class="form-group">
         <label>Variable</label>
-        <input type="text" class="form-control">
+        <input type="text" class="form-control" name="var">
     </div>
+    <div class="form-group">
+        <label>Namespace</label>
+        <select class="form-control" required name="ns">
+            <option value="">--- Select one ---</option>
+            <option value="entity">Entity</option>
+            <option value="relationship">Relationship</option>
+            <option value="catalog">Catalog</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Aggregation</label>
+        <label class="switch ml-2"><input type="checkbox" class="default" name="aggregation">
+        <span class="slider round"></span></label>
+    </div>
+    <div class="form-group">
+        <label>One/Many</label>
+        <label class="switch ml-2"><input type="checkbox" class="default" name="many">
+        <span class="slider round"></span></label>
+    </div>
+
+    <div class="form-group">
+        <label>Count</label>
+        <label class="switch ml-2"><input type="checkbox" class="default" name="count">
+        <span class="slider round"></span></label>
+    </div>
+
+
     <div class="form-group">
         <label>Filter</label>
         <div id="filterEditor" style="height: 400px; width: 100%"></div>
+    </div>
+
+    <div class="form-group">
+        <label>Project</label>
+        <div id="projectEditor" style="height: 400px; width: 100%"></div>
+    </div>
+
+    
+    <div class="form-group">
+        <label>Output schema</label>
+        <div id="schemaEditor" style="height: 400px; width: 100%"></div>
     </div>
 </template>
