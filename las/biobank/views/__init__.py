@@ -39,5 +39,7 @@ from django.contrib.auth.decorators import login_required
 
 from openpyxl import load_workbook
 
+from private.tasks import *
 
 from .main import *
+from .test import *

@@ -53,7 +53,6 @@ $(document).ready(function() {
         $('#formTrigger select[name="ns"]').val(data['ns']);
         currentNs = data['ns'];
         $('#formTrigger input[name="_class"]').val(data['_class'])
-        initPipeline();
         $('#formTrigger input[name="_class"]').trigger('input.typeahead')
         setTimeout(function () {
             $($('#formTrigger input[name="_class"]').parents('.typeahead__container').find('.typeahead__item')[0]).trigger('click')
@@ -63,6 +62,8 @@ $(document).ready(function() {
             //$('#formTrigger textarea[name="pipeline"]').val( JSON.stringify(data['pipeline']) )
             
             $('#editTrigger').show();
+            initPipeline();
+            loadQueryGraph(data['pipeline'])
         }, 500);
         
         
@@ -70,6 +71,7 @@ $(document).ready(function() {
 
     $('#cancelEdit').on('click', function(){
         $('#editTrigger').hide();
+        ggen.clearGraph();
         currentNs = undefined;
         $('#formTrigger').trigger("reset");
     })
@@ -645,7 +647,85 @@ var f_config = function buildBlockModal(node){
     
 }
 
+function loadQueryGraph(queryGraph) {
+        
+    if(queryGraph["start"]==undefined)
+        return;
 
+    //n0 = ggen.addNode(type=="start", title=queryGraph["start"].title);
+    n0 = ggen.nodes()[0];
+
+    console.log("Start is ", n0);
+    console.log(queryGraph)
+    
+    queryGraph["start"].w_out.forEach(d=>{
+        //for each node in w_out call restoreNodeRecursive
+        restoreNodeRecursive(parseInt(d), n0, queryGraph);
+    });
+
+}
+
+function restoreNodeRecursive(i, parent, queryGraph){
+    
+    if(i!="end") i = parseInt(i);
+    //console.log("-------> restore node ", i);
+    if(i=="end"){
+        
+        //if w_out is end
+        //connect to end and add to it translator
+        var nend = ggen.connectNodeToEnd(parent);
+        //nend.config.translators = queryGraph[i].translators;
+
+    } else {
+        console.log('Received', queryGraph[i], parent)
+        nodetype = 'block';
+        toInsert = true;
+        switch(queryGraph[i].op){
+            case 'ifelse':
+                nodeclass="ifelse"
+                //nodeconfig['endif'] += 1 ;
+                title ="If-else" + '(' + queryGraph[i]['endif'] + ')'
+                break;
+            case 'endif':
+                
+                endifId = queryGraph[i]['endif'];
+                titleId = queryGraph[i]['endif']
+                
+                nodeclass="ifelse"
+                nodetype = 'operator'
+                title=queryGraph[i].op + '(' + titleId + ')';
+
+                op = ggen.getAvailableOperators()[endifId];
+                console.log(op)
+
+                if (op){
+                    ggen.addArc(parent, op);
+                    toInsert = false;
+                }
+                
+                break;
+            default:
+                nodeclass="block"
+                title = queryGraph[i].op;
+                break;
+        }
+
+        if (toInsert){
+            var node = ggen.addNode(type=nodetype, title=title, parent=parent, nodeclass=nodeclass);
+            console.log('added', queryGraph[i], parent)
+            node.config = queryGraph[i];
+            if (queryGraph[i].w_out != undefined){
+                for (var k=0; k< queryGraph[i].w_out.length; k++){
+                    console.log('send', queryGraph[i].w_out[k], node)
+                    restoreNodeRecursive(queryGraph[i].w_out[k], node, queryGraph);
+                }
+            }
+        }
+        
+    }
+    
+
+}
 
 function initPipeline(){
     $('#pipeline').empty();

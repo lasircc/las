@@ -16,11 +16,13 @@ app = Celery('LAS')
 # pickle the object when using Windows.
 app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
+'''
 app.conf.update(
     task_routes = {
         'createPerm': {'queue': 'las'},
     },
 )
+'''
 
 
 @app.task(bind=True)

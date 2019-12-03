@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['SECRET_KEY']
+SECRET_KEY = os.environ.get('SECRET_KEY', 'zvkl*vae46)-p$4=01oflhl&lynl5egj_5$vmo^a=!ikxvpro5+')
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -178,24 +178,24 @@ STATICFILES_DIRS = [
 
 CSRF_COOKIE_PATH = '/'
 
-EMAIL_HOST = os.environ['EMAIL_HOST']
-EMAIL_HOST_USER = os.environ['EMAIL_ADMIN_USER']
-EMAIL_HOST_PASSWORD = os.environ['EMAIL_ADMIN_PASSWORD']
-EMAIL_PORT = os.environ['EMAIL_PORT']
-EMAIL_USE_TLS = os.environ['EMAIL_USE_TLS']
-DEFAULT_FROM_EMAIL = os.environ['DEFAULT_FROM_EMAIL']
+EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
+EMAIL_HOST_USER = os.environ.get('EMAIL_ADMIN_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_ADMIN_PASSWORD', '')
+EMAIL_PORT = os.environ.get('EMAIL_PORT', '')
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', True)
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', '')
 
-HOST = os.environ['HOST']
+HOST = os.environ.get('HOST', 'localhost')
 
 LOGINAS_REDIRECT_URL = "/"
 LOGINAS_LOGOUT_REDIRECT_URL = "/"
 
 
-HELPDESK = os.environ['HELPDESK']
+HELPDESK = os.environ.get('HELPDESK', '')
 
 
-CELERY_BROKER_URL = 'redis://redis:6379'
-CELERY_RESULT_BACKEND = 'redis://redis:6379'
+CELERY_BROKER_URL = 'redis://lasredis:6379'
+CELERY_RESULT_BACKEND = 'redis://lasredis:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'

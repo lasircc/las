@@ -1,0 +1,18 @@
+{% extends "_general/base.html" %}
+
+{% block content %}
+
+
+
+<div class="row pt-3">
+	<div class="col-4">
+		<form method="POST">
+            {% csrf_token %}
+            <input type="submit" value="Submit">
+        </form>
+	</div>
+		
+</div>
+
+
+{% endblock %}
