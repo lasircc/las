@@ -47,7 +47,7 @@ var constants =  {
             clickable:true, customFunction1Enabled: true },
     end: { class:"strt-nd", width:50, height:50, deletable:true, draggable:false,
             clickable:true,singleInput:false, customFunction1Enabled: true, 
-            nodeSingleParent:true},
+            nodeSingleParent:false},
     block: { class:"block", width:180, height:50, marginl:5, marginr:5, //width:240, height:160
             titleMaxChars:14,
             iconsize:25, icon1:"fas fa-cog", icon2:"fas fa-times-circle",

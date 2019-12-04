@@ -250,6 +250,9 @@ $(document).ready(function() {
                 //nodeconfig['name'] = title ;
                 n1.data = {'title': title}
                 n1.config = nodeconfig;
+                if (selected == 'exception'){
+                    ggen.connectNodeToEnd(n1)
+                }
             }
             $('#modalBlock').modal('hide');
             
@@ -294,6 +297,8 @@ $(document).ready(function() {
             case 'insert':
                 data['ns'] = $('#modalConfigBlock select[name="ns"]').val();
                 data['filter'] ='"""' +  editor['filter'].getValue() + '"""';
+                break;
+            case 'exception':
                 break;
         }
         console.log(data);
@@ -447,7 +452,7 @@ var f_block = function buildBlockModal(node){
 
     $('#blockType').empty();
 
-    options = ['<option value="">--- Select one ---</option>', '<option value=query>Query</option>', '<option value="update">Update</option>', '<option value="insert">Insert</option>', '<option value="delete">Delete</option>', '<option value="ifelse">If-Else</option>']
+    options = ['<option value="">--- Select one ---</option>', '<option value=query>Query</option>', '<option value="update">Update</option>', '<option value="insert">Insert</option>', '<option value="delete">Delete</option>', '<option value="ifelse">If-Else</option>', '<option value="exception">Exception</option>']
     options.forEach( (op,i) => {
         $('#blockType').append(op);
     });
@@ -507,6 +512,8 @@ var f_config = function buildBlockModal(node){
             break;
         case 'endif':
             // do nothing
+            return;
+        case 'exception':
             return;
         case 'query':
             // show modal for query

@@ -37,6 +37,7 @@ from django.utils.decorators import method_decorator
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
+from django.middleware import csrf
 from openpyxl import load_workbook
 
 from private.tasks import *

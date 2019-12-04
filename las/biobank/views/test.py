@@ -1,11 +1,13 @@
 from .__init__ import *
+
 @method_decorator([login_required], name='dispatch')
 class Test(View):
     def get(self, request):
         return render(request, 'biobank/test.html')
 
     def post(self, request):
-        session = request.META.get('HTTP_X_CSRFTOKEN')
+        session = csrf.get_token(request)
+        #session = request.META.get('HTTP_X_CSRFTOKEN')
         requestId = 'test'
 
 
