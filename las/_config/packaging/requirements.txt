@@ -1,5 +1,5 @@
 Django>=2.2
-djangorestframework==3.9.3 # waiting for fixes before moving on to next versions
+djangorestframework==3.11.2 # waiting for fixes before moving on to next versions
 pymongo>=3.7.1
 celery>=4.2
 django-bootstrap-breadcrumbs>=0.9.1
